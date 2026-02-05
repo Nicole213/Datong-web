@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角色管理测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .test-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+        }
+        .test-item h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        .test-steps {
+            margin: 10px 0;
+        }
+        .test-steps li {
+            margin: 8px 0;
+            color: #666;
+        }
+        .expected {
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .expected strong {
+            color: #2e7d32;
+        }
+        .note {
+            background: #fff3e0;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            border-left: 4px solid #ff9800;
+        }
+        .note strong {
+            color: #e65100;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        a:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <h1>角色管理功能测试</h1>
+    
+    <div class="test-section">
+        <h2>测试场景</h2>
+        
+        <div class="test-item">
+            <h3>测试1：查看角色列表</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>打开角色管理页面</li>
+                    <li>查看默认显示的角色列表</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示4条默认角色数据</li>
+                    <li>包含系统管理员、仓库管理员、操作员、查看员</li>
+                    <li>显示角色名称、角色编码、绑定用户、创建时间、备注</li>
+                    <li>角色编码格式为ROLE-XXX</li>
+                    <li>绑定用户列显示使用该角色的用户名</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试2：按角色名称查询</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在角色名称输入框中输入"管理"</li>
+                    <li>点击"查询"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>只显示角色名称包含"管理"的角色</li>
+                    <li>应显示2条记录（系统管理员、仓库管理员）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试3：新增角色</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"新增"按钮</li>
+                    <li>输入角色名称："测试角色"</li>
+                    <li>输入备注："这是一个测试角色"</li>
+                    <li>点击"保存"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>弹窗关闭</li>
+                    <li>提示"角色添加成功！"</li>
+                    <li>列表中新增一条角色记录</li>
+                    <li>系统自动生成角色编码（ROLE-005）</li>
+                    <li>绑定用户显示为"-"</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试4：角色名称唯一性验证</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"新增"按钮</li>
+                    <li>输入角色名称："系统管理员"（已存在）</li>
+                    <li>输入备注："重复角色"</li>
+                    <li>点击"保存"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>提示"该角色名称已存在，请使用其他名称！"</li>
+                    <li>不允许保存</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试5：编辑角色</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击任意角色的"编辑"按钮</li>
+                    <li>修改角色名称</li>
+                    <li>修改备注信息</li>
+                    <li>点击"保存"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>弹窗显示原有角色信息</li>
+                    <li>保存后提示"角色信息更新成功！"</li>
+                    <li>列表中显示更新后的信息</li>
+                    <li>如果有用户绑定该角色，用户的角色名称也会自动更新</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试6：删除无绑定用户的角色</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>找到绑定用户为"-"的角色</li>
+                    <li>点击"删除"按钮</li>
+                    <li>在确认对话框中点击"确定"</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示确认删除对话框</li>
+                    <li>提示"删除后将无法恢复"</li>
+                    <li>确认后提示"角色删除成功！"</li>
+                    <li>该角色从列表中移除</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试7：删除有绑定用户的角色</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>找到有绑定用户的角色（如"操作员"）</li>
+                    <li>点击"删除"按钮</li>
+                    <li>查看确认对话框内容</li>
+                    <li>点击"确定"</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示确认删除对话框</li>
+                    <li>提示该角色绑定了X个用户，并列出用户名</li>
+                    <li>提示"删除后，这些用户将失去该角色对应的权限"</li>
+                    <li>确认后角色删除成功</li>
+                    <li>绑定该角色的用户将失去该角色</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试8：查看绑定用户</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>查看"操作员"角色的绑定用户列</li>
+                    <li>应显示"王五、赵六"</li>
+                    <li>查看"系统管理员"角色的绑定用户列</li>
+                    <li>应显示"张三"</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>绑定用户列正确显示所有使用该角色的用户</li>
+                    <li>多个用户用"、"分隔</li>
+                    <li>无绑定用户时显示"-"</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试9：角色编码自动生成</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"新增"按钮</li>
+                    <li>输入角色名称："新角色1"</li>
+                    <li>保存后查看角色编码</li>
+                    <li>再次新增角色"新角色2"</li>
+                    <li>查看角色编码是否递增</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>角色编码自动生成，格式为ROLE-XXX</li>
+                    <li>编码按顺序递增（ROLE-005、ROLE-006...）</li>
+                    <li>编码不可手动修改</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试10：表单验证</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"新增"按钮</li>
+                    <li>不填写角色名称，直接点击"保存"</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>提示"请输入角色名称！"</li>
+                    <li>不允许保存</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试11：重置查询</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在角色名称输入框中输入查询条件</li>
+                    <li>点击"查询"按钮</li>
+                    <li>点击"重置"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>查询条件清空</li>
+                    <li>列表恢复显示所有角色</li>
+                    <li>分页重置到第1页</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试12：打开权限配置界面</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击任意角色的"权限配置"按钮</li>
+                    <li>查看权限配置弹窗</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>弹窗标题显示"权限配置 - [角色名称]"</li>
+                    <li>左侧显示系统菜单树</li>
+                    <li>右侧显示权限配置区域</li>
+                    <li>默认选中"首页"菜单，显示浅蓝色背景和蓝色文字</li>
+                    <li>右侧显示首页的权限配置选项</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试13：菜单选中状态高亮显示</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在权限配置界面中，点击左侧的"库位地图"菜单</li>
+                    <li>观察菜单项的样式变化</li>
+                    <li>点击"仓库管理"下的"库区管理"子菜单</li>
+                    <li>观察菜单项的样式变化</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>点击"库位地图"后，该菜单项显示浅蓝色背景（#e6f0ff）</li>
+                    <li>文字颜色变为蓝色（#667eea）</li>
+                    <li>左侧显示3px蓝色边框</li>
+                    <li>"首页"的高亮状态被移除</li>
+                    <li>点击"库区管理"后，该子菜单项高亮显示</li>
+                    <li>其他菜单项的高亮状态被移除</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试14：权限配置数量显示</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在权限配置界面中，点击"库区管理"菜单</li>
+                    <li>查看该菜单右侧的权限数量显示（如0/4）</li>
+                    <li>勾选2个权限选项</li>
+                    <li>观察权限数量的变化</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>初始显示"0/4"（0个已配置，4个可配置）</li>
+                    <li>勾选2个权限后，显示更新为"2/4"</li>
+                    <li>权限数量只针对当前选中的菜单</li>
+                    <li>切换到其他菜单时，显示对应菜单的权限数量</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试14-1：权限数量颜色状态显示</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在权限配置界面中，观察各个菜单的权限数量颜色</li>
+                    <li>点击"库区管理"菜单（假设初始为0/4）</li>
+                    <li>勾选1个权限，观察数量变为"1/4"的颜色</li>
+                    <li>继续勾选，直到全部勾选（4/4），观察颜色变化</li>
+                    <li>取消所有勾选，观察数量变为"0/4"的颜色</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li><strong>未配置（0/4）：</strong>显示灰色（#999文字，#f5f5f5背景）</li>
+                    <li><strong>部分配置（1/4、2/4、3/4）：</strong>显示蓝色（#667eea文字，#e6f0ff背景）</li>
+                    <li><strong>全部配置（4/4）：</strong>显示绿色（#52c41a文字，#e8f5e9背景）</li>
+                    <li>颜色随着勾选状态实时更新</li>
+                    <li>不同菜单根据各自的配置状态显示不同颜色</li>
+                </ul>
+            </div>
+            <div class="note">
+                <strong>颜色规则：</strong>
+                <ul>
+                    <li>灰色：表示该菜单还没有配置任何权限</li>
+                    <li>蓝色：表示该菜单已配置部分权限，还有权限未配置</li>
+                    <li>绿色：表示该菜单的所有权限都已配置完成</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试15：单层菜单和多层菜单的显示</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>查看左侧菜单树</li>
+                    <li>观察"首页"和"库位地图"的显示方式</li>
+                    <li>观察"仓库管理"、"入库管理"等的显示方式</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>"首页"和"库位地图"直接显示为可点击项（单层菜单）</li>
+                    <li>"仓库管理"等显示为可展开的菜单组（多层菜单）</li>
+                    <li>点击单层菜单直接显示权限配置</li>
+                    <li>点击多层菜单的箭头可展开/收起子菜单</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试16：权限勾选和保存</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在权限配置界面中，选择多个菜单</li>
+                    <li>为每个菜单勾选不同的权限</li>
+                    <li>点击"保存配置"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>可以为不同菜单勾选不同的权限</li>
+                    <li>权限数量实时更新</li>
+                    <li>点击保存后提示"权限配置保存成功！"</li>
+                    <li>显示角色名称和已配置权限总数</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试17：菜单展开/收起</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"仓库管理"菜单组的箭头</li>
+                    <li>观察子菜单的显示/隐藏</li>
+                    <li>再次点击箭头</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>点击箭头后，子菜单收起</li>
+                    <li>箭头旋转90度</li>
+                    <li>再次点击后，子菜单展开</li>
+                    <li>箭头恢复原状</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试18：点击权限数量区域</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在权限配置界面中，点击菜单项右侧的权限数量标签（如"0/4"）</li>
+                    <li>观察是否能正常选中菜单并显示权限配置</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>点击权限数量标签时，菜单项正常选中</li>
+                    <li>菜单项显示高亮状态（浅蓝色背景、蓝色文字）</li>
+                    <li>右侧显示对应的权限配置</li>
+                    <li>不会出现点击无效的情况</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>注意事项</h2>
+        <div class="note">
+            <strong>说明：</strong>
+            <ul>
+                <li>角色编码由系统自动生成，格式为ROLE-XXX，不可修改</li>
+                <li>角色名称必须唯一，不能重复</li>
+                <li>删除角色时，如果有用户绑定该角色，会提示影响的用户</li>
+                <li>删除角色后，绑定该角色的用户将失去对应权限</li>
+                <li>编辑角色名称时，用户数据中的角色名称会自动同步更新</li>
+                <li>绑定用户列显示所有使用该角色的用户名，多个用户用"、"分隔</li>
+                <li>页面样式与系统其他页面保持一致</li>
+                <li><strong>权限配置界面默认选中"首页"菜单</strong></li>
+                <li><strong>选中的菜单项显示浅蓝色背景（#e6f0ff）和蓝色文字（#667eea）</strong></li>
+                <li><strong>权限数量格式为"已配置数/总数"，只针对当前选中的菜单</strong></li>
+                <li><strong>权限数量颜色状态：未配置=灰色，部分配置=蓝色，全部配置=绿色</strong></li>
+                <li><strong>单层菜单（首页、库位地图）直接显示，多层菜单可展开/收起</strong></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>默认角色说明</h2>
+        <div class="note">
+            <strong>系统预置角色：</strong>
+            <ul>
+                <li><strong>系统管理员（ROLE-001）：</strong>拥有系统所有权限，绑定用户：张三</li>
+                <li><strong>仓库管理员（ROLE-002）：</strong>负责仓库日常管理，绑定用户：李四</li>
+                <li><strong>操作员（ROLE-003）：</strong>执行具体作业任务，绑定用户：王五、赵六</li>
+                <li><strong>查看员（ROLE-004）：</strong>只能查看信息，绑定用户：王五、钱七</li>
+            </ul>
+        </div>
+    </div>
+
+    <a href="pages/角色管理.html" target="_blank">打开角色管理页面进行测试 →</a>
+</body>
+</html>

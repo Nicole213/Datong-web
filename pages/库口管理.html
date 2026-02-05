@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库口管理</title>
+    <link rel="stylesheet" href="../styles/pages.css">
+    <link rel="stylesheet" href="../styles/port.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="page-header">
+            <h1>库口管理</h1>
+        </div>
+
+        <!-- 查询筛选区 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>库口编码：</label>
+                    <input type="text" class="filter-input" id="searchCode" placeholder="请输入库口编码">
+                </div>
+                <div class="filter-group">
+                    <label>库口名称：</label>
+                    <input type="text" class="filter-input" id="searchName" placeholder="请输入库口名称">
+                </div>
+                <div class="filter-group">
+                    <label>类型：</label>
+                    <select class="filter-select" id="searchType">
+                        <option value="">全部</option>
+                        <option value="入库口">入库口</option>
+                        <option value="出库口">出库口</option>
+                        <option value="出入库口">出入库口</option>
+                    </select>
+                </div>
+                <button class="search-btn" id="searchBtn">🔍 查询</button>
+                <button class="reset-btn" id="resetBtn">🔄 重置</button>
+            </div>
+        </div>
+
+        <!-- 操作按钮区 -->
+        <div class="action-bar">
+            <button class="primary-btn" id="addBtn">➕ 新增库口</button>
+        </div>
+
+        <!-- 表格区 -->
+        <div class="table-section">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="150">库口编码</th>
+                        <th width="200">库口名称</th>
+                        <th width="150">类型</th>
+                        <th width="300">绑定库台</th>
+                        <th width="200">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="portTableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination">
+            <button class="page-btn" id="prevPage">上一页</button>
+            <span class="page-info">第 <span id="currentPage">1</span> 页，共 <span id="totalPages">1</span> 页</span>
+            <button class="page-btn" id="nextPage">下一页</button>
+        </div>
+    </div>
+
+    <!-- 新增/编辑库口弹窗 -->
+    <div class="modal" id="portModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">新增库口</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="portForm">
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">库口编码：</label>
+                            <input type="text" class="form-input" id="portCode" required placeholder="请输入库口编码">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">库口名称：</label>
+                            <input type="text" class="form-input" id="portName" required placeholder="请输入库口名称">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">类型：</label>
+                            <select class="form-input" id="portType" required>
+                                <option value="">请选择类型</option>
+                                <option value="入库口">入库口</option>
+                                <option value="出库口">出库口</option>
+                                <option value="出入库口">出入库口</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="saveBtn">保存</button>
+                <button class="modal-btn secondary" id="cancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 绑定库台弹窗 -->
+    <div class="modal" id="bindStationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>绑定库台</h3>
+                <span class="modal-close" id="bindClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="bind-info">
+                    <span>库口：<strong id="bindPortName">-</strong></span>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>选择库台：</label>
+                        <div class="station-list">
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台A1" class="station-checkbox">
+                                <span>库台A1</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台A2" class="station-checkbox">
+                                <span>库台A2</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台B1" class="station-checkbox">
+                                <span>库台B1</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台B2" class="station-checkbox">
+                                <span>库台B2</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台C1" class="station-checkbox">
+                                <span>库台C1</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台C2" class="station-checkbox">
+                                <span>库台C2</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台C3" class="station-checkbox">
+                                <span>库台C3</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台D1" class="station-checkbox">
+                                <span>库台D1</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台D2" class="station-checkbox">
+                                <span>库台D2</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台E1" class="station-checkbox">
+                                <span>库台E1</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="bindSaveBtn">保存</button>
+                <button class="modal-btn secondary" id="bindCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/port.js"></script>
+</body>
+</html>

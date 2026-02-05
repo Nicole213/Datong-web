@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物料管理</title>
+    <link rel="stylesheet" href="../styles/pages.css">
+    <link rel="stylesheet" href="../styles/material.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="page-header">
+            <h1>物料管理</h1>
+        </div>
+
+        <!-- 查询筛选区 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>物料编码/名称：</label>
+                    <input type="text" class="filter-input" id="searchKeyword" placeholder="请输入物料编码或名称">
+                </div>
+                <div class="filter-group">
+                    <label>物料类型：</label>
+                    <select class="filter-select" id="materialType">
+                        <option value="">全部</option>
+                        <option value="专用">专用</option>
+                        <option value="通用">通用</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>适配容器：</label>
+                    <select class="filter-select" id="containerType">
+                        <option value="">全部</option>
+                        <option value="小金属框">小金属框</option>
+                        <option value="大金属框">大金属框</option>
+                        <option value="塑料托盘">塑料托盘</option>
+                        <option value="长物料钢托盘">长物料钢托盘</option>
+                    </select>
+                </div>
+                <button class="search-btn" id="searchBtn">🔍 查询</button>
+                <button class="reset-btn" id="resetBtn">🔄 重置</button>
+            </div>
+        </div>
+
+        <!-- 操作按钮区 -->
+        <div class="action-bar">
+            <button class="primary-btn" id="addBtn">➕ 新增物料</button>
+        </div>
+
+        <!-- 表格区 -->
+        <div class="table-section">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="120">物料编码</th>
+                        <th width="150">物料名称</th>
+                        <th width="80">物料类型</th>
+                        <th width="150">尺寸(长×宽×高mm)</th>
+                        <th width="80">重量(kg)</th>
+                        <th width="100">物料照片</th>
+                        <th width="200">适配容器类型</th>
+                        <th width="150">创建时间</th>
+                        <th width="150">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="materialTableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination">
+            <button class="page-btn" id="prevPage">上一页</button>
+            <span class="page-info">第 <span id="currentPage">1</span> 页，共 <span id="totalPages">5</span> 页</span>
+            <button class="page-btn" id="nextPage">下一页</button>
+        </div>
+    </div>
+
+    <!-- 新增/编辑物料弹窗 -->
+    <div class="modal" id="materialModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="modalTitle">新增物料</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="materialForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">物料编码：</label>
+                            <input type="text" class="form-input" id="materialCode" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">物料名称：</label>
+                            <input type="text" class="form-input" id="materialName" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">物料类型：</label>
+                            <select class="form-input" id="materialTypeInput" required>
+                                <option value="">请选择</option>
+                                <option value="专用">专用</option>
+                                <option value="通用">通用</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">重量(kg)：</label>
+                            <input type="number" class="form-input" id="materialWeight" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">长(mm)：</label>
+                            <input type="number" class="form-input" id="materialLength" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">宽(mm)：</label>
+                            <input type="number" class="form-input" id="materialWidth" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">高(mm)：</label>
+                            <input type="number" class="form-input" id="materialHeight" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">适配容器类型：</label>
+                            <div class="container-config-group">
+                                <div class="container-config-item">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="container" value="小金属框" data-container="small-metal">
+                                        <span>小金属框</span>
+                                    </label>
+                                    <div class="quantity-input-wrapper">
+                                        <label>单个容器可存放数量：</label>
+                                        <input type="number" class="quantity-input" id="qty-small-metal" min="1" placeholder="请输入数量" disabled>
+                                    </div>
+                                </div>
+                                <div class="container-config-item">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="container" value="大金属框" data-container="large-metal">
+                                        <span>大金属框</span>
+                                    </label>
+                                    <div class="quantity-input-wrapper">
+                                        <label>单个容器可存放数量：</label>
+                                        <input type="number" class="quantity-input" id="qty-large-metal" min="1" placeholder="请输入数量" disabled>
+                                    </div>
+                                </div>
+                                <div class="container-config-item">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="container" value="塑料托盘" data-container="plastic-pallet">
+                                        <span>塑料托盘</span>
+                                    </label>
+                                    <div class="quantity-input-wrapper">
+                                        <label>单个容器可存放数量：</label>
+                                        <input type="number" class="quantity-input" id="qty-plastic-pallet" min="1" placeholder="请输入数量" disabled>
+                                    </div>
+                                </div>
+                                <div class="container-config-item">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="container" value="长物料钢托盘" data-container="long-steel-pallet">
+                                        <span>长物料钢托盘</span>
+                                    </label>
+                                    <div class="quantity-input-wrapper">
+                                        <label>单个容器可存放数量：</label>
+                                        <input type="number" class="quantity-input" id="qty-long-steel-pallet" min="1" placeholder="请输入数量" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label>物料照片：</label>
+                            <input type="file" class="form-input" id="materialPhoto" accept="image/*">
+                            <div class="photo-preview" id="photoPreview"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="saveBtn">保存</button>
+                <button class="modal-btn secondary" id="cancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/material.js"></script>
+</body>
+</html>

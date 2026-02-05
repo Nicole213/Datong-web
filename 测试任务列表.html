@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务列表功能测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #1890ff;
+            border-bottom: 3px solid #1890ff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 30px;
+            padding-left: 10px;
+            border-left: 4px solid #52c41a;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            border-left: 4px solid #1890ff;
+        }
+        .test-title {
+            font-weight: bold;
+            color: #1890ff;
+            margin-bottom: 10px;
+        }
+        .test-steps {
+            margin-left: 20px;
+        }
+        .test-steps li {
+            margin: 8px 0;
+            color: #666;
+        }
+        .expected {
+            background: #e6f7ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            border-left: 3px solid #1890ff;
+        }
+        .expected strong {
+            color: #1890ff;
+        }
+        .feature-list {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .feature-list ul {
+            margin: 10px 0;
+        }
+        .feature-list li {
+            margin: 8px 0;
+            color: #333;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        .data-table th,
+        .data-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .data-table th {
+            background: #1890ff;
+            color: white;
+            font-weight: 500;
+        }
+        .data-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .note {
+            background: #fffbe6;
+            border: 1px solid #ffe58f;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .note strong {
+            color: #faad14;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>📋 任务列表功能测试说明</h1>
+        
+        <div class="feature-list">
+            <h2>✨ 功能概述</h2>
+            <p>任务列表页面提供了完整的任务查询、管理和导出功能，支持任务加急、强制完成和取消等操作。</p>
+            <ul>
+                <li>📊 <strong>多维度查询</strong>：支持按任务号、单据号、类型、状态、时间等多个维度筛选</li>
+                <li>⚡ <strong>任务加急</strong>：待执行状态的任务可设置为加急，优先执行</li>
+                <li>✅ <strong>强制完成</strong>：执行中/异常状态的任务可强制完成，自动更新库存</li>
+                <li>❌ <strong>任务取消</strong>：待执行状态的任务可取消，不再执行</li>
+                <li>📥 <strong>数据导出</strong>：可将查询结果导出为CSV文件</li>
+            </ul>
+        </div>
+
+        <h2>📋 测试数据说明</h2>
+        <p>系统预置了10条测试数据，涵盖不同任务类型和状态：</p>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>任务号</th>
+                    <th>关联单据</th>
+                    <th>命令类型</th>
+                    <th>任务类型</th>
+                    <th>容器</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>TASK-RK-2024-0001-001</td>
+                    <td>RK-2024-0001</td>
+                    <td>入库</td>
+                    <td>普通入库</td>
+                    <td>TP-001</td>
+                    <td>已完成</td>
+                </tr>
+                <tr>
+                    <td>TASK-RK-2024-0002-001</td>
+                    <td>RK-2024-0002</td>
+                    <td>入库</td>
+                    <td>普通入库</td>
+                    <td>TP-002</td>
+                    <td>执行中</td>
+                </tr>
+                <tr>
+                    <td>TASK-CK-2024-0002-001</td>
+                    <td>CK-2024-0002</td>
+                    <td>出库</td>
+                    <td>组盘出库</td>
+                    <td>TP-003</td>
+                    <td>待执行</td>
+                </tr>
+                <tr>
+                    <td>TASK-HK-2024-001</td>
+                    <td>-</td>
+                    <td>入库</td>
+                    <td>托盘回库</td>
+                    <td>TP-010</td>
+                    <td>异常</td>
+                </tr>
+                <tr>
+                    <td colspan="6" style="text-align: center; color: #999;">...更多数据请在页面中查看...</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>🧪 测试场景</h2>
+
+        <div class="test-section">
+            <div class="test-title">测试1：按任务号查询</div>
+            <div class="test-steps">
+                <ol>
+                    <li>在"任务号"输入框中输入 <span class="highlight">TASK-RK</span></li>
+                    <li>点击【查询】按钮</li>
+                    <li>验证列表只显示任务号包含"TASK-RK"的记录</li>
+                    <li>点击【重置】按钮，验证所有筛选条件被清空</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>显示所有入库任务（TASK-RK开头的任务）
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试2：按命令类型查询</div>
+            <div class="test-steps">
+                <ol>
+                    <li>在"命令类型"下拉框中选择 <span class="highlight">出库</span></li>
+                    <li>点击【查询】按钮</li>
+                    <li>验证列表只显示命令类型为"出库"的任务</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>显示所有出库相关任务（普通出库、组盘出库、盘点出库等）
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试3：按任务类型查询</div>
+            <div class="test-steps">
+                <ol>
+                    <li>在"任务类型"下拉框中选择 <span class="highlight">普通入库</span></li>
+                    <li>点击【查询】按钮</li>
+                    <li>验证列表只显示任务类型为"普通入库"的记录</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>显示所有普通入库任务
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试4：按状态查询</div>
+            <div class="test-steps">
+                <ol>
+                    <li>在"状态"下拉框中选择 <span class="highlight">待执行</span></li>
+                    <li>点击【查询】按钮</li>
+                    <li>验证列表只显示状态为"待执行"的任务</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>显示所有待执行的任务，这些任务可以进行加急或取消操作
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试5：按创建时间区间查询</div>
+            <div class="test-steps">
+                <ol>
+                    <li>在"创建开始时间"选择 <span class="highlight">2024-01-18</span></li>
+                    <li>在"创建结束时间"选择 <span class="highlight">2024-01-20</span></li>
+                    <li>点击【查询】按钮</li>
+                    <li>验证列表只显示创建时间在该区间内的任务</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>显示2024-01-18至2024-01-20期间创建的任务
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试6：任务加急功能</div>
+            <div class="test-steps">
+                <ol>
+                    <li>筛选出状态为"待执行"的任务</li>
+                    <li>找到一个未加急的任务，点击【加急】按钮</li>
+                    <li>在确认对话框中点击"确定"</li>
+                    <li>验证任务号后面显示红色"加急"标识</li>
+                    <li>验证该任务的【加急】按钮消失</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>
+                    <ul>
+                        <li>任务被标记为加急，显示红色"加急"标签</li>
+                        <li>加急后的任务将优先执行</li>
+                        <li>已加急的任务不能再次加急</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试7：任务取消功能</div>
+            <div class="test-steps">
+                <ol>
+                    <li>筛选出状态为"待执行"的任务</li>
+                    <li>选择一个任务，点击【取消】按钮</li>
+                    <li>在确认对话框中点击"确定"</li>
+                    <li>验证任务状态变为"已取消"</li>
+                    <li>验证操作按钮消失</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>
+                    <ul>
+                        <li>任务状态变为"已取消"（灰色标签）</li>
+                        <li>已取消的任务不再执行</li>
+                        <li>如果任务之前是加急状态，加急标识也会消失</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试8：强制完成功能</div>
+            <div class="test-steps">
+                <ol>
+                    <li>筛选出状态为"执行中"或"异常"的任务</li>
+                    <li>选择一个任务，点击【强制完成】按钮</li>
+                    <li>在弹窗中选择强制完成原因（设备故障已处理/物料已人工搬运/其他）</li>
+                    <li>点击【确认完成】按钮</li>
+                    <li>验证任务状态变为"已完成"</li>
+                    <li>验证完成时间已填充</li>
+                    <li>验证异常原因显示"强制完成-原因"</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>
+                    <ul>
+                        <li>任务状态变为"已完成"（绿色标签）</li>
+                        <li>完成时间自动填充为当前时间</li>
+                        <li>异常原因显示"强制完成-选择的原因"</li>
+                        <li>系统自动更新库存（入库任务视为已入库，出库任务视为已出库）</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试9：导出功能</div>
+            <div class="test-steps">
+                <ol>
+                    <li>可选：先进行筛选，只导出需要的数据</li>
+                    <li>点击【导出】按钮</li>
+                    <li>验证浏览器自动下载CSV文件</li>
+                    <li>打开下载的CSV文件，验证数据完整性</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>
+                    <ul>
+                        <li>文件名格式：任务列表_YYYYMMDD_HHMMSS.csv</li>
+                        <li>文件包含所有列的数据</li>
+                        <li>中文显示正常（UTF-8 BOM编码）</li>
+                        <li>导出的是当前筛选后的数据</li>
+                        <li>包含"是否加急"列</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试10：物料信息显示</div>
+            <div class="test-steps">
+                <ol>
+                    <li>观察列表中"物料信息"列的显示</li>
+                    <li>验证不同任务类型的物料信息显示：
+                        <ul>
+                            <li>普通入库/出库：显示"物料名称×数量"</li>
+                            <li>组盘出库：显示多个物料，用"、"分隔</li>
+                            <li>空托盘入库/出库：显示"空托盘"</li>
+                            <li>托盘回库：显示"空托盘"或"非空托盘"</li>
+                        </ul>
+                    </li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>物料信息根据任务类型正确显示，便于快速识别任务内容
+                </div>
+            </div>
+        </div>
+
+        <h2>🎯 业务规则验证</h2>
+        
+        <div class="test-section">
+            <div class="test-title">规则1：任务状态与操作权限</div>
+            <div class="test-steps">
+                <p><strong>验证不同状态下的可用操作：</strong></p>
+                <ul>
+                    <li><strong>待执行</strong>：可以加急、可以取消</li>
+                    <li><strong>执行中</strong>：可以强制完成</li>
+                    <li><strong>异常</strong>：可以强制完成</li>
+                    <li><strong>已完成</strong>：无操作按钮</li>
+                    <li><strong>已取消</strong>：无操作按钮</li>
+                </ul>
+                <div class="expected">
+                    <strong>业务含义：</strong>不同状态的任务有不同的操作权限，确保任务流程的正确性
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">规则2：强制完成的影响</div>
+            <div class="test-steps">
+                <p><strong>场景：</strong>执行中的入库任务遇到设备故障</p>
+                <ol>
+                    <li>选择一个执行中的入库任务</li>
+                    <li>点击【强制完成】</li>
+                    <li>选择原因"设备故障已处理"</li>
+                    <li>确认完成</li>
+                </ol>
+                <div class="expected">
+                    <strong>业务含义：</strong>
+                    <ul>
+                        <li>系统默认该任务已按照任务内容执行</li>
+                        <li>入库任务：库存增加，容器状态更新</li>
+                        <li>出库任务：库存减少，容器状态更新</li>
+                        <li>异常原因记录在任务中，便于追溯</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">规则3：任务加急的优先级</div>
+            <div class="test-steps">
+                <p><strong>场景：</strong>紧急出库需求</p>
+                <ol>
+                    <li>找到一个待执行的出库任务</li>
+                    <li>点击【加急】设置为加急任务</li>
+                    <li>验证任务显示加急标识</li>
+                </ol>
+                <div class="expected">
+                    <strong>业务含义：</strong>
+                    <ul>
+                        <li>加急任务在任务队列中优先执行</li>
+                        <li>加急标识醒目显示（红色标签）</li>
+                        <li>已加急的任务不能重复加急</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <h2>📝 注意事项</h2>
+        <div class="note">
+            <ul>
+                <li>✅ 任务加急功能仅对<strong>待执行</strong>状态的任务有效</li>
+                <li>✅ 强制完成功能仅对<strong>执行中/异常</strong>状态的任务有效</li>
+                <li>✅ 任务取消功能仅对<strong>待执行</strong>状态的任务有效</li>
+                <li>✅ 强制完成后系统会<strong>自动更新库存</strong>，请谨慎操作</li>
+                <li>✅ 已取消的任务不会执行，不影响库存</li>
+                <li>✅ 导出功能导出的是<strong>当前筛选结果</strong></li>
+                <li>✅ 任务类型包括：普通入库、普通出库、组盘出库、托盘回库、盘点出库、盘点入库、空托盘入库、空托盘出库</li>
+            </ul>
+        </div>
+
+        <h2>🚀 快速开始</h2>
+        <div class="test-steps">
+            <ol>
+                <li>在主菜单中找到"任务管理"菜单组</li>
+                <li>点击"任务列表"子菜单</li>
+                <li>页面加载后会显示所有任务数据</li>
+                <li>使用筛选条件查询需要的任务</li>
+                <li>根据任务状态进行相应操作（加急、取消、强制完成）</li>
+                <li>点击导出按钮可下载当前数据</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库台管理</title>
+    <link rel="stylesheet" href="../styles/pages.css">
+    <link rel="stylesheet" href="../styles/station.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="page-header">
+            <h1>库台管理</h1>
+        </div>
+
+        <!-- 查询筛选区 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>库台编码：</label>
+                    <input type="text" class="filter-input" id="searchCode" placeholder="请输入库台编码">
+                </div>
+                <div class="filter-group">
+                    <label>库台名称：</label>
+                    <input type="text" class="filter-input" id="searchName" placeholder="请输入库台名称">
+                </div>
+                <div class="filter-group">
+                    <label>类型：</label>
+                    <select class="filter-select" id="searchType">
+                        <option value="">全部</option>
+                        <option value="取货台">取货台</option>
+                        <option value="放货台">放货台</option>
+                        <option value="取放货台">取放货台</option>
+                    </select>
+                </div>
+                <button class="search-btn" id="searchBtn">🔍 查询</button>
+                <button class="reset-btn" id="resetBtn">🔄 重置</button>
+            </div>
+        </div>
+
+        <!-- 操作按钮区 -->
+        <div class="action-bar">
+            <button class="primary-btn" id="addBtn">➕ 新增库台</button>
+        </div>
+
+        <!-- 表格区 -->
+        <div class="table-section">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="120">库台编码</th>
+                        <th width="150">库台名称</th>
+                        <th width="120">类型</th>
+                        <th width="150">所在位置</th>
+                        <th width="150">绑定巷道</th>
+                        <th width="250">备注</th>
+                        <th width="180">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="stationTableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination">
+            <button class="page-btn" id="prevPage">上一页</button>
+            <span class="page-info">第 <span id="currentPage">1</span> 页，共 <span id="totalPages">1</span> 页</span>
+            <button class="page-btn" id="nextPage">下一页</button>
+        </div>
+    </div>
+
+    <!-- 新增/编辑库台弹窗 -->
+    <div class="modal" id="stationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">新增库台</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="stationForm">
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">库台编码：</label>
+                            <input type="text" class="form-input" id="stationCode" required placeholder="请输入库台编码">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">库台名称：</label>
+                            <input type="text" class="form-input" id="stationName" required placeholder="请输入库台名称">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">类型：</label>
+                            <select class="form-input" id="stationType" required>
+                                <option value="">请选择类型</option>
+                                <option value="取货台">取货台</option>
+                                <option value="放货台">放货台</option>
+                                <option value="取放货台">取放货台</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">排：</label>
+                            <input type="number" class="form-input" id="stationRow" min="1" required placeholder="排">
+                        </div>
+                        <div class="form-group">
+                            <label class="required">列：</label>
+                            <input type="number" class="form-input" id="stationCol" min="1" required placeholder="列">
+                        </div>
+                        <div class="form-group">
+                            <label class="required">层：</label>
+                            <input type="number" class="form-input" id="stationLevel" min="1" required placeholder="层">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label>备注：</label>
+                            <textarea class="form-input" id="stationRemark" rows="3" placeholder="请输入备注信息"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="saveBtn">保存</button>
+                <button class="modal-btn secondary" id="cancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/station.js"></script>
+</body>
+</html>

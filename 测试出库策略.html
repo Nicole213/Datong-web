@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出库策略测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .test-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+        }
+        .test-item h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        .test-steps {
+            margin: 10px 0;
+        }
+        .test-steps li {
+            margin: 8px 0;
+            color: #666;
+        }
+        .expected {
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .expected strong {
+            color: #2e7d32;
+        }
+        .note {
+            background: #fff3e0;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            border-left: 4px solid #ff9800;
+        }
+        .note strong {
+            color: #e65100;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        a:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <h1>出库策略功能测试</h1>
+    
+    <div class="test-section">
+        <h2>测试场景</h2>
+        
+        <div class="test-item">
+            <h3>测试1：查看策略列表</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>打开出库策略页面</li>
+                    <li>查看默认显示的策略列表</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示3条默认策略数据</li>
+                    <li>包含全局策略、库区策略、物料策略各一条</li>
+                    <li>每条策略显示完整的字段信息</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试2：按库区查询</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在库区下拉框中选择"A区"</li>
+                    <li>点击"查询"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>只显示库区为"A区"的策略</li>
+                    <li>应显示1条记录（A区出库策略）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试3：新增全局策略</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"新增"按钮</li>
+                    <li>输入策略名称："测试全局出库策略"</li>
+                    <li>选择管理维度："全局"</li>
+                    <li>输入备注："测试用全局出库策略"</li>
+                    <li>点击"添加规则"按钮</li>
+                    <li>设置规则：优先级1，出库规则"组盘时间先进先出"，失败时是否忽略"否"</li>
+                    <li>再次点击"添加规则"</li>
+                    <li>设置规则：优先级2，出库规则"整托优先"，失败时是否忽略"是"</li>
+                    <li>点击"保存"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>弹窗关闭</li>
+                    <li>提示"策略添加成功！"</li>
+                    <li>列表中新增一条策略记录</li>
+                    <li>库区和物料字段显示为"-"</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试4：新增库区策略</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"新增"按钮</li>
+                    <li>输入策略名称："B区出库策略"</li>
+                    <li>选择管理维度："库区"</li>
+                    <li>观察库区字段变为可编辑，物料名称字段置灰</li>
+                    <li>选择库区："B区"</li>
+                    <li>输入备注："B区专用出库策略"</li>
+                    <li>添加规则：优先级1，出库规则"库台就近"，失败时是否忽略"否"</li>
+                    <li>点击"保存"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>策略添加成功</li>
+                    <li>列表中显示库区为"B区"</li>
+                    <li>物料字段显示为"-"</li>
+                    <li>管理维度标签显示为"库区"（蓝色）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试5：新增物料策略</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"新增"按钮</li>
+                    <li>输入策略名称："机械零件出库策略"</li>
+                    <li>选择管理维度："物料"</li>
+                    <li>观察物料名称字段变为可编辑，库区字段置灰</li>
+                    <li>输入物料名称："机械零件B型"</li>
+                    <li>输入备注："机械零件专用出库策略"</li>
+                    <li>添加规则：优先级1，出库规则"组盘时间后进先出"，失败时是否忽略"否"</li>
+                    <li>添加规则：优先级2，出库规则"双深通用规则"，失败时是否忽略"是"</li>
+                    <li>点击"保存"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>策略添加成功</li>
+                    <li>列表中显示物料名称为"机械零件B型"</li>
+                    <li>系统自动生成物料编码（MAT-XXX格式）</li>
+                    <li>库区字段显示为"-"</li>
+                    <li>管理维度标签显示为"物料"（橙色）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试6：编辑策略</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击任意策略的"编辑"按钮</li>
+                    <li>修改策略名称</li>
+                    <li>修改备注信息</li>
+                    <li>修改规则的出库规则类型</li>
+                    <li>点击"保存"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>弹窗显示原有策略信息</li>
+                    <li>根据管理维度正确显示/禁用相关字段</li>
+                    <li>保存后提示"策略更新成功！"</li>
+                    <li>列表中显示更新后的信息</li>
+                    <li>更新时间和更新人字段更新</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试7：规则管理</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"新增"按钮</li>
+                    <li>添加3条规则</li>
+                    <li>修改第2条规则的出库规则类型</li>
+                    <li>删除第1条规则</li>
+                    <li>观察优先级自动调整</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>可以添加多条规则</li>
+                    <li>优先级自动递增</li>
+                    <li>删除规则后，剩余规则的优先级自动重新排序</li>
+                    <li>规则表格实时更新</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试8：查看策略详情</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击任意策略的"详情"按钮</li>
+                    <li>查看策略的完整信息</li>
+                    <li>查看出库策略规则列表</li>
+                    <li>点击"关闭"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>弹窗显示策略的所有字段信息</li>
+                    <li>显示完整的规则列表（只读）</li>
+                    <li>所有信息格式正确、清晰易读</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试9：删除策略</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击任意策略的"删除"按钮</li>
+                    <li>在确认对话框中点击"确定"</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示确认删除对话框</li>
+                    <li>确认后提示"策略删除成功！"</li>
+                    <li>该策略从列表中移除</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试10：表单验证</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"新增"按钮</li>
+                    <li>不填写任何信息，直接点击"保存"</li>
+                    <li>依次测试各必填字段的验证</li>
+                    <li>测试不添加规则时的验证</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>策略名称为空时提示"请输入策略名称！"</li>
+                    <li>管理维度未选择时提示"请选择管理维度！"</li>
+                    <li>选择库区维度但未选库区时提示"请选择库区！"</li>
+                    <li>选择物料维度但未填物料名称时提示"请输入物料名称！"</li>
+                    <li>未添加规则时提示"请至少添加一条出库规则！"</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>注意事项</h2>
+        <div class="note">
+            <strong>说明：</strong>
+            <ul>
+                <li>出库规则包含11种类型：组盘时间先进先出、组盘时间后进先出、整托优先、库台就近、排升序、排降序、列升序、列降序、层升序、层降序、双深通用规则</li>
+                <li>管理维度为"全局"时，库区和物料字段都置灰且显示为"-"</li>
+                <li>管理维度为"库区"时，库区字段必填，物料字段置灰</li>
+                <li>管理维度为"物料"时，物料字段必填，库区字段置灰</li>
+                <li>规则优先级自动管理，删除规则后自动重新排序</li>
+                <li>页面样式与系统其他页面保持一致</li>
+            </ul>
+        </div>
+    </div>
+
+    <a href="pages/出库策略.html" target="_blank">打开出库策略页面进行测试 →</a>
+</body>
+</html>

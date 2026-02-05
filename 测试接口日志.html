@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>接口日志测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .test-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+        }
+        .test-item h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        .test-steps {
+            margin: 10px 0;
+        }
+        .test-steps li {
+            margin: 8px 0;
+            color: #666;
+        }
+        .expected {
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .expected strong {
+            color: #2e7d32;
+        }
+        .note {
+            background: #fff3e0;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            border-left: 4px solid #ff9800;
+        }
+        .note strong {
+            color: #e65100;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        a:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <h1>接口日志功能测试</h1>
+    
+    <div class="test-section">
+        <h2>测试场景</h2>
+        
+        <div class="test-item">
+            <h3>测试1：查看接口日志列表</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>打开接口日志页面</li>
+                    <li>查看默认显示的日志列表</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示8条测试日志数据</li>
+                    <li>列表字段包括：业务类型、URL、是否发送方、是否接收方、接口状态、状态码、重试次数、接口成功时间、创建时间、最后修改时间、操作</li>
+                    <li>URL显示为蓝色链接样式，过长时显示省略号</li>
+                    <li>接口状态显示为彩色标签（成功=绿色，失败=红色，处理中=橙色）</li>
+                    <li>是否发送方/接收方显示为标签（是=蓝色，否=灰色）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试2：按业务类型查询</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在业务类型下拉框中选择"入库"</li>
+                    <li>点击"查询"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>只显示业务类型为"入库"的日志</li>
+                    <li>应显示3条记录</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试3：按是否发送方查询</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在是否发送方下拉框中选择"是"</li>
+                    <li>点击"查询"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>只显示是否发送方为"是"的日志</li>
+                    <li>应显示6条记录</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试4：按是否接收方查询</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在是否接收方下拉框中选择"是"</li>
+                    <li>点击"查询"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>只显示是否接收方为"是"的日志</li>
+                    <li>应显示3条记录</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试5：组合条件查询</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>选择业务类型："入库"</li>
+                    <li>选择是否发送方："是"</li>
+                    <li>点击"查询"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示同时满足两个条件的日志</li>
+                    <li>应显示2条记录</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试6：重置查询</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>设置任意查询条件</li>
+                    <li>点击"查询"按钮</li>
+                    <li>点击"重置"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>所有查询条件清空</li>
+                    <li>列表恢复显示所有日志</li>
+                    <li>分页重置到第1页</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试7：查看成功接口的报文</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>找到接口状态为"成功"的日志</li>
+                    <li>点击"查看报文"按钮</li>
+                    <li>查看报文详情弹窗</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>弹窗显示接口报文详情</li>
+                    <li>显示请求URL（蓝色链接样式）</li>
+                    <li>显示状态码（200）</li>
+                    <li>显示请求内容（JSON格式，深色代码块）</li>
+                    <li>显示响应内容（JSON格式，深色代码块）</li>
+                    <li>JSON内容格式化显示，易于阅读</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试8：查看失败接口的报文</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>找到接口状态为"失败"的日志</li>
+                    <li>点击"查看报文"按钮</li>
+                    <li>查看报文详情</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>弹窗显示接口报文详情</li>
+                    <li>显示错误状态码（如500、400）</li>
+                    <li>响应内容中包含错误信息</li>
+                    <li>可以看到重试次数大于0</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试9：查看处理中接口的报文</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>找到接口状态为"处理中"的日志</li>
+                    <li>点击"查看报文"按钮</li>
+                    <li>查看报文详情</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>弹窗显示接口报文详情</li>
+                    <li>状态码显示为"-"或0</li>
+                    <li>响应内容显示为"-"（尚未收到响应）</li>
+                    <li>重试次数为0</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试10：接口状态标签颜色</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>查看列表中不同状态的接口日志</li>
+                    <li>观察接口状态标签的颜色</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>成功状态：绿色背景，绿色文字</li>
+                    <li>失败状态：红色背景，红色文字</li>
+                    <li>处理中状态：橙色背景，橙色文字</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试11：是否发送方/接收方标签</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>查看列表中的是否发送方和是否接收方列</li>
+                    <li>观察标签的显示样式</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>"是"标签：蓝色背景，蓝色文字</li>
+                    <li>"否"标签：灰色背景，灰色文字</li>
+                    <li>标签样式统一，易于识别</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试12：报文内容格式化显示</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击任意日志的"查看报文"按钮</li>
+                    <li>查看请求内容和响应内容的显示格式</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>JSON内容格式化显示，有缩进</li>
+                    <li>使用深色代码块背景（类似代码编辑器）</li>
+                    <li>文字使用等宽字体（Courier New）</li>
+                    <li>内容过长时显示滚动条</li>
+                    <li>易于阅读和复制</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试13：分页功能</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>查看当前页码和总页数</li>
+                    <li>点击"下一页"按钮</li>
+                    <li>点击"上一页"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示当前页码和总页数</li>
+                    <li>第一页时"上一页"按钮禁用</li>
+                    <li>最后一页时"下一页"按钮禁用</li>
+                    <li>翻页后显示对应页的数据</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>注意事项</h2>
+        <div class="note">
+            <strong>说明：</strong>
+            <ul>
+                <li>接口日志记录了系统与外部系统的接口调用情况</li>
+                <li>是否发送方=是：表示本系统主动调用外部接口</li>
+                <li>是否接收方=是：表示外部系统调用本系统接口</li>
+                <li>重试次数：接口调用失败后的重试次数</li>
+                <li>接口成功时间：接口调用成功的时间，失败时显示"-"</li>
+                <li>报文内容以JSON格式展示，便于调试和问题排查</li>
+                <li>页面样式与系统其他页面保持一致</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>测试数据说明</h2>
+        <div class="note">
+            <strong>系统预置8条测试日志：</strong>
+            <ul>
+                <li><strong>入库接口（发送）：</strong>创建入库单，状态=成功</li>
+                <li><strong>出库接口（发送）：</strong>创建出库单，状态=成功</li>
+                <li><strong>入库回调（接收）：</strong>入库完成回调，状态=失败，重试3次</li>
+                <li><strong>出库回调（接收）：</strong>出库完成回调，状态=成功，重试1次</li>
+                <li><strong>库存同步（发送）：</strong>同步库存数据，状态=处理中</li>
+                <li><strong>入库更新（发送）：</strong>更新入库单，状态=成功</li>
+                <li><strong>出库取消（发送）：</strong>取消出库单，状态=失败，重试2次</li>
+                <li><strong>物料查询（接收）：</strong>查询物料信息，状态=成功</li>
+            </ul>
+        </div>
+    </div>
+
+    <a href="pages/接口日志.html" target="_blank">打开接口日志页面进行测试 →</a>
+</body>
+</html>

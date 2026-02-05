@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>入库策略</title>
+    <link rel="stylesheet" href="../styles/pages.css">
+    <link rel="stylesheet" href="../styles/inbound-strategy.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="page-header">
+            <h1>入库策略</h1>
+        </div>
+
+        <!-- 查询筛选区 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>库区：</label>
+                    <select class="filter-select" id="searchArea">
+                        <option value="">全部</option>
+                        <option value="A区">A区</option>
+                        <option value="B区">B区</option>
+                        <option value="C区">C区</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>物料编码/名称：</label>
+                    <input type="text" class="filter-input" id="searchMaterial" placeholder="请输入物料编码或名称">
+                </div>
+                <button class="search-btn" id="searchBtn">🔍 查询</button>
+                <button class="reset-btn" id="resetBtn">🔄 重置</button>
+            </div>
+        </div>
+
+        <!-- 操作按钮区 -->
+        <div class="action-bar">
+            <button class="add-btn" id="addBtn">➕ 新增</button>
+        </div>
+
+        <!-- 表格区 -->
+        <div class="table-section">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="180">策略名称</th>
+                        <th width="100">管理维度</th>
+                        <th width="100">库区</th>
+                        <th width="120">物料编码</th>
+                        <th width="150">物料名称</th>
+                        <th width="200">备注</th>
+                        <th width="150">创建时间</th>
+                        <th width="150">更新时间</th>
+                        <th width="100">更新人</th>
+                        <th width="200">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="strategyTableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination">
+            <button class="page-btn" id="prevPage">上一页</button>
+            <span class="page-info">第 <span id="currentPage">1</span> 页，共 <span id="totalPages">1</span> 页</span>
+            <button class="page-btn" id="nextPage">下一页</button>
+        </div>
+    </div>
+
+    <!-- 新增/编辑策略弹窗 -->
+    <div class="modal" id="strategyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">新增入库策略</h3>
+                <span class="modal-close" id="modalClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label class="required">策略名称：</label>
+                        <input type="text" class="form-input" id="strategyName" placeholder="请输入策略名称" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="required">管理维度：</label>
+                        <select class="form-input" id="managementDimension" required>
+                            <option value="">请选择</option>
+                            <option value="全局">全局</option>
+                            <option value="库区">库区</option>
+                            <option value="物料">物料</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label id="areaLabel">库区：</label>
+                        <select class="form-input" id="areaSelect" disabled>
+                            <option value="">请选择</option>
+                            <option value="A区">A区</option>
+                            <option value="B区">B区</option>
+                            <option value="C区">C区</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label id="materialLabel">物料名称：</label>
+                        <div class="autocomplete-wrapper">
+                            <input type="text" class="form-input" id="materialName" placeholder="请输入物料名称进行搜索" disabled autocomplete="off">
+                            <input type="hidden" id="materialCode">
+                            <div class="autocomplete-dropdown" id="materialDropdown"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>备注：</label>
+                        <textarea class="form-textarea" id="remark" placeholder="请输入备注信息" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- 库位分配策略 -->
+                <div class="strategy-section">
+                    <div class="section-header">
+                        <h4>库位分配策略</h4>
+                        <button class="add-rule-btn" id="addRuleBtn">➕ 添加规则</button>
+                    </div>
+                    <div class="rules-table-wrapper">
+                        <table class="rules-table">
+                            <thead>
+                                <tr>
+                                    <th width="80">优先级</th>
+                                    <th width="180">入库规则</th>
+                                    <th width="120">失败时是否忽略</th>
+                                    <th width="80">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rulesTableBody">
+                                <!-- 规则将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="saveBtn">保存</button>
+                <button class="modal-btn secondary" id="cancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>入库策略详情</h3>
+                <span class="modal-close" id="detailClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="detail-section">
+                    <div class="detail-row">
+                        <label>策略名称：</label>
+                        <span id="detailStrategyName"></span>
+                    </div>
+                    <div class="detail-row">
+                        <label>管理维度：</label>
+                        <span id="detailDimension"></span>
+                    </div>
+                    <div class="detail-row">
+                        <label>库区：</label>
+                        <span id="detailArea"></span>
+                    </div>
+                    <div class="detail-row">
+                        <label>物料编码：</label>
+                        <span id="detailMaterialCode"></span>
+                    </div>
+                    <div class="detail-row">
+                        <label>物料名称：</label>
+                        <span id="detailMaterialName"></span>
+                    </div>
+                    <div class="detail-row">
+                        <label>备注：</label>
+                        <span id="detailRemark"></span>
+                    </div>
+                    <div class="detail-row">
+                        <label>创建时间：</label>
+                        <span id="detailCreateTime"></span>
+                    </div>
+                    <div class="detail-row">
+                        <label>更新时间：</label>
+                        <span id="detailUpdateTime"></span>
+                    </div>
+                    <div class="detail-row">
+                        <label>更新人：</label>
+                        <span id="detailUpdater"></span>
+                    </div>
+                </div>
+                <div class="strategy-section">
+                    <h4>库位分配策略</h4>
+                    <div class="rules-table-wrapper">
+                        <table class="rules-table">
+                            <thead>
+                                <tr>
+                                    <th width="80">优先级</th>
+                                    <th width="180">入库规则</th>
+                                    <th width="120">失败时是否忽略</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailRulesTableBody">
+                                <!-- 规则将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" id="detailCloseBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/inbound-strategy.js"></script>
+</body>
+</html>

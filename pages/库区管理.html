@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库区管理</title>
+    <link rel="stylesheet" href="../styles/pages.css">
+    <link rel="stylesheet" href="../styles/area.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="page-header">
+            <h1>库区管理</h1>
+        </div>
+
+        <!-- 查询筛选区 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>库区编码：</label>
+                    <input type="text" class="filter-input" id="searchCode" placeholder="请输入库区编码">
+                </div>
+                <div class="filter-group">
+                    <label>库区名称：</label>
+                    <input type="text" class="filter-input" id="searchName" placeholder="请输入库区名称">
+                </div>
+                <div class="filter-group">
+                    <label>状态：</label>
+                    <select class="filter-select" id="areaStatus">
+                        <option value="">全部</option>
+                        <option value="启用">启用</option>
+                        <option value="禁用">禁用</option>
+                    </select>
+                </div>
+                <button class="search-btn" id="searchBtn">🔍 查询</button>
+                <button class="reset-btn" id="resetBtn">🔄 重置</button>
+            </div>
+        </div>
+
+        <!-- 操作按钮区 -->
+        <div class="action-bar">
+            <button class="primary-btn" id="addBtn">➕ 新增库区</button>
+        </div>
+
+        <!-- 表格区 -->
+        <div class="table-section">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="100">库区编码</th>
+                        <th width="120">库区名称</th>
+                        <th width="150">适配容器类型</th>
+                        <th width="80">库位总数</th>
+                        <th width="80">已用库位</th>
+                        <th width="80">空闲库位</th>
+                        <th width="80">状态</th>
+                        <th width="80">物料数量</th>
+                        <th width="200">备注</th>
+                        <th width="280">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="areaTableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination">
+            <button class="page-btn" id="prevPage">上一页</button>
+            <span class="page-info">第 <span id="currentPage">1</span> 页，共 <span id="totalPages">2</span> 页</span>
+            <button class="page-btn" id="nextPage">下一页</button>
+        </div>
+    </div>
+
+    <!-- 新增/编辑库区弹窗 -->
+    <div class="modal" id="areaModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">新增库区</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="areaForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">库区编码：</label>
+                            <input type="text" class="form-input" id="areaCode" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">库区名称：</label>
+                            <input type="text" class="form-input" id="areaName" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">适配容器类型：</label>
+                            <div class="container-type-checkboxes">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="containerType" value="小金属框">
+                                    <span>小金属框</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="containerType" value="大金属框">
+                                    <span>大金属框</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="containerType" value="塑料托盘">
+                                    <span>塑料托盘</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="containerType" value="长物料钢托盘">
+                                    <span>长物料钢托盘</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label>备注：</label>
+                            <textarea class="form-input" id="areaRemark" rows="3" placeholder="请输入备注信息"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="saveBtn">保存</button>
+                <button class="modal-btn secondary" id="cancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 绑定物料弹窗 -->
+    <div class="modal" id="bindMaterialModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>绑定物料</h3>
+                <span class="modal-close" id="bindClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="bind-info">
+                    <span>库区：<strong id="bindAreaName">-</strong></span>
+                </div>
+                <div class="material-search">
+                    <input type="text" class="filter-input" id="materialSearch" placeholder="搜索物料编码或名称">
+                    <button class="search-btn" id="materialSearchBtn">搜索</button>
+                </div>
+                <div class="material-list">
+                    <div class="material-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="1" data-code="WL-2024-001" data-name="电子元件A型">
+                            <span>WL-2024-001 - 电子元件A型</span>
+                        </label>
+                    </div>
+                    <div class="material-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="2" data-code="WL-2024-002" data-name="机械零件B型">
+                            <span>WL-2024-002 - 机械零件B型</span>
+                        </label>
+                    </div>
+                    <div class="material-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="3" data-code="WL-2024-003" data-name="塑料配件C型">
+                            <span>WL-2024-003 - 塑料配件C型</span>
+                        </label>
+                    </div>
+                    <div class="material-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="4" data-code="WL-2024-004" data-name="长物料钢材D型">
+                            <span>WL-2024-004 - 长物料钢材D型</span>
+                        </label>
+                    </div>
+                    <div class="material-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" value="5" data-code="WL-2024-005" data-name="金属材料E型">
+                            <span>WL-2024-005 - 金属材料E型</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="bindSaveBtn">保存</button>
+                <button class="modal-btn secondary" id="bindCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/area.js"></script>
+</body>
+</html>

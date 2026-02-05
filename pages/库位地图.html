@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库位地图</title>
+    <link rel="stylesheet" href="../styles/pages.css">
+    <link rel="stylesheet" href="../styles/warehouse-map.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="page-header-simple">
+            <h1>库位地图</h1>
+            <div class="status-legend">
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #bdbdbd;"></span>
+                    <span>禁用</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #fffde7;"></span>
+                    <span>有货</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #e8f5e9;"></span>
+                    <span>空库位</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #e1f5fe;"></span>
+                    <span>空托</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #fff3e0;"></span>
+                    <span>物料锁定</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background: #ffebee;"></span>
+                    <span>库位锁定</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 视图切换 -->
+        <div class="view-tabs">
+            <button class="tab-btn active" data-view="top">俯视图</button>
+            <button class="tab-btn" data-view="side">侧视图</button>
+        </div>
+
+        <!-- 库位定位筛选 -->
+        <div class="filter-section">
+            <h3 class="filter-title">📍 库位定位</h3>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>排：</label>
+                    <div class="custom-select" id="rowSelect">
+                        <div class="select-trigger">
+                            <span class="select-text">全部</span>
+                            <span class="select-arrow">▼</span>
+                        </div>
+                        <div class="select-dropdown">
+                            <label class="select-option">
+                                <input type="checkbox" value="1" checked>
+                                <span>1排</span>
+                            </label>
+                            <label class="select-option">
+                                <input type="checkbox" value="2" checked>
+                                <span>2排</span>
+                            </label>
+                            <label class="select-option">
+                                <input type="checkbox" value="3" checked>
+                                <span>3排</span>
+                            </label>
+                            <label class="select-option">
+                                <input type="checkbox" value="4" checked>
+                                <span>4排</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>层：</label>
+                    <select class="filter-select" id="levelSelect">
+                        <option value="1">1层</option>
+                        <option value="2">2层</option>
+                        <option value="3">3层</option>
+                        <option value="4">4层</option>
+                        <option value="5">5层</option>
+                        <option value="6">6层</option>
+                        <option value="7">7层</option>
+                        <option value="8">8层</option>
+                        <option value="9">9层</option>
+                        <option value="10">10层</option>
+                        <option value="11">11层</option>
+                        <option value="12" selected>12层</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>定位库位：</label>
+                    <button class="num-btn" data-target="row">-</button>
+                    <input type="number" class="num-input" id="locateRow" value="1" min="1" max="4">
+                    <button class="num-btn" data-target="row">+</button>
+                    <span class="filter-label">排</span>
+                </div>
+                <div class="filter-group">
+                    <button class="num-btn" data-target="col">-</button>
+                    <input type="number" class="num-input" id="locateCol" value="1" min="1" max="32">
+                    <button class="num-btn" data-target="col">+</button>
+                    <span class="filter-label">列</span>
+                </div>
+                <div class="filter-group">
+                    <button class="num-btn" data-target="level">-</button>
+                    <input type="number" class="num-input" id="locateLevel" value="1" min="1" max="12">
+                    <button class="num-btn" data-target="level">+</button>
+                    <span class="filter-label">层</span>
+                </div>
+                <div class="filter-group">
+                    <button class="num-btn" data-target="depth">-</button>
+                    <input type="number" class="num-input" id="locateDepth" value="1" min="1" max="2">
+                    <button class="num-btn" data-target="depth">+</button>
+                    <span class="filter-label">深</span>
+                </div>
+                <button class="search-btn">🔍 定位</button>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-row">
+            <div class="stat-box stat-empty">
+                <div class="stat-label">总库位</div>
+                <div class="stat-number">6460</div>
+            </div>
+            <div class="stat-box stat-occupied">
+                <div class="stat-label">已占用</div>
+                <div class="stat-number">4473</div>
+                <div class="stat-percent">69%</div>
+            </div>
+            <div class="stat-box stat-available">
+                <div class="stat-label">空闲库位</div>
+                <div class="stat-number">1961</div>
+            </div>
+            <div class="stat-box stat-locked">
+                <div class="stat-label">锁定库位</div>
+                <div class="stat-number">26</div>
+            </div>
+        </div>
+
+        <!-- 常用操作 -->
+        <div class="operations-section">
+            <h3 class="operations-title">🔧 常用操作</h3>
+            <div class="operations-row">
+                <button class="op-btn">插入库存</button>
+                <button class="op-btn">清空库存</button>
+                <button class="op-btn">库位锁定</button>
+                <button class="op-btn">库位解锁</button>
+                <button class="op-btn">库存明细</button>
+            </div>
+        </div>
+
+        <!-- 库位网格 -->
+        <div class="warehouse-grid-container" id="warehouseGrid">
+            <!-- 网格将通过JavaScript动态生成 -->
+        </div>
+
+        <!-- 库位详情弹窗 -->
+        <div class="detail-popup" id="detailPopup">
+            <div class="popup-content">
+                <h4 class="popup-title">📦 库位信息</h4>
+                <div class="popup-body">
+                    <div class="detail-item">
+                        <span class="detail-label">库位编码：</span>
+                        <span class="detail-value" id="popupLocation">1-1-19-1</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">库位名称：</span>
+                        <span class="detail-value" id="popupName">1排-1列-19层-1深</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">库区名称：</span>
+                        <span class="detail-value" id="popupArea">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">容器编码：</span>
+                        <span class="detail-value" id="popupContainer">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">物料数量：</span>
+                        <span class="detail-value" id="popupQty">1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/warehouse-map.js"></script>
+</body>
+</html>

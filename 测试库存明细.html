@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库存明细功能测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #1890ff;
+            border-bottom: 3px solid #1890ff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 30px;
+            padding-left: 10px;
+            border-left: 4px solid #52c41a;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            border-left: 4px solid #1890ff;
+        }
+        .test-title {
+            font-weight: bold;
+            color: #1890ff;
+            margin-bottom: 10px;
+        }
+        .test-steps {
+            margin-left: 20px;
+        }
+        .test-steps li {
+            margin: 8px 0;
+            color: #666;
+        }
+        .expected {
+            background: #e6f7ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            border-left: 3px solid #1890ff;
+        }
+        .expected strong {
+            color: #1890ff;
+        }
+        .feature-list {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .feature-list ul {
+            margin: 10px 0;
+        }
+        .feature-list li {
+            margin: 8px 0;
+            color: #333;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        .data-table th,
+        .data-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .data-table th {
+            background: #1890ff;
+            color: white;
+            font-weight: 500;
+        }
+        .data-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .status-normal {
+            color: #52c41a;
+            font-weight: 600;
+        }
+        .status-locked {
+            color: #ff4d4f;
+            font-weight: 600;
+        }
+        .note {
+            background: #fffbe6;
+            border: 1px solid #ffe58f;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .note strong {
+            color: #faad14;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>📦 库存明细功能测试说明</h1>
+        
+        <div class="feature-list">
+            <h2>✨ 功能概述</h2>
+            <p>库存明细页面提供了完整的库存查询、管理和导出功能，支持物料+容器维度的库存展示。</p>
+            <ul>
+                <li>📊 <strong>多维度查询</strong>：支持按物料、容器、库位、状态等多个维度筛选</li>
+                <li>🔒 <strong>库存锁定/解锁</strong>：可对物料进行锁定操作，锁定后不可出库</li>
+                <li>🗑️ <strong>清空库存</strong>：支持批量清空选中的库存记录</li>
+                <li>📥 <strong>数据导出</strong>：可将查询结果导出为CSV文件</li>
+                <li>📈 <strong>库龄显示</strong>：自动计算并用颜色标识库龄（绿色≤15天，黄色16-30天，红色>30天）</li>
+            </ul>
+        </div>
+
+        <h2>📋 测试数据说明</h2>
+        <p>系统预置了10条测试数据，涵盖不同物料、容器、库位和状态：</p>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>物料编码</th>
+                    <th>物料名称</th>
+                    <th>容器编码</th>
+                    <th>库位编码</th>
+                    <th>库区</th>
+                    <th>数量</th>
+                    <th>库龄</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>WL-2024-001</td>
+                    <td>电子元件A型</td>
+                    <td>TP-001</td>
+                    <td>1-1-5-1</td>
+                    <td>库区A</td>
+                    <td>30</td>
+                    <td>25天</td>
+                    <td class="status-normal">正常</td>
+                </tr>
+                <tr>
+                    <td>WL-2024-002</td>
+                    <td>机械零件B型</td>
+                    <td>TP-001</td>
+                    <td>1-1-5-1</td>
+                    <td>库区A</td>
+                    <td>20</td>
+                    <td>25天</td>
+                    <td class="status-normal">正常</td>
+                </tr>
+                <tr>
+                    <td>WL-2024-003</td>
+                    <td>塑料配件C型</td>
+                    <td>TP-003</td>
+                    <td>1-3-8-1</td>
+                    <td>库区A</td>
+                    <td>100</td>
+                    <td>20天</td>
+                    <td class="status-locked">锁定</td>
+                </tr>
+                <tr>
+                    <td colspan="8" style="text-align: center; color: #999;">...更多数据请在页面中查看...</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="note">
+            <strong>💡 注意：</strong>容器TP-001中包含2种物料（WL-2024-001和WL-2024-002），因此在列表中显示为2条记录。
+        </div>
+
+        <h2>🧪 测试场景</h2>
+
+        <div class="test-section">
+            <div class="test-title">测试1：查询筛选功能</div>
+            <div class="test-steps">
+                <ol>
+                    <li>在"物料编码/名称"输入框中输入 <span class="highlight">WL-2024-001</span></li>
+                    <li>点击【查询】按钮</li>
+                    <li>验证列表只显示物料编码为WL-2024-001的记录（应有3条）</li>
+                    <li>点击【重置】按钮，验证所有筛选条件被清空</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>查询结果应显示3条记录，分别在容器TP-001、TP-002、TP-007中
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试2：按容器编码查询</div>
+            <div class="test-steps">
+                <ol>
+                    <li>在"容器编码"输入框中输入 <span class="highlight">TP-001</span></li>
+                    <li>点击【查询】按钮</li>
+                    <li>验证列表显示容器TP-001中的所有物料（应有2条）</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>显示2条记录：WL-2024-001(30件)和WL-2024-002(20件)
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试3：按库位查询</div>
+            <div class="test-steps">
+                <ol>
+                    <li>在"排"输入框中输入 <span class="highlight">1</span></li>
+                    <li>在"列"输入框中输入 <span class="highlight">1</span></li>
+                    <li>点击【查询】按钮</li>
+                    <li>验证列表只显示库位1-1-X-X的记录</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>显示库位1-1-5-1的2条记录
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试4：按库存状态查询</div>
+            <div class="test-steps">
+                <ol>
+                    <li>在"库存状态"下拉框中选择 <span class="highlight">锁定</span></li>
+                    <li>点击【查询】按钮</li>
+                    <li>验证列表只显示状态为"锁定"的记录（应有2条）</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>显示2条锁定状态的记录（WL-2024-003和WL-2024-005）
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试5：物料锁定功能</div>
+            <div class="test-steps">
+                <ol>
+                    <li>勾选一条或多条状态为"正常"的库存记录</li>
+                    <li>点击【物料锁定】按钮</li>
+                    <li>在确认对话框中点击"确定"</li>
+                    <li>验证选中记录的状态变为"锁定"</li>
+                    <li>尝试勾选已锁定的记录再次点击【物料锁定】，验证提示已锁定</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>
+                    <ul>
+                        <li>锁定成功后，记录状态显示为红色"锁定"标签</li>
+                        <li>已锁定的记录不能再次锁定，会提示"已经是锁定状态"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试6：物料解锁功能</div>
+            <div class="test-steps">
+                <ol>
+                    <li>先按状态筛选出"锁定"的记录</li>
+                    <li>勾选一条或多条锁定状态的记录</li>
+                    <li>点击【物料解锁】按钮</li>
+                    <li>在确认对话框中点击"确定"</li>
+                    <li>验证选中记录的状态变为"正常"</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>
+                    <ul>
+                        <li>解锁成功后，记录状态显示为绿色"正常"标签</li>
+                        <li>正常状态的记录不能解锁，会提示"已经是正常状态"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试7：清空库存功能</div>
+            <div class="test-steps">
+                <ol>
+                    <li>勾选一条或多条库存记录</li>
+                    <li>点击【清空库存】按钮</li>
+                    <li>在确认对话框中查看将要清空的物料明细</li>
+                    <li>点击"确定"执行清空操作</li>
+                    <li>验证选中的记录已从列表中删除</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>
+                    <ul>
+                        <li>确认对话框中显示详细的物料信息（物料名称、容器编码、数量）</li>
+                        <li>清空后记录从列表中消失</li>
+                        <li>如果当前页没有数据，自动返回上一页</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试8：全选功能</div>
+            <div class="test-steps">
+                <ol>
+                    <li>点击表头的全选复选框</li>
+                    <li>验证当前页所有记录被选中，行背景变为浅蓝色</li>
+                    <li>再次点击全选复选框</li>
+                    <li>验证所有记录取消选中</li>
+                    <li>手动勾选部分记录，验证全选框显示为半选状态</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>
+                    <ul>
+                        <li>全选时所有复选框被勾选，行背景变色</li>
+                        <li>部分选中时全选框显示半选状态（indeterminate）</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试9：导出功能</div>
+            <div class="test-steps">
+                <ol>
+                    <li>可选：先进行筛选，只导出需要的数据</li>
+                    <li>点击【导出】按钮</li>
+                    <li>验证浏览器自动下载CSV文件</li>
+                    <li>打开下载的CSV文件，验证数据完整性</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>
+                    <ul>
+                        <li>文件名格式：库存明细_YYYYMMDD_HHMMSS.csv</li>
+                        <li>文件包含所有列的数据</li>
+                        <li>中文显示正常（UTF-8 BOM编码）</li>
+                        <li>导出的是当前筛选后的数据，不是全部数据</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试10：库龄颜色标识</div>
+            <div class="test-steps">
+                <ol>
+                    <li>观察列表中"库龄(天)"列的颜色</li>
+                    <li>验证不同库龄显示不同颜色：
+                        <ul>
+                            <li>≤15天：绿色</li>
+                            <li>16-30天：黄色</li>
+                            <li>>30天：红色</li>
+                        </ul>
+                    </li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>库龄数字根据天数显示对应颜色，便于快速识别库存积压情况
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">测试11：分页功能</div>
+            <div class="test-steps">
+                <ol>
+                    <li>观察页面底部的分页信息</li>
+                    <li>点击【下一页】按钮（如果有多页）</li>
+                    <li>验证页码更新，数据切换到下一页</li>
+                    <li>点击【上一页】按钮</li>
+                    <li>验证返回上一页数据</li>
+                </ol>
+                <div class="expected">
+                    <strong>预期结果：</strong>
+                    <ul>
+                        <li>每页显示10条记录</li>
+                        <li>第一页时"上一页"按钮禁用</li>
+                        <li>最后一页时"下一页"按钮禁用</li>
+                        <li>切换页面时清空选中状态</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <h2>🎯 业务规则验证</h2>
+        
+        <div class="test-section">
+            <div class="test-title">规则1：物料锁定后的出库限制</div>
+            <div class="test-steps">
+                <p><strong>场景：</strong>容器TP-001中有2种物料（WL-2024-001和WL-2024-002）</p>
+                <ol>
+                    <li>锁定其中一种物料（如WL-2024-001）</li>
+                    <li>验证该物料状态变为"锁定"</li>
+                    <li>另一种物料（WL-2024-002）保持"正常"状态</li>
+                </ol>
+                <div class="expected">
+                    <strong>业务含义：</strong>
+                    <ul>
+                        <li>容器TP-001可以出库（因为容器本身未锁定）</li>
+                        <li>但出库时，WL-2024-001不可出库（已锁定）</li>
+                        <li>WL-2024-002可以正常出库</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">规则2：清空库存的影响</div>
+            <div class="test-steps">
+                <p><strong>场景：</strong>清空容器TP-001中的某个物料</p>
+                <ol>
+                    <li>勾选容器TP-001中的WL-2024-001记录</li>
+                    <li>点击【清空库存】</li>
+                    <li>验证该记录被删除</li>
+                    <li>容器TP-001中的WL-2024-002记录仍然存在</li>
+                </ol>
+                <div class="expected">
+                    <strong>业务含义：</strong>清空库存是按物料+容器维度进行的，不会影响同一容器中的其他物料
+                </div>
+            </div>
+        </div>
+
+        <h2>📝 注意事项</h2>
+        <div class="note">
+            <ul>
+                <li>✅ 库存明细以<strong>物料+容器</strong>维度展示，一个容器有多种物料时会显示多条记录</li>
+                <li>✅ 物料锁定/解锁操作是针对<strong>单条记录</strong>的，不影响同一容器中的其他物料</li>
+                <li>✅ 清空库存操作<strong>不可恢复</strong>，请谨慎操作</li>
+                <li>✅ 导出功能导出的是<strong>当前筛选结果</strong>，不是全部数据</li>
+                <li>✅ 库龄自动计算，颜色标识帮助快速识别库存积压情况</li>
+                <li>✅ 切换页面时会自动清空选中状态</li>
+            </ul>
+        </div>
+
+        <h2>🚀 快速开始</h2>
+        <div class="test-steps">
+            <ol>
+                <li>在主菜单中找到"库存管理"菜单组</li>
+                <li>点击"库存明细"子菜单</li>
+                <li>页面加载后会显示所有库存数据</li>
+                <li>使用筛选条件查询需要的数据</li>
+                <li>勾选记录后可进行锁定、解锁、清空等操作</li>
+                <li>点击导出按钮可下载当前数据</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

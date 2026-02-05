@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试入库作业功能</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+        .test-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .step-list {
+            line-height: 2;
+        }
+        .step-list li {
+            margin: 10px 0;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .btn {
+            padding: 12px 28px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            margin: 10px 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            background: #5568d3;
+        }
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #2196f3;
+            margin: 20px 0;
+        }
+        .success-box {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #4caf50;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #e8e8e8;
+        }
+        th {
+            background: #f5f7fa;
+            font-weight: 600;
+            color: #333;
+        }
+        .screenshot {
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 测试入库作业功能</h1>
+        
+        <div class="info-box">
+            <strong>📌 功能说明：</strong><br>
+            入库作业是一个操作终端页面，用于实际的入库组盘操作。<br>
+            操作员在入库口使用该页面进行物料扫描、组盘和入库操作。
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="pages/index.html" class="btn" target="_blank">🚀 打开系统主页</a>
+            <a href="pages/入库作业.html" class="btn" target="_blank">🔧 直接打开入库作业页面</a>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📋 测试场景1：正常组盘流程</div>
+            <ol class="step-list">
+                <li>打开系统主页，点击 <span class="highlight">入库管理 → 入库作业</span></li>
+                <li>查看页面右上角显示 <span class="highlight">入库口 1</span></li>
+                <li>查看当前组盘信息：
+                    <ul>
+                        <li>入库单号：RK-2024-0003</li>
+                        <li>容器编码：TP-001</li>
+                        <li>推荐存储物料：WL-2024-001 - 电子元件A型</li>
+                    </ul>
+                </li>
+                <li>在"扫描物料编码"框输入：<span class="highlight">WL-2024-001</span></li>
+                <li>查看物料信息是否正确显示（绿色背景区域）</li>
+                <li>在"实际入库数量"框输入：<span class="highlight">20</span></li>
+                <li>点击 <span class="highlight">确认组盘</span> 按钮</li>
+                <li>弹出"选择入库库位"弹窗</li>
+                <li>查看是否显示"组盘成功！"提示</li>
+                <li>选择库位（默认已选择第一个）</li>
+                <li>点击 <span class="highlight">确认入库</span> 按钮</li>
+                <li>查看是否提示"入库成功！"</li>
+                <li>查看是否自动加载下一个容器（TP-002）</li>
+            </ol>
+            <div class="success-box">
+                <strong>✅ 预期结果：</strong><br>
+                - 物料信息正确显示<br>
+                - 组盘成功并弹出库位选择弹窗<br>
+                - 入库成功并自动加载下一个容器<br>
+                - 待组盘列表中第一个容器状态变为"已完成"
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📋 测试场景2：扫描错误物料</div>
+            <ol class="step-list">
+                <li>在"扫描物料编码"框输入：<span class="highlight">WL-9999-999</span>（不存在的物料）</li>
+                <li>按回车或失去焦点</li>
+            </ol>
+            <div class="success-box">
+                <strong>✅ 预期结果：</strong><br>
+                提示"物料编码不存在或不属于当前入库单！"<br>
+                输入框自动清空
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📋 测试场景3：数量超限验证</div>
+            <ol class="step-list">
+                <li>扫描物料：<span class="highlight">WL-2024-001</span></li>
+                <li>输入数量：<span class="highlight">999</span>（超过待入库数量80）</li>
+                <li>点击"确认组盘"按钮</li>
+            </ol>
+            <div class="success-box">
+                <strong>✅ 预期结果：</strong><br>
+                提示"入库数量不能超过待入库数量 80！"
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📋 测试场景4：取消组盘</div>
+            <ol class="step-list">
+                <li>扫描物料：<span class="highlight">WL-2024-001</span></li>
+                <li>输入数量：<span class="highlight">20</span></li>
+                <li>点击 <span class="highlight">取消组盘</span> 按钮</li>
+                <li>确认取消</li>
+            </ol>
+            <div class="success-box">
+                <strong>✅ 预期结果：</strong><br>
+                - 实际存储信息区域隐藏<br>
+                - 扫描框和数量框清空<br>
+                - 满托复选框取消勾选<br>
+                - 可以重新扫描物料
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📋 测试场景5：标记满托</div>
+            <ol class="step-list">
+                <li>扫描物料：<span class="highlight">WL-2024-003</span></li>
+                <li>输入数量：<span class="highlight">50</span></li>
+                <li>勾选 <span class="highlight">标记满托</span> 复选框</li>
+                <li>点击"确认组盘"按钮</li>
+                <li>选择库位并确认入库</li>
+            </ol>
+            <div class="success-box">
+                <strong>✅ 预期结果：</strong><br>
+                - 组盘成功<br>
+                - 满托标记已保存<br>
+                - 入库成功
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📊 测试数据</div>
+            
+            <h4>入库单信息：RK-2024-0003</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>物料编码</th>
+                        <th>物料名称</th>
+                        <th>计划数量</th>
+                        <th>已入库数量</th>
+                        <th>待入库数量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>WL-2024-001</td>
+                        <td>电子元件A型</td>
+                        <td>80</td>
+                        <td>0</td>
+                        <td>80</td>
+                    </tr>
+                    <tr>
+                        <td>WL-2024-003</td>
+                        <td>塑料配件C型</td>
+                        <td>60</td>
+                        <td>0</td>
+                        <td>60</td>
+                    </tr>
+                    <tr>
+                        <td>WL-2024-005</td>
+                        <td>金属材料E型</td>
+                        <td>40</td>
+                        <td>0</td>
+                        <td>40</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>待组盘容器列表</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>容器编码</th>
+                        <th>当前存储物料明细</th>
+                        <th>推荐存储物料</th>
+                        <th>推荐数量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>TP-001</td>
+                        <td>电子元件A型 × 30</td>
+                        <td>WL-2024-001 - 电子元件A型</td>
+                        <td>20</td>
+                    </tr>
+                    <tr>
+                        <td>TP-002</td>
+                        <td>空托盘</td>
+                        <td>WL-2024-003 - 塑料配件C型</td>
+                        <td>50</td>
+                    </tr>
+                    <tr>
+                        <td>TP-003</td>
+                        <td>机械零件B型 × 15、塑料配件C型 × 10</td>
+                        <td>WL-2024-005 - 金属材料E型</td>
+                        <td>25</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>可用库位</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>库位编码</th>
+                        <th>所属库区</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1-5-12-1</td>
+                        <td>库区A</td>
+                        <td>空库位</td>
+                    </tr>
+                    <tr>
+                        <td>1-6-12-1</td>
+                        <td>库区A</td>
+                        <td>空库位</td>
+                    </tr>
+                    <tr>
+                        <td>1-7-12-1</td>
+                        <td>库区A</td>
+                        <td>空库位</td>
+                    </tr>
+                    <tr>
+                        <td>2-5-12-1</td>
+                        <td>库区B</td>
+                        <td>空库位</td>
+                    </tr>
+                    <tr>
+                        <td>2-6-12-1</td>
+                        <td>库区B</td>
+                        <td>空库位</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎯 页面预览</div>
+            <div class="screenshot">
+┌─────────────────────────────────────────────────────────────┐
+│  入库作业                                    [入库口 1]      │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌─ 当前组盘信息 ─────────────────────────────────────┐    │
+│  │                                                      │    │
+│  │  入库单信息                                          │    │
+│  │  入库单号: RK-2024-0003  计划数量: 180              │    │
+│  │  已入库数量: 0           待入库数量: 180            │    │
+│  │                                                      │    │
+│  │  当前容器信息                                        │    │
+│  │  容器编码: TP-001                              │    │
+│  │  推荐存储物料: WL-2024-001 - 电子元件A型           │    │
+│  │  推荐存储数量: 20                                   │    │
+│  │                                                      │    │
+│  │  实际存储信息                                        │    │
+│  │  扫描物料编码: [____________]                       │    │
+│  │  实际入库数量: [____________]                       │    │
+│  │                                                      │    │
+│  │  ☐ 标记满托  [确认组盘]  [取消组盘]               │    │
+│  └──────────────────────────────────────────────────┘    │
+│                                                              │
+│  ┌─ 待组盘列表 ─────────────────────────────────────┐    │
+│  │ 容器编码    │ 当前存储物料明细 │ 推荐存储物料 │状态│    │
+│  ├──────────────────────────────────────────────────┤    │
+│  │ TP-001 │ 电子元件A型×30   │ WL-2024-001  │组盘中│    │
+│  │ TP-002 │ 空托盘           │ WL-2024-003  │待组盘│    │
+│  │ TP-003 │ 机械零件B型×15   │ WL-2024-005  │待组盘│    │
+│  └──────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────┘
+            </div>
+        </div>
+
+        <div class="info-box">
+            <strong>📝 相关文件：</strong><br>
+            - HTML: pages/入库作业.html<br>
+            - CSS: styles/inbound-operation.css<br>
+            - JavaScript: scripts/inbound-operation.js<br>
+            - 菜单配置: pages/index.html（已添加"入库作业"菜单项）
+        </div>
+
+        <div class="success-box">
+            <strong>✅ 功能状态：</strong><br>
+            入库作业页面已创建完成，并已添加到"入库管理"菜单中。<br>
+            所有核心功能已实现，可以进行测试验证。
+        </div>
+    </div>
+</body>
+</html>

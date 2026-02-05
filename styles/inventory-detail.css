@@ -1,0 +1,289 @@
+/* 库存明细页面样式 - 参考入库单页面风格 */
+
+.page-header h1 {
+    font-size: 24px;
+    color: #333;
+    margin: 0 0 20px 0;
+}
+
+/* 筛选区域 */
+.filter-section {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.filter-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.filter-row:last-child {
+    margin-bottom: 0;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-size: 14px;
+    color: #666;
+    white-space: nowrap;
+}
+
+.filter-input {
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    width: 180px;
+}
+
+.filter-input.small {
+    width: 80px;
+}
+
+.filter-input:focus {
+    border-color: #667eea;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    min-width: 130px;
+}
+
+.filter-select:focus {
+    border-color: #667eea;
+}
+
+.search-btn, .reset-btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.search-btn {
+    background: #667eea;
+    color: white;
+}
+
+.search-btn:hover {
+    background: #5568d3;
+}
+
+.reset-btn {
+    background: #f5f5f5;
+    color: #666;
+}
+
+.reset-btn:hover {
+    background: #e8e8e8;
+}
+
+/* 操作按钮区 */
+.action-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.primary-btn {
+    padding: 10px 24px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.primary-btn:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.danger-btn {
+    padding: 10px 24px;
+    background: #ff4d4f;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.danger-btn:hover {
+    background: #ff7875;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 77, 79, 0.4);
+}
+
+.export-btn {
+    padding: 10px 24px;
+    background: #52c41a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.export-btn:hover {
+    background: #73d13d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(82, 196, 26, 0.4);
+}
+
+/* 表格区域 */
+.table-section {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1600px;
+}
+
+.data-table thead {
+    background: #f5f7fa;
+}
+
+.data-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+    border-bottom: 2px solid #e8e8e8;
+}
+
+.data-table td {
+    padding: 12px 16px;
+    color: #666;
+    font-size: 14px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.data-table tbody tr:hover {
+    background: #fafafa;
+}
+
+/* 表格行选中状态 */
+.data-table tbody tr.selected {
+    background-color: #e6f7ff;
+}
+
+/* 库存状态标签 */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-badge.normal {
+    background: #e8f5e9;
+    color: #52c41a;
+}
+
+.status-badge.locked {
+    background: #fff1f0;
+    color: #ff4d4f;
+}
+
+/* 库龄显示 */
+.age-normal {
+    color: #52c41a;
+    font-weight: 600;
+    padding: 4px 8px;
+    background: #f6ffed;
+    border-radius: 4px;
+}
+
+.age-warning {
+    color: #fa8c16;
+    font-weight: 600;
+    padding: 4px 8px;
+    background: #fff7e6;
+    border-radius: 4px;
+}
+
+.age-danger {
+    color: #ff4d4f;
+    font-weight: 600;
+    padding: 4px 8px;
+    background: #fff1f0;
+    border-radius: 4px;
+}
+
+/* 分页 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+}
+
+.page-btn {
+    padding: 6px 16px;
+    background: white;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.page-btn:hover:not(:disabled) {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.page-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.page-info {
+    font-size: 14px;
+    color: #666;
+}
+
+/* 响应式调整 */
+@media (max-width: 1400px) {
+    .filter-row {
+        flex-wrap: wrap;
+    }
+    
+    .filter-group {
+        min-width: 200px;
+    }
+}

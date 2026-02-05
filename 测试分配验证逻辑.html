@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试分配托盘验证逻辑</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .test-case {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+        .test-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .test-data {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .result.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+        .result.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+        .btn {
+            padding: 10px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #5568d3;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #2196f3;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 测试分配托盘验证逻辑</h1>
+        
+        <div class="info-box">
+            <strong>📌 新的验证逻辑：</strong><br>
+            点击"确认分配"按钮时，系统会验证推荐托盘列表中所有托盘的数据。<br>
+            只要"推荐存储物料"和"推荐存储数量"不为空，该托盘就会被分配。<br>
+            <strong>不需要勾选复选框！</strong>
+        </div>
+
+        <div class="test-case">
+            <div class="test-title">✅ 测试场景1：默认推荐托盘（全部有数据）</div>
+            <div class="test-data">
+☐ TP-001 | 电子元件A型×30 | [WL-2024-001-电子元件A型] | [20]
+☐ TP-002 | 空托盘        | [WL-2024-003-塑料配件C型] | [50]
+☐ TP-003 | 机械零件B型×15 | [WL-2024-005-金属材料E型] | [25]
+            </div>
+            <strong>操作：</strong> <span class="highlight">不勾选任何复选框</span>，直接点击"确认分配"<br>
+            <div class="result success">
+                <strong>✅ 预期结果：</strong> 成功分配3个托盘<br>
+                - TP-001 分配 WL-2024-001 × 20<br>
+                - TP-002 分配 WL-2024-003 × 50<br>
+                - TP-003 分配 WL-2024-005 × 25<br>
+                提示："已分配托盘数：3，本次分配数量：95"
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-title">✅ 测试场景2：部分托盘有数据</div>
+            <div class="test-data">
+☐ TP-001 | 电子元件A型×30 | [WL-2024-001-电子元件A型] | [20]
+☐ TP-002 | 空托盘        | [请选择物料]              | [50]  ← 物料未选择
+☐ TP-003 | 机械零件B型×15 | [WL-2024-005-金属材料E型] | [25]
+            </div>
+            <strong>操作：</strong> 点击"确认分配"<br>
+            <div class="result success">
+                <strong>✅ 预期结果：</strong> 成功分配2个托盘<br>
+                - TP-001 分配 WL-2024-001 × 20<br>
+                - TP-002 <span class="highlight">跳过</span>（物料未选择）<br>
+                - TP-003 分配 WL-2024-005 × 25<br>
+                提示："已分配托盘数：2，本次分配数量：45"
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-title">✅ 测试场景3：修改推荐数据</div>
+            <div class="test-data">
+☐ TP-001 | 电子元件A型×30 | [WL-2024-003-塑料配件C型] | [30]  ← 修改了物料和数量
+☐ TP-002 | 空托盘        | [请选择物料]              | [0]   ← 数量为0
+☐ TP-003 | 机械零件B型×15 | [WL-2024-005-金属材料E型] | [25]
+            </div>
+            <strong>操作：</strong> 点击"确认分配"<br>
+            <div class="result success">
+                <strong>✅ 预期结果：</strong> 成功分配2个托盘<br>
+                - TP-001 分配 WL-2024-003 × 30（使用修改后的数据）<br>
+                - TP-002 <span class="highlight">跳过</span>（数量为0）<br>
+                - TP-003 分配 WL-2024-005 × 25<br>
+                提示："已分配托盘数：2，本次分配数量：55"
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-title">❌ 测试场景4：所有托盘都为空</div>
+            <div class="test-data">
+☐ TP-001 | 电子元件A型×30 | [请选择物料] | [0]
+☐ TP-002 | 空托盘        | [请选择物料] | [0]
+☐ TP-003 | 机械零件B型×15 | [请选择物料] | [0]
+            </div>
+            <strong>操作：</strong> 点击"确认分配"<br>
+            <div class="result error">
+                <strong>❌ 预期结果：</strong> 提示错误<br>
+                "请至少为一个托盘选择物料并填写数量！"
+            </div>
+        </div>
+
+        <div class="test-case">
+            <div class="test-title">✅ 测试场景5：只有一个托盘有数据</div>
+            <div class="test-data">
+☐ TP-001 | 电子元件A型×30 | [请选择物料]              | [0]
+☐ TP-002 | 空托盘        | [WL-2024-003-塑料配件C型] | [60]  ← 只有这个有数据
+☐ TP-003 | 机械零件B型×15 | [请选择物料]              | [0]
+            </div>
+            <strong>操作：</strong> 点击"确认分配"<br>
+            <div class="result success">
+                <strong>✅ 预期结果：</strong> 成功分配1个托盘<br>
+                - TP-001 <span class="highlight">跳过</span><br>
+                - TP-002 分配 WL-2024-003 × 60<br>
+                - TP-003 <span class="highlight">跳过</span><br>
+                提示："已分配托盘数：1，本次分配数量：60"
+            </div>
+        </div>
+
+        <div class="info-box" style="background: #e8f5e9; border-left-color: #4caf50;">
+            <strong>✅ 关键改进：</strong><br>
+            1. <strong>不需要勾选复选框</strong> - 只要填写了物料和数量就会分配<br>
+            2. <strong>自动过滤无效数据</strong> - 空的托盘会自动跳过<br>
+            3. <strong>更灵活</strong> - 可以只分配部分托盘<br>
+            4. <strong>更高效</strong> - 减少操作步骤
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="window.open('pages/index.html', '_blank')">🚀 打开入库单页面测试</button>
+            <button class="btn" onclick="window.open('test-allocate.html', '_blank')">🧪 打开测试页面</button>
+        </div>
+
+        <div class="info-box" style="margin-top: 30px;">
+            <strong>📋 测试步骤：</strong><br>
+            1. 点击上方按钮打开入库单页面<br>
+            2. 点击"入库管理" → "入库单"<br>
+            3. 找到 RK-2024-0003 记录<br>
+            4. 点击"分配托盘"按钮<br>
+            5. 查看推荐托盘列表（3个托盘都有默认数据）<br>
+            6. <strong>不勾选任何复选框</strong>，直接点击"确认分配"<br>
+            7. 验证是否成功分配3个托盘
+        </div>
+    </div>
+</body>
+</html>

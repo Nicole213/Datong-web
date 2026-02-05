@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>巷道管理</title>
+    <link rel="stylesheet" href="../styles/pages.css">
+    <link rel="stylesheet" href="../styles/aisle.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="page-header">
+            <h1>巷道管理</h1>
+        </div>
+
+        <!-- 查询筛选区 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>巷道编码：</label>
+                    <input type="text" class="filter-input" id="searchCode" placeholder="请输入巷道编码">
+                </div>
+                <div class="filter-group">
+                    <label>巷道名称：</label>
+                    <input type="text" class="filter-input" id="searchName" placeholder="请输入巷道名称">
+                </div>
+                <button class="search-btn" id="searchBtn">🔍 查询</button>
+                <button class="reset-btn" id="resetBtn">🔄 重置</button>
+            </div>
+        </div>
+
+        <!-- 操作按钮区 -->
+        <div class="action-bar">
+            <button class="primary-btn" id="addBtn">➕ 新增巷道</button>
+        </div>
+
+        <!-- 表格区 -->
+        <div class="table-section">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="100">巷道编码</th>
+                        <th width="150">巷道名称</th>
+                        <th width="100">库位结构</th>
+                        <th width="200">绑定库台</th>
+                        <th width="150">绑定库排</th>
+                        <th width="80">状态</th>
+                        <th width="200">备注</th>
+                        <th width="150">创建时间</th>
+                        <th width="300">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="aisleTableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination">
+            <button class="page-btn" id="prevPage">上一页</button>
+            <span class="page-info">第 <span id="currentPage">1</span> 页，共 <span id="totalPages">1</span> 页</span>
+            <button class="page-btn" id="nextPage">下一页</button>
+        </div>
+    </div>
+
+    <!-- 新增/编辑巷道弹窗 -->
+    <div class="modal" id="aisleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">新增巷道</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="aisleForm">
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">巷道编码：</label>
+                            <input type="text" class="form-input" id="aisleCode" required placeholder="请输入巷道编码">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">巷道名称：</label>
+                            <input type="text" class="form-input" id="aisleName" required placeholder="请输入巷道名称">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">库位结构：</label>
+                            <select class="form-input" id="aisleStructure" required>
+                                <option value="">请选择库位结构</option>
+                                <option value="单深">单深</option>
+                                <option value="双深">双深</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label>备注：</label>
+                            <textarea class="form-input" id="aisleRemark" rows="3" placeholder="请输入备注信息"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="saveBtn">保存</button>
+                <button class="modal-btn secondary" id="cancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 绑定库台弹窗 -->
+    <div class="modal" id="bindStationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>绑定库台</h3>
+                <span class="modal-close" id="bindStationClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="bind-info">
+                    <span>巷道：<strong id="bindAisleName">-</strong></span>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>选择库台：</label>
+                        <div class="station-list">
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台A1" class="station-checkbox">
+                                <span>库台A1</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台A2" class="station-checkbox">
+                                <span>库台A2</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台B1" class="station-checkbox">
+                                <span>库台B1</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台B2" class="station-checkbox">
+                                <span>库台B2</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台C1" class="station-checkbox">
+                                <span>库台C1</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台C2" class="station-checkbox">
+                                <span>库台C2</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台C3" class="station-checkbox">
+                                <span>库台C3</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台D1" class="station-checkbox">
+                                <span>库台D1</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台D2" class="station-checkbox">
+                                <span>库台D2</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="库台E1" class="station-checkbox">
+                                <span>库台E1</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="bindStationSaveBtn">保存</button>
+                <button class="modal-btn secondary" id="bindStationCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 绑定库排弹窗 -->
+    <div class="modal" id="bindRowModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>绑定库排</h3>
+                <span class="modal-close" id="bindRowClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="bind-info">
+                    <span>巷道：<strong id="bindRowAisleName">-</strong></span>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>选择库排：</label>
+                        <div class="row-list">
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="1" class="row-checkbox">
+                                <span>1排</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="2" class="row-checkbox">
+                                <span>2排</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="3" class="row-checkbox">
+                                <span>3排</span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" value="4" class="row-checkbox">
+                                <span>4排</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="bindRowSaveBtn">保存</button>
+                <button class="modal-btn secondary" id="bindRowCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/aisle.js"></script>
+</body>
+</html>

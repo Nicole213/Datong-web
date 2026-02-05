@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试库位分配弹窗关闭行为</title>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        #locationAllocateModal {
+            z-index: 1100;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            min-width: 400px;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-close {
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .test-btn {
+            padding: 8px 16px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .modal-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .modal-btn.primary {
+            background: #1890ff;
+            color: white;
+        }
+        
+        .modal-btn.secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>测试库位分配弹窗关闭行为</h1>
+    
+    <div class="status">
+        <div>批量分配弹窗状态: <span id="batchStatus">关闭</span></div>
+        <div>库位分配弹窗状态: <span id="locationStatus">关闭</span></div>
+    </div>
+    
+    <button class="test-btn" onclick="openBatchModal()">1. 打开批量分配弹窗</button>
+    
+    <!-- 批量分配弹窗 -->
+    <div class="modal" id="batchAllocateModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>批量分配</h3>
+                <span class="modal-close" onclick="closeBatchModal()">&times;</span>
+            </div>
+            <div>
+                <p>这是批量分配弹窗</p>
+                <button class="test-btn" onclick="openLocationModal()">2. 打开库位分配弹窗</button>
+            </div>
+            <div style="margin-top: 20px;">
+                <button class="modal-btn secondary" onclick="closeBatchModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 库位分配弹窗 -->
+    <div class="modal" id="locationAllocateModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>库位分配</h3>
+                <span class="modal-close" id="locationAllocateClose">&times;</span>
+            </div>
+            <div>
+                <p>这是库位分配弹窗</p>
+                <p style="color: red;">点击右上角的 × 按钮，应该只关闭当前弹窗，返回批量分配弹窗</p>
+            </div>
+            <div style="margin-top: 20px;">
+                <button class="modal-btn primary" onclick="closeLocationModal()">确认分配</button>
+                <button class="modal-btn secondary" onclick="closeLocationModal()">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function updateStatus() {
+            document.getElementById('batchStatus').textContent = 
+                document.getElementById('batchAllocateModal').classList.contains('active') ? '打开' : '关闭';
+            document.getElementById('locationStatus').textContent = 
+                document.getElementById('locationAllocateModal').classList.contains('active') ? '打开' : '关闭';
+        }
+        
+        function openBatchModal() {
+            document.getElementById('batchAllocateModal').classList.add('active');
+            updateStatus();
+        }
+        
+        function closeBatchModal() {
+            document.getElementById('batchAllocateModal').classList.remove('active');
+            updateStatus();
+        }
+        
+        function openLocationModal() {
+            document.getElementById('locationAllocateModal').classList.add('active');
+            updateStatus();
+        }
+        
+        function closeLocationModal() {
+            document.getElementById('locationAllocateModal').classList.remove('active');
+            updateStatus();
+        }
+        
+        // 绑定关闭按钮
+        document.getElementById('locationAllocateClose').addEventListener('click', closeLocationModal);
+        
+        // 初始化状态
+        updateStatus();
+    </script>
+</body>
+</html>

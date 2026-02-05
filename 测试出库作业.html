@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试出库作业功能</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #667eea;
+            margin-top: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .test-step {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .test-data {
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 10px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 6px;
+            border-left: 3px solid #52c41a;
+        }
+        .feature-list li:before {
+            content: "✓ ";
+            color: #52c41a;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .btn-test {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        .btn-test:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            color: #e83e8c;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🚀 出库作业功能测试说明</h1>
+        
+        <div class="success">
+            <strong>✓ 功能已完成</strong><br>
+            出库作业功能已完整实现，包括多订单、多物料的复杂出库场景处理。
+        </div>
+
+        <h2>📋 功能特性</h2>
+        <ul class="feature-list">
+            <li>显示出库口标识（固定显示当前操作终端所属出库口）</li>
+            <li>显示多个出库单信息（出库单号、计划数量、已出数量、待出数量）</li>
+            <li>PDA扫码容器码，显示容器信息（容器编码、容器类型）</li>
+            <li>显示容器物料明细（物料编码、名称、图片、当前数量）</li>
+            <li>支持一个物料关联多个出库单的复杂场景</li>
+            <li>PDA扫码物料码，自动定位并高亮显示该物料</li>
+            <li>填写实际出库数量，支持数量验证</li>
+            <li>按订单维度逐个确认出库</li>
+            <li>所有物料出库完成后，选择回库库位</li>
+            <li>生成容器回库入库任务</li>
+        </ul>
+
+        <h2>🧪 测试场景</h2>
+        
+        <div class="test-section">
+            <h3>场景一：标准出库流程</h3>
+            
+            <div class="test-step">
+                <span class="step-number">1</span>
+                <strong>扫描容器编码</strong>
+                <div class="test-data">
+                    容器编码：TP-001<br>
+                    容器类型：标准托盘
+                </div>
+                <p>系统将显示该容器的所有物料信息，包括需要出库的物料明细。</p>
+            </div>
+
+            <div class="test-step">
+                <span class="step-number">2</span>
+                <strong>扫描物料编码（可选）</strong>
+                <div class="test-data">
+                    物料编码：WL-2024-001
+                </div>
+                <p>系统将高亮显示该物料的所有出库明细行，方便操作员定位。</p>
+            </div>
+
+            <div class="test-step">
+                <span class="step-number">3</span>
+                <strong>填写实际出库数量</strong>
+                <p>在"实际出库数量"列中填写每个订单的实际出库数量：</p>
+                <div class="test-data">
+                    物料：WL-2024-001 电子元件A型<br>
+                    - 订单 CK-2024-001：需出库 50，填写实际数量 50<br>
+                    - 订单 CK-2024-002：需出库 30，填写实际数量 30
+                </div>
+            </div>
+
+            <div class="test-step">
+                <span class="step-number">4</span>
+                <strong>逐个确认出库</strong>
+                <p>点击每行的"确认出库"按钮，系统弹窗确认后完成该订单物料的出库。</p>
+                <div class="warning">
+                    <strong>注意：</strong>必须先填写实际出库数量，才能点击确认出库按钮。
+                </div>
+            </div>
+
+            <div class="test-step">
+                <span class="step-number">5</span>
+                <strong>完成所有物料出库</strong>
+                <p>重复步骤3-4，完成容器中所有需要出库的物料：</p>
+                <div class="test-data">
+                    物料 WL-2024-002：订单 CK-2024-001 出库 50<br>
+                    物料 WL-2024-003：订单 CK-2024-002 出库 50
+                </div>
+            </div>
+
+            <div class="test-step">
+                <span class="step-number">6</span>
+                <strong>选择回库库位</strong>
+                <p>所有物料出库完成后，系统自动显示回库区域。选择推荐的库位或手动选择其他库位。</p>
+                <div class="test-data">
+                    推荐库位：1-5-12-1 (库区A)
+                </div>
+            </div>
+
+            <div class="test-step">
+                <span class="step-number">7</span>
+                <strong>确认回库</strong>
+                <p>点击"确认回库"按钮，系统生成入库任务，将容器回库至指定库位。</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>场景二：复杂多订单场景</h3>
+            <p>容器 TP-001 中的物料 WL-2024-001 同时关联两个出库单：</p>
+            <div class="test-data">
+                物料：WL-2024-001 电子元件A型（当前库存：100）<br>
+                - 订单 CK-2024-001：需出库 50<br>
+                - 订单 CK-2024-002：需出库 30<br>
+                <br>
+                操作流程：<br>
+                1. 填写订单 CK-2024-001 的实际出库数量：50<br>
+                2. 点击该行的"确认出库"按钮<br>
+                3. 填写订单 CK-2024-002 的实际出库数量：30<br>
+                4. 点击该行的"确认出库"按钮<br>
+                5. 物料当前库存更新为：20
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>场景三：部分物料无需出库</h3>
+            <p>容器中可能存储多种物料，但只有部分物料需要出库：</p>
+            <div class="test-data">
+                容器 TP-001 存储物料：<br>
+                - WL-2024-001：需要出库（关联订单 CK-2024-001、CK-2024-002）<br>
+                - WL-2024-002：需要出库（关联订单 CK-2024-001）<br>
+                - WL-2024-003：需要出库（关联订单 CK-2024-002）<br>
+                <br>
+                系统会在表格中清晰标识：<br>
+                - 需要出库的物料：黄色背景，显示订单明细<br>
+                - 无需出库的物料：灰色背景，显示"无需出库"
+            </div>
+        </div>
+
+        <h2>✅ 数据验证规则</h2>
+        <div class="test-section">
+            <ul class="feature-list">
+                <li>扫描容器码时，验证容器是否存在</li>
+                <li>扫描物料码时，验证物料是否在当前容器中</li>
+                <li>扫描物料码时，验证物料是否需要出库</li>
+                <li>填写实际出库数量时，验证不能超过需出库数量</li>
+                <li>填写实际出库数量时，验证不能超过当前库存数量</li>
+                <li>确认出库时，验证必须先填写实际出库数量</li>
+                <li>只有所有需出库的物料都确认完成后，才显示回库区域</li>
+            </ul>
+        </div>
+
+        <h2>🎨 界面特性</h2>
+        <div class="test-section">
+            <ul class="feature-list">
+                <li>出库口标识：渐变色徽章，醒目显示当前操作终端</li>
+                <li>出库单卡片：渐变色卡片，实时显示各订单的出库进度</li>
+                <li>物料表格：清晰的行合并显示，支持一个物料多个订单</li>
+                <li>扫码高亮：扫描物料后自动高亮对应行，方便定位</li>
+                <li>状态标识：已确认的行显示绿色背景和"已确认"状态</li>
+                <li>回库区域：所有出库完成后自动显示，流程清晰</li>
+                <li>确认弹窗：出库前二次确认，避免误操作</li>
+            </ul>
+        </div>
+
+        <h2>📱 操作提示</h2>
+        <div class="warning">
+            <strong>PDA操作建议：</strong><br>
+            1. 所有扫描输入框都支持回车键快速提交<br>
+            2. 扫描容器后，焦点自动跳转到物料扫描框<br>
+            3. 可以不扫描物料，直接在表格中填写数量<br>
+            4. 扫描物料主要用于快速定位，在物料较多时很有用<br>
+            5. 建议按照表格顺序逐行确认出库，避免遗漏
+        </div>
+
+        <h2>🔗 测试链接</h2>
+        <p>点击下方按钮打开出库作业页面进行测试：</p>
+        <a href="pages/出库作业.html" class="btn-test" target="_blank">打开出库作业页面</a>
+
+        <div class="test-section" style="margin-top: 30px;">
+            <h3>测试数据说明</h3>
+            <p>系统预置了以下测试数据：</p>
+            
+            <h4>出库单：</h4>
+            <div class="test-data">
+                CK-2024-001：计划数量 100<br>
+                - 物料 WL-2024-001：50<br>
+                - 物料 WL-2024-002：50<br>
+                <br>
+                CK-2024-002：计划数量 80<br>
+                - 物料 WL-2024-001：30<br>
+                - 物料 WL-2024-003：50
+            </div>
+
+            <h4>容器：</h4>
+            <div class="test-data">
+                TP-001（标准托盘）：<br>
+                - WL-2024-001 电子元件A型：库存 100，需出库 80（订单001:50 + 订单002:30）<br>
+                - WL-2024-002 机械零件B型：库存 60，需出库 50（订单001:50）<br>
+                - WL-2024-003 塑料配件C型：库存 80，需出库 50（订单002:50）<br>
+                <br>
+                TP-002（标准托盘）：<br>
+                - WL-2024-001 电子元件A型：库存 50，需出库 20（订单001:20）
+            </div>
+        </div>
+    </div>
+</body>
+</html>

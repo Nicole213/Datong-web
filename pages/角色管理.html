@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角色管理</title>
+    <link rel="stylesheet" href="../styles/pages.css">
+    <link rel="stylesheet" href="../styles/user-management.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="page-header">
+            <h1>角色管理</h1>
+        </div>
+
+        <!-- 查询筛选区 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>角色名称：</label>
+                    <input type="text" class="filter-input" id="searchRoleName" placeholder="请输入角色名称">
+                </div>
+                <button class="search-btn" id="searchBtn">🔍 查询</button>
+                <button class="reset-btn" id="resetBtn">🔄 重置</button>
+            </div>
+        </div>
+
+        <!-- 操作按钮区 -->
+        <div class="action-bar">
+            <button class="add-btn" id="addBtn">➕ 新增</button>
+        </div>
+
+        <!-- 表格区 -->
+        <div class="table-section">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="150">角色名称</th>
+                        <th width="150">角色编码</th>
+                        <th width="300">绑定用户</th>
+                        <th width="160">创建时间</th>
+                        <th width="250">备注</th>
+                        <th width="200">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="roleTableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination">
+            <button class="page-btn" id="prevPage">上一页</button>
+            <span class="page-info">第 <span id="currentPage">1</span> 页，共 <span id="totalPages">1</span> 页</span>
+            <button class="page-btn" id="nextPage">下一页</button>
+        </div>
+    </div>
+
+    <!-- 新增/编辑角色弹窗 -->
+    <div class="modal" id="roleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">新增角色</h3>
+                <span class="modal-close" id="modalClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label class="required">角色名称：</label>
+                        <input type="text" class="form-input" id="roleName" placeholder="请输入角色名称" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label>备注：</label>
+                        <textarea class="form-input" id="remark" placeholder="请输入备注信息" rows="4" style="resize: vertical;"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="saveBtn">保存</button>
+                <button class="modal-btn secondary" id="cancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 权限配置弹窗 -->
+    <div class="modal" id="permissionConfigModal">
+        <div class="modal-content permission-config-content">
+            <div class="modal-header">
+                <h3>权限配置 - <span id="configRoleName"></span></h3>
+                <span class="modal-close" id="permissionConfigClose">&times;</span>
+            </div>
+            <div class="modal-body permission-config-body">
+                <div class="permission-config-container">
+                    <!-- 左侧菜单树 -->
+                    <div class="menu-tree-panel">
+                        <div class="panel-title">系统菜单</div>
+                        <div class="menu-tree" id="menuTree">
+                            <!-- 菜单树将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧权限配置 -->
+                    <div class="permission-config-panel">
+                        <div class="panel-title">权限配置</div>
+                        <div class="permission-config-content-area" id="permissionConfigArea">
+                            <div class="empty-state">
+                                <p>👈 请从左侧选择菜单模块</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="savePermissionBtn">保存配置</button>
+                <button class="modal-btn secondary" id="cancelPermissionBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/role-management.js"></script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大同WMS立体库管理系统</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">📦</span>
+                <span class="logo-text">大同WMS立体库管理系统</span>
+            </div>
+            <div class="user-info">
+                <span class="user-name">管理员</span>
+                <button class="logout-btn">退出</button>
+            </div>
+        </header>
+
+        <!-- 主体内容区 -->
+        <div class="main-content">
+            <!-- 左侧菜单 -->
+            <aside class="sidebar">
+                <nav class="menu">
+                    <a href="#" class="menu-item active" data-page="首页">
+                        <span class="menu-icon">🏠</span>
+                        <span class="menu-text">首页</span>
+                    </a>
+                    <a href="#" class="menu-item" data-page="库位地图">
+                        <span class="menu-icon">🗺️</span>
+                        <span class="menu-text">库位地图</span>
+                    </a>
+                    <div class="menu-group">
+                        <div class="menu-group-title">
+                            <span class="menu-icon">🏢</span>
+                            <span class="menu-text">仓库管理</span>
+                            <span class="menu-arrow">▼</span>
+                        </div>
+                        <div class="menu-group-items">
+                            <a href="#" class="menu-item sub-item" data-page="库区管理">
+                                <span class="menu-text">库区管理</span>
+                            </a>
+                            <a href="#" class="menu-item sub-item" data-page="库位管理">
+                                <span class="menu-text">库位管理</span>
+                            </a>
+                            <a href="#" class="menu-item sub-item" data-page="库口管理">
+                                <span class="menu-text">库口管理</span>
+                            </a>
+                            <a href="#" class="menu-item sub-item" data-page="库台管理">
+                                <span class="menu-text">库台管理</span>
+                            </a>
+                            <a href="#" class="menu-item sub-item" data-page="巷道管理">
+                                <span class="menu-text">巷道管理</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="menu-group">
+                        <div class="menu-group-title">
+                            <span class="menu-icon">📥</span>
+                            <span class="menu-text">入库管理</span>
+                            <span class="menu-arrow">▼</span>
+                        </div>
+                        <div class="menu-group-items">
+                            <a href="#" class="menu-item sub-item" data-page="入库单">
+                                <span class="menu-text">入库单</span>
+                            </a>
+                            <a href="#" class="menu-item sub-item" data-page="入库作业">
+                                <span class="menu-text">入库作业</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="menu-group">
+                        <div class="menu-group-title">
+                            <span class="menu-icon">📤</span>
+                            <span class="menu-text">出库管理</span>
+                            <span class="menu-arrow">▼</span>
+                        </div>
+                        <div class="menu-group-items">
+                            <a href="#" class="menu-item sub-item" data-page="出库单">
+                                <span class="menu-text">出库单</span>
+                            </a>
+                            <a href="#" class="menu-item sub-item" data-page="出库作业">
+                                <span class="menu-text">出库作业</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="menu-group">
+                        <div class="menu-group-title">
+                            <span class="menu-icon">📊</span>
+                            <span class="menu-text">盘点管理</span>
+                            <span class="menu-arrow">▼</span>
+                        </div>
+                        <div class="menu-group-items">
+                            <a href="#" class="menu-item sub-item" data-page="盘点计划">
+                                <span class="menu-text">盘点计划</span>
+                            </a>
+                            <a href="#" class="menu-item sub-item" data-page="盘点作业">
+                                <span class="menu-text">盘点作业</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="menu-group">
+                        <div class="menu-group-title">
+                            <span class="menu-icon">📦</span>
+                            <span class="menu-text">库存管理</span>
+                            <span class="menu-arrow">▼</span>
+                        </div>
+                        <div class="menu-group-items">
+                            <a href="#" class="menu-item sub-item" data-page="库存明细">
+                                <span class="menu-text">库存明细</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="menu-group">
+                        <div class="menu-group-title">
+                            <span class="menu-icon">📋</span>
+                            <span class="menu-text">任务管理</span>
+                            <span class="menu-arrow">▼</span>
+                        </div>
+                        <div class="menu-group-items">
+                            <a href="#" class="menu-item sub-item" data-page="任务列表">
+                                <span class="menu-text">任务列表</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="menu-group">
+                        <div class="menu-group-title">
+                            <span class="menu-icon">⚙️</span>
+                            <span class="menu-text">策略配置</span>
+                            <span class="menu-arrow">▼</span>
+                        </div>
+                        <div class="menu-group-items">
+                            <a href="#" class="menu-item sub-item" data-page="入库策略">
+                                <span class="menu-text">入库策略</span>
+                            </a>
+                            <a href="#" class="menu-item sub-item" data-page="出库策略">
+                                <span class="menu-text">出库策略</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="menu-group">
+                        <div class="menu-group-title">
+                            <span class="menu-icon">🔧</span>
+                            <span class="menu-text">系统管理</span>
+                            <span class="menu-arrow">▼</span>
+                        </div>
+                        <div class="menu-group-items">
+                            <a href="#" class="menu-item sub-item" data-page="用户管理">
+                                <span class="menu-text">用户管理</span>
+                            </a>
+                            <a href="#" class="menu-item sub-item" data-page="角色管理">
+                                <span class="menu-text">角色管理</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="menu-group">
+                        <div class="menu-group-title">
+                            <span class="menu-icon">📋</span>
+                            <span class="menu-text">基础数据</span>
+                            <span class="menu-arrow">▼</span>
+                        </div>
+                        <div class="menu-group-items">
+                            <a href="#" class="menu-item sub-item" data-page="物料管理">
+                                <span class="menu-text">物料管理</span>
+                            </a>
+                            <a href="#" class="menu-item sub-item" data-page="容器管理">
+                                <span class="menu-text">容器管理</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="menu-group">
+                        <div class="menu-group-title">
+                            <span class="menu-icon">🔌</span>
+                            <span class="menu-text">接口管理</span>
+                            <span class="menu-arrow">▼</span>
+                        </div>
+                        <div class="menu-group-items">
+                            <a href="#" class="menu-item sub-item" data-page="接口日志">
+                                <span class="menu-text">接口日志</span>
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- 内容区域 -->
+            <main class="content-area">
+                <iframe id="content-frame" src="pages/首页.html" frameborder="0"></iframe>
+            </main>
+        </div>
+    </div>
+
+    <script src="scripts/main.js"></script>
+</body>
+</html>

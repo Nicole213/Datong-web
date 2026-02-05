@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>接口日志</title>
+    <link rel="stylesheet" href="../styles/pages.css">
+    <link rel="stylesheet" href="../styles/interface-log.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="page-header">
+            <h1>接口日志</h1>
+        </div>
+
+        <!-- 查询筛选区 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>业务类型：</label>
+                    <select class="filter-select" id="searchBusinessType">
+                        <option value="">全部</option>
+                        <option value="入库">入库</option>
+                        <option value="出库">出库</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>是否发送方：</label>
+                    <select class="filter-select" id="searchIsSender">
+                        <option value="">全部</option>
+                        <option value="是">是</option>
+                        <option value="否">否</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>是否接收方：</label>
+                    <select class="filter-select" id="searchIsReceiver">
+                        <option value="">全部</option>
+                        <option value="是">是</option>
+                        <option value="否">否</option>
+                    </select>
+                </div>
+                <button class="search-btn" id="searchBtn">🔍 查询</button>
+                <button class="reset-btn" id="resetBtn">🔄 重置</button>
+            </div>
+        </div>
+
+        <!-- 表格区 -->
+        <div class="table-section">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="100">业务类型</th>
+                        <th width="250">URL</th>
+                        <th width="100">是否发送方</th>
+                        <th width="100">是否接收方</th>
+                        <th width="100">接口状态</th>
+                        <th width="80">状态码</th>
+                        <th width="80">重试次数</th>
+                        <th width="160">接口成功时间</th>
+                        <th width="160">创建时间</th>
+                        <th width="160">最后修改时间</th>
+                        <th width="120">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="logTableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination">
+            <button class="page-btn" id="prevPage">上一页</button>
+            <span class="page-info">第 <span id="currentPage">1</span> 页，共 <span id="totalPages">1</span> 页</span>
+            <button class="page-btn" id="nextPage">下一页</button>
+        </div>
+    </div>
+
+    <!-- 查看报文弹窗 -->
+    <div class="modal" id="messageModal">
+        <div class="modal-content message-modal-content">
+            <div class="modal-header">
+                <h3>接口报文详情</h3>
+                <span class="modal-close" id="modalClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="message-section">
+                    <div class="message-item">
+                        <label>请求URL：</label>
+                        <div class="message-value url-value" id="requestUrl"></div>
+                    </div>
+                    <div class="message-item">
+                        <label>状态码：</label>
+                        <div class="message-value" id="statusCode"></div>
+                    </div>
+                    <div class="message-item">
+                        <label>请求内容：</label>
+                        <div class="message-value code-block" id="requestContent"></div>
+                    </div>
+                    <div class="message-item">
+                        <label>响应内容：</label>
+                        <div class="message-value code-block" id="responseContent"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" id="closeBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/interface-log.js"></script>
+</body>
+</html>

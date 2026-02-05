@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .test-item {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+        }
+        .test-item h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 16px;
+        }
+        .test-steps {
+            margin: 10px 0;
+        }
+        .test-steps li {
+            margin: 8px 0;
+            color: #666;
+        }
+        .expected {
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .expected strong {
+            color: #2e7d32;
+        }
+        .note {
+            background: #fff3e0;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            border-left: 4px solid #ff9800;
+        }
+        .note strong {
+            color: #e65100;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        a:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <h1>用户管理功能测试</h1>
+    
+    <div class="test-section">
+        <h2>测试场景</h2>
+        
+        <div class="test-item">
+            <h3>测试1：查看用户列表</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>打开用户管理页面</li>
+                    <li>查看默认显示的用户列表</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示5条默认用户数据</li>
+                    <li>包含系统管理员、仓库管理员、操作员、查看员等角色</li>
+                    <li>显示用户名、手机号、角色、状态、最后登录时间</li>
+                    <li>操作列包含编辑、禁用/启用、重置密码、权限查看按钮</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试2：按用户名查询</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在用户名输入框中输入"张"</li>
+                    <li>点击"查询"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>只显示用户名包含"张"的用户</li>
+                    <li>应显示1条记录（张三）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试3：按手机号查询</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在手机号输入框中输入"138002"</li>
+                    <li>点击"查询"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示手机号包含"138002"的用户</li>
+                    <li>应显示1条记录（李四）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试4：按角色查询</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>在所属角色下拉框中选择"操作员"</li>
+                    <li>点击"查询"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示包含"操作员"角色的用户</li>
+                    <li>应显示2条记录（王五、赵六）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试5：新增用户</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"新增"按钮</li>
+                    <li>输入用户名："测试用户"</li>
+                    <li>输入手机号："13900139001"</li>
+                    <li>勾选角色："操作员"和"查看员"</li>
+                    <li>点击"保存"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>弹窗关闭</li>
+                    <li>提示"用户添加成功！"并显示初始密码（123456）</li>
+                    <li>列表中新增一条用户记录</li>
+                    <li>状态为"正常"</li>
+                    <li>最后登录时间显示为"-"</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试6：手机号唯一性验证</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"新增"按钮</li>
+                    <li>输入用户名："重复用户"</li>
+                    <li>输入手机号："13800138001"（已存在）</li>
+                    <li>勾选角色："查看员"</li>
+                    <li>点击"保存"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>提示"该手机号已被使用，请使用其他手机号！"</li>
+                    <li>不允许保存</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试7：手机号格式验证</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"新增"按钮</li>
+                    <li>输入用户名："格式测试"</li>
+                    <li>输入手机号："12345678901"（格式错误）</li>
+                    <li>勾选角色："查看员"</li>
+                    <li>点击"保存"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>提示"请输入正确的手机号格式！"</li>
+                    <li>不允许保存</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试8：编辑用户</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击任意用户的"编辑"按钮</li>
+                    <li>修改用户名</li>
+                    <li>修改角色选择</li>
+                    <li>观察手机号字段为禁用状态</li>
+                    <li>点击"保存"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>弹窗显示原有用户信息</li>
+                    <li>手机号字段置灰不可编辑</li>
+                    <li>保存后提示"用户信息更新成功！"</li>
+                    <li>列表中显示更新后的信息</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试9：禁用用户</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击状态为"正常"的用户的"禁用"按钮</li>
+                    <li>在确认对话框中点击"确定"</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示确认禁用对话框</li>
+                    <li>确认后提示"用户已禁用！"</li>
+                    <li>用户状态变为"已禁用"（红色标签）</li>
+                    <li>操作列的"禁用"按钮变为"启用"按钮（绿色）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试10：启用用户</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击状态为"已禁用"的用户的"启用"按钮</li>
+                    <li>在确认对话框中点击"确定"</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示确认启用对话框</li>
+                    <li>确认后提示"用户已启用！"</li>
+                    <li>用户状态变为"正常"（绿色标签）</li>
+                    <li>操作列的"启用"按钮变为"禁用"按钮（红色）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试11：重置密码</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击任意用户的"重置密码"按钮</li>
+                    <li>在确认对话框中点击"确定"</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示确认重置密码对话框，提示初始密码为123456</li>
+                    <li>确认后提示"密码重置成功！"并显示用户信息和新密码</li>
+                    <li>提醒用户尽快修改密码</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试12：查看权限（新版界面）</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击任意用户的"权限查看"按钮</li>
+                    <li>查看权限查看弹窗</li>
+                    <li>观察左侧菜单树和右侧权限详情</li>
+                    <li>点击不同的菜单项，查看对应的权限配置</li>
+                    <li>尝试勾选或取消勾选权限</li>
+                    <li>点击"关闭"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>弹窗标题显示"用户权限详情 - [用户名]"</li>
+                    <li>左侧显示系统菜单树，与角色管理权限配置界面相同</li>
+                    <li>右侧显示选中菜单的权限详情</li>
+                    <li>默认选中"首页"菜单并显示其权限</li>
+                    <li>已配置的权限显示为勾选状态</li>
+                    <li>未配置的权限显示为未勾选状态，且半透明显示</li>
+                    <li>所有复选框为禁用状态，不可操作（只读模式）</li>
+                    <li>权限数量显示颜色状态：未配置=灰色，部分配置=蓝色，全部配置=绿色</li>
+                    <li>点击菜单项时，该菜单高亮显示（浅蓝色背景）</li>
+                </ul>
+            </div>
+            <div class="note">
+                <strong>说明：</strong>
+                <ul>
+                    <li>权限查看界面采用与角色管理权限配置相同的布局</li>
+                    <li>但所有权限选项为只读，不可修改</li>
+                    <li>用户的权限是其所有角色权限的合集</li>
+                    <li>如果用户有多个角色，会显示所有角色的权限并集</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试12-1：多角色用户权限合并</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"王五"用户的"权限查看"按钮（该用户有"操作员"和"查看员"两个角色）</li>
+                    <li>查看各个菜单的权限配置</li>
+                    <li>对比单角色用户的权限</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>显示的权限是"操作员"和"查看员"两个角色权限的并集</li>
+                    <li>如果两个角色都有某个菜单的权限，显示所有权限的合并结果</li>
+                    <li>权限数量统计正确反映合并后的权限数</li>
+                    <li>例如：首页权限为1/1（绿色），入库作业权限为3/3（绿色）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试13：表单验证</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>点击"新增"按钮</li>
+                    <li>不填写任何信息，直接点击"保存"</li>
+                    <li>依次测试各必填字段的验证</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>用户名为空时提示"请输入用户名！"</li>
+                    <li>手机号为空时提示"请输入手机号！"</li>
+                    <li>未选择角色时提示"请至少选择一个角色！"</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-item">
+            <h3>测试14：重置查询</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>设置查询条件（用户名、手机号、角色）</li>
+                    <li>点击"查询"按钮</li>
+                    <li>点击"重置"按钮</li>
+                </ol>
+            </div>
+            <div class="expected">
+                <strong>预期结果：</strong>
+                <ul>
+                    <li>所有查询条件清空</li>
+                    <li>列表恢复显示所有用户</li>
+                    <li>分页重置到第1页</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>角色权限说明</h2>
+        <div class="note">
+            <strong>系统预置角色及权限：</strong>
+            <ul>
+                <li><strong>系统管理员：</strong>拥有所有模块的完整权限</li>
+                <li><strong>仓库管理员：</strong>仓库、入库、出库、盘点、库存、任务、基础数据管理权限</li>
+                <li><strong>操作员：</strong>入库作业、出库作业、盘点作业、库存查看、任务查看权限</li>
+                <li><strong>查看员：</strong>库存查看、任务查看、单据查看权限</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>注意事项</h2>
+        <div class="note">
+            <strong>说明：</strong>
+            <ul>
+                <li>手机号作为登录账号，创建后不可修改</li>
+                <li>系统初始密码为：123456</li>
+                <li>手机号必须是11位，以1开头，第二位为3-9的数字</li>
+                <li>用户可以拥有多个角色，权限会自动合并</li>
+                <li>禁用用户后不会清除数据，启用后自动恢复权限</li>
+                <li>重置密码会将密码设置为初始密码</li>
+                <li>页面样式与系统其他页面保持一致</li>
+            </ul>
+        </div>
+    </div>
+
+    <a href="pages/用户管理.html" target="_blank">打开用户管理页面进行测试 →</a>
+</body>
+</html>

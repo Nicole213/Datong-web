@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库位管理</title>
+    <link rel="stylesheet" href="../styles/pages.css">
+    <link rel="stylesheet" href="../styles/location.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="page-header">
+            <h1>库位管理</h1>
+        </div>
+
+        <!-- 查询筛选区 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>库位编码：</label>
+                    <input type="text" class="filter-input" id="searchCode" placeholder="请输入库位编码">
+                </div>
+                <div class="filter-group">
+                    <label>所属库区：</label>
+                    <select class="filter-select" id="searchArea">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>巷道：</label>
+                    <select class="filter-select" id="searchAisle">
+                        <option value="">全部</option>
+                        <option value="1">1号巷道</option>
+                        <option value="2">2号巷道</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>排：</label>
+                    <input type="number" class="filter-input-small" id="searchRow" placeholder="排">
+                </div>
+                <div class="filter-group">
+                    <label>列：</label>
+                    <input type="number" class="filter-input-small" id="searchCol" placeholder="列">
+                </div>
+                <div class="filter-group">
+                    <label>层：</label>
+                    <input type="number" class="filter-input-small" id="searchLevel" placeholder="层">
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>适配容器类型：</label>
+                    <div class="multi-select-dropdown" id="containerTypeFilter">
+                        <div class="multi-select-display">请选择</div>
+                        <div class="multi-select-options">
+                            <label><input type="checkbox" value="小金属框"> 小金属框</label>
+                            <label><input type="checkbox" value="大金属框"> 大金属框</label>
+                            <label><input type="checkbox" value="塑料托盘"> 塑料托盘</label>
+                            <label><input type="checkbox" value="长物料钢托盘"> 长物料钢托盘</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>当前状态：</label>
+                    <select class="filter-select" id="searchCurrentStatus">
+                        <option value="">全部</option>
+                        <option value="空库位">空库位</option>
+                        <option value="有货">有货</option>
+                        <option value="已分配">已分配</option>
+                        <option value="空托">空托</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>锁定状态：</label>
+                    <select class="filter-select" id="searchLockStatus">
+                        <option value="">全部</option>
+                        <option value="锁定">锁定</option>
+                        <option value="正常">正常</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>启用状态：</label>
+                    <select class="filter-select" id="searchEnableStatus">
+                        <option value="">全部</option>
+                        <option value="启用">启用</option>
+                        <option value="禁用">禁用</option>
+                    </select>
+                </div>
+                <button class="search-btn" id="searchBtn">🔍 查询</button>
+                <button class="reset-btn" id="resetBtn">🔄 重置</button>
+            </div>
+        </div>
+
+        <!-- 操作按钮区 -->
+        <div class="action-bar">
+            <button class="primary-btn" id="addBtn">➕ 新增</button>
+            <button class="primary-btn" id="batchAddBtn">➕ 批量新增</button>
+            <button class="secondary-btn" id="lockBtn" disabled>🔒 锁定</button>
+            <button class="secondary-btn" id="unlockBtn" disabled>🔓 解锁</button>
+            <button class="secondary-btn" id="bindAreaBtn">🔗 绑定库区</button>
+        </div>
+
+        <!-- 表格区 -->
+        <div class="table-section">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="50"><input type="checkbox" id="selectAll"></th>
+                        <th width="120">库位编码</th>
+                        <th width="120">所属库区</th>
+                        <th width="80">巷道</th>
+                        <th width="60">排</th>
+                        <th width="60">列</th>
+                        <th width="60">层</th>
+                        <th width="150">适配容器类型</th>
+                        <th width="80">当前状态</th>
+                        <th width="80">锁定状态</th>
+                        <th width="80">启用状态</th>
+                        <th width="120">当前容器号</th>
+                        <th width="200">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="locationTableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination">
+            <button class="page-btn" id="prevPage">上一页</button>
+            <span class="page-info">第 <span id="currentPage">1</span> 页，共 <span id="totalPages">1</span> 页</span>
+            <button class="page-btn" id="nextPage">下一页</button>
+        </div>
+    </div>
+
+    <!-- 新增/编辑库位弹窗 -->
+    <div class="modal" id="locationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">新增库位</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="locationForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">排：</label>
+                            <input type="number" class="form-input" id="locationRow" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">列：</label>
+                            <input type="number" class="form-input" id="locationCol" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">层：</label>
+                            <input type="number" class="form-input" id="locationLevel" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">深：</label>
+                            <input type="number" class="form-input" id="locationDepth" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">适配容器类型：</label>
+                            <div class="container-type-checkboxes">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="containerType" value="小金属框">
+                                    <span>小金属框</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="containerType" value="大金属框">
+                                    <span>大金属框</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="containerType" value="塑料托盘">
+                                    <span>塑料托盘</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="containerType" value="长物料钢托盘">
+                                    <span>长物料钢托盘</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="saveBtn">保存</button>
+                <button class="modal-btn secondary" id="cancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量新增库位弹窗 -->
+    <div class="modal" id="batchAddModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>批量新增库位</h3>
+                <span class="modal-close" id="batchClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="batchForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">起始排号：</label>
+                            <input type="number" class="form-input" id="batchStartRow" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">终止排号：</label>
+                            <input type="number" class="form-input" id="batchEndRow" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">起始列号：</label>
+                            <input type="number" class="form-input" id="batchStartCol" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">终止列号：</label>
+                            <input type="number" class="form-input" id="batchEndCol" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">起始层号：</label>
+                            <input type="number" class="form-input" id="batchStartLevel" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">终止层号：</label>
+                            <input type="number" class="form-input" id="batchEndLevel" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">起始深号：</label>
+                            <input type="number" class="form-input" id="batchStartDepth" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">终止深号：</label>
+                            <input type="number" class="form-input" id="batchEndDepth" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">适配容器类型：</label>
+                            <div class="container-type-checkboxes">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="batchContainerType" value="小金属框">
+                                    <span>小金属框</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="batchContainerType" value="大金属框">
+                                    <span>大金属框</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="batchContainerType" value="塑料托盘">
+                                    <span>塑料托盘</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="batchContainerType" value="长物料钢托盘">
+                                    <span>长物料钢托盘</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="batchSaveBtn">保存</button>
+                <button class="modal-btn secondary" id="batchCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 绑定库区弹窗 -->
+    <div class="modal" id="bindAreaModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>绑定库区</h3>
+                <span class="modal-close" id="bindClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="bindForm">
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="required">选择库区：</label>
+                            <select class="form-input" id="bindAreaSelect" required>
+                                <option value="">请选择库区</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">起始排号：</label>
+                            <input type="number" class="form-input" id="bindStartRow" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">终止排号：</label>
+                            <input type="number" class="form-input" id="bindEndRow" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">起始列号：</label>
+                            <input type="number" class="form-input" id="bindStartCol" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">终止列号：</label>
+                            <input type="number" class="form-input" id="bindEndCol" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">起始层号：</label>
+                            <input type="number" class="form-input" id="bindStartLevel" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">终止层号：</label>
+                            <input type="number" class="form-input" id="bindEndLevel" min="1" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="required">起始深号：</label>
+                            <input type="number" class="form-input" id="bindStartDepth" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">终止深号：</label>
+                            <input type="number" class="form-input" id="bindEndDepth" min="1" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="bindSaveBtn">保存</button>
+                <button class="modal-btn secondary" id="bindCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/location.js"></script>
+</body>
+</html>

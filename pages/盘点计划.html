@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>盘点计划</title>
+    <link rel="stylesheet" href="../styles/pages.css">
+    <link rel="stylesheet" href="../styles/inventory-plan.css">
+</head>
+<body>
+    <div class="page-container">
+        <div class="page-header">
+            <h1>盘点计划</h1>
+        </div>
+
+        <!-- 查询筛选区 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>盘点计划号：</label>
+                    <input type="text" class="filter-input" id="filterPlanNo" placeholder="请输入盘点计划号">
+                </div>
+                <div class="filter-item">
+                    <label>来源：</label>
+                    <select class="filter-input" id="filterSource">
+                        <option value="">全部</option>
+                        <option value="sync">客户WMS同步</option>
+                        <option value="manual">手工创建</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>状态：</label>
+                    <select class="filter-input" id="filterStatus">
+                        <option value="">全部</option>
+                        <option value="pending">待执行</option>
+                        <option value="processing">执行中</option>
+                        <option value="completed">已完成</option>
+                        <option value="paused">已暂停</option>
+                        <option value="cancelled">已取消</option>
+                        <option value="terminated">已终止</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>负责人：</label>
+                    <input type="text" class="filter-input" id="filterOwner" placeholder="请输入负责人">
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>创建时间：</label>
+                    <input type="date" class="filter-input" id="filterStartDate">
+                    <span style="margin: 0 8px;">至</span>
+                    <input type="date" class="filter-input" id="filterEndDate">
+                </div>
+                <div class="filter-actions">
+                    <button class="search-btn" id="searchBtn">查询</button>
+                    <button class="reset-btn" id="resetBtn">重置</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮区 -->
+        <div class="action-bar">
+            <button class="primary-btn" id="addPlanBtn">➕ 新增盘点计划</button>
+        </div>
+
+        <!-- 表格区 -->
+        <div class="table-section">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="120">盘点计划号</th>
+                        <th width="100">来源</th>
+                        <th width="100">盘点范围</th>
+                        <th width="80">状态</th>
+                        <th width="80">创建人</th>
+                        <th width="140">创建时间</th>
+                        <th width="140">计划盘点时间</th>
+                        <th width="80">负责人</th>
+                        <th width="140">实际完成时间</th>
+                        <th width="180">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="planTableBody">
+                    <!-- 数据将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination">
+            <span class="page-info">共 <span id="totalCount">0</span> 条</span>
+        </div>
+    </div>
+
+    <!-- 新增/编辑盘点计划弹窗 -->
+    <div class="modal" id="planModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="modalTitle">新增盘点计划</h3>
+                <span class="modal-close" id="modalClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- 基本信息 -->
+                <div class="form-section">
+                    <div class="section-title">基本信息</div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="required">盘点计划号：</label>
+                            <input type="text" class="form-input" id="planNo" readonly placeholder="系统自动生成">
+                        </div>
+                        <div class="form-group">
+                            <label class="required">盘点范围：</label>
+                            <select class="form-input" id="scopeType" required>
+                                <option value="">请选择</option>
+                                <option value="全仓库">全仓库</option>
+                                <option value="指定库区">指定库区</option>
+                                <option value="指定库位">指定库位</option>
+                                <option value="指定物料">指定物料</option>
+                                <option value="指定容器">指定容器</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">负责人：</label>
+                            <select class="form-input" id="owner" required>
+                                <option value="">请选择</option>
+                                <option value="张三">张三</option>
+                                <option value="李四">李四</option>
+                                <option value="王五">王五</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="required">计划盘点时间：</label>
+                            <input type="datetime-local" class="form-input" id="planTime" required>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>备注：</label>
+                            <textarea class="form-input" id="remark" rows="3" placeholder="请输入备注信息"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 选择盘点范围 -->
+                <div class="form-section" id="scopeSection" style="display: none;">
+                    <div class="section-title">选择盘点范围</div>
+                    <div id="scopeContent">
+                        <!-- 根据盘点范围类型动态显示 -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="savePlanBtn">保存</button>
+                <button class="modal-btn secondary" id="cancelPlanBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>盘点计划详情</h3>
+                <span class="modal-close" id="detailClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- 基本信息 -->
+                <div class="detail-section">
+                    <div class="section-title">基本信息</div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>盘点计划号：</label>
+                            <span id="detailPlanNo">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>来源：</label>
+                            <span id="detailSource">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>盘点范围：</label>
+                            <span id="detailScope">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>创建人：</label>
+                            <span id="detailCreator">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>创建时间：</label>
+                            <span id="detailCreateTime">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>计划盘点时间：</label>
+                            <span id="detailPlanTime">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>负责人：</label>
+                            <span id="detailOwner">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>盘点口：</label>
+                            <span id="detailInventoryPort">-</span>
+                            <button class="edit-port-btn" id="editPortBtn" style="display: none;" onclick="openEditPortModal()">修改</button>
+                        </div>
+                        <div class="detail-item">
+                            <label>备注：</label>
+                            <span id="detailRemark">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 盘点物料明细 -->
+                <div class="detail-section">
+                    <div class="section-title">盘点物料明细</div>
+                    <div id="detailMaterialContent">
+                        <!-- 根据盘点范围类型动态显示 -->
+                    </div>
+                </div>
+
+                <!-- 盘点任务 -->
+                <div class="detail-section">
+                    <div class="section-title">盘点任务</div>
+                    <div id="detailTaskContent">
+                        <table class="detail-table">
+                            <thead>
+                                <tr>
+                                    <th width="140">任务号</th>
+                                    <th width="140">关联单据号</th>
+                                    <th width="80">命令类型</th>
+                                    <th width="120">任务类型</th>
+                                    <th width="100">容器编码</th>
+                                    <th width="180">物料信息</th>
+                                    <th width="100">取货库位</th>
+                                    <th width="100">放货库位</th>
+                                    <th width="100">取货库口</th>
+                                    <th width="100">放货库口</th>
+                                    <th width="80">状态</th>
+                                    <th width="150">创建时间</th>
+                                    <th width="150">开始时间</th>
+                                    <th width="150">完成时间</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailTaskBody">
+                                <tr>
+                                    <td colspan="14" style="text-align: center; color: #999;">暂无盘点任务</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" id="closeDetailBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 开始盘点弹窗 -->
+    <div class="modal" id="startPlanModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>开始盘点</h3>
+                <span class="modal-close" id="startModalClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-section">
+                    <div class="form-group">
+                        <label>盘点计划号：</label>
+                        <span id="startPlanNo" style="font-weight: 600; color: #333;">-</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="required">选择盘点口：</label>
+                        <select class="form-input" id="inventoryPort" required>
+                            <option value="">请选择盘点口</option>
+                            <option value="出库口1">出库口1</option>
+                            <option value="出库口2">出库口2</option>
+                            <option value="出库口3">出库口3</option>
+                            <option value="出库口4">出库口4</option>
+                        </select>
+                    </div>
+                    <div class="info-box">
+                        <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.6;">
+                            <strong>开始盘点后系统将执行以下操作：</strong><br>
+                            1. 自动生成盘点任务<br>
+                            2. 锁定盘点范围内的库位（盘点期间不可进行出入库操作）<br>
+                            3. 向WCS下发盘点出库任务<br>
+                            4. 计划状态变更为"执行中"
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="confirmStartBtn">确认开始</button>
+                <button class="modal-btn secondary" id="cancelStartBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改盘点口弹窗 -->
+    <div class="modal" id="editPortModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>修改盘点口</h3>
+                <span class="modal-close" id="editPortModalClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-section">
+                    <div class="form-group">
+                        <label>盘点计划号：</label>
+                        <span id="editPortPlanNo" style="font-weight: 600; color: #333;">-</span>
+                    </div>
+                    <div class="form-group">
+                        <label>当前盘点口：</label>
+                        <span id="currentPort" style="font-weight: 600; color: #667eea;">-</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="required">新盘点口：</label>
+                        <select class="form-input" id="newInventoryPort" required>
+                            <option value="">请选择新盘点口</option>
+                            <option value="出库口1">出库口1</option>
+                            <option value="出库口2">出库口2</option>
+                            <option value="出库口3">出库口3</option>
+                            <option value="出库口4">出库口4</option>
+                        </select>
+                    </div>
+                    <div class="info-box">
+                        <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.6;">
+                            <strong>修改盘点口说明：</strong><br>
+                            1. 已经开始执行的盘点任务将继续在原盘点口执行<br>
+                            2. 后续未开始执行的任务将使用新盘点口<br>
+                            3. 容器将被送至新设置的盘点口
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="confirmEditPortBtn">确认修改</button>
+                <button class="modal-btn secondary" id="cancelEditPortBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/inventory-plan.js"></script>
+</body>
+</html>

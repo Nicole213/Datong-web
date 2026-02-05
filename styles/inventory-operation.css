@@ -1,0 +1,695 @@
+/* 盘点作业页面样式 - 参考出库作业样式 */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.page-header h1 {
+    font-size: 24px;
+    color: #333;
+    margin: 0;
+}
+
+.port-badge {
+    padding: 10px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* 扫描容器区域 */
+.scan-container-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.scan-container-area {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.scan-container-btn {
+    padding: 12px 32px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.scan-container-btn:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* 当前盘点信息区域 */
+.current-inventory-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.section-header {
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.section-header h2 {
+    font-size: 18px;
+    color: #333;
+    margin: 0;
+}
+
+/* 信息卡片 */
+.info-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid #e8e8e8;
+}
+
+.card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.card-title-with-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.card-title-with-action .card-title {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.scan-new-container-btn {
+    padding: 8px 20px;
+    background: #52c41a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.scan-new-container-btn:hover {
+    background: #389e0d;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+}
+
+.add-material-btn {
+    padding: 8px 20px;
+    background: #52c41a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.add-material-btn:hover {
+    background: #389e0d;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+}
+
+.card-subtitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 16px 0 12px 0;
+}
+
+/* 盘点计划信息 */
+.plan-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.info-item label {
+    color: #666;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.info-item span {
+    color: #333;
+    font-weight: 600;
+}
+
+.highlight-text {
+    color: #667eea !important;
+    font-size: 16px !important;
+}
+
+/* 扫描区域 */
+.scan-area {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.scan-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.scan-input-group label {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+.scan-input {
+    padding: 12px 16px;
+    border: 2px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.scan-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.scan-material-btn {
+    padding: 12px 24px;
+    background: #52c41a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.scan-material-btn:hover {
+    background: #389e0d;
+}
+
+/* 物料表格 */
+.mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 8px;
+    background: white;
+}
+
+.mini-table thead {
+    background: #f5f7fa;
+}
+
+.mini-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    font-size: 13px;
+    border: 1px solid #e8e8e8;
+}
+
+.mini-table td {
+    padding: 12px;
+    color: #666;
+    font-size: 13px;
+    border: 1px solid #e8e8e8;
+}
+
+.mini-table tbody tr {
+    transition: background 0.2s;
+}
+
+.mini-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.mini-table tbody tr.empty-row:hover {
+    background: transparent;
+}
+
+.mini-table tbody tr.need-inventory {
+    background: #fff9e6;
+}
+
+.mini-table tbody tr.no-inventory {
+    background: #f5f5f5;
+}
+
+.mini-table tbody tr.highlight {
+    background: #e3f2fd !important;
+    border-left: 4px solid #2196f3;
+}
+
+/* 添加物料行样式 */
+.mini-table tbody tr.add-material-row {
+    background: #e8f5e9 !important;
+    border: 2px solid #52c41a;
+}
+
+.mini-table tbody tr.add-material-row:hover {
+    background: #e8f5e9 !important;
+}
+
+.add-material-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #52c41a;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s;
+    box-sizing: border-box;
+}
+
+.add-material-input:focus {
+    border-color: #389e0d;
+    box-shadow: 0 0 0 3px rgba(82, 196, 26, 0.1);
+}
+
+.add-material-input::placeholder {
+    color: #999;
+}
+
+/* 添加物料操作按钮 */
+.add-material-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-btn-small {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 4px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.action-btn-small.primary {
+    background: #52c41a;
+    color: white;
+}
+
+.action-btn-small.primary:hover {
+    background: #389e0d;
+    transform: scale(1.1);
+}
+
+.action-btn-small.secondary {
+    background: #ff4d4f;
+    color: white;
+}
+
+.action-btn-small.secondary:hover {
+    background: #cf1322;
+    transform: scale(1.1);
+}
+
+.inventory-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.inventory-badge.need {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.inventory-badge.no-need {
+    background: #f5f5f5;
+    color: #999;
+}
+
+.editable-qty {
+    width: 80px;
+    padding: 6px 8px;
+    border: 2px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.editable-qty:focus {
+    border-color: #667eea;
+}
+
+.editable-qty:disabled {
+    background: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.result-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.result-badge.surplus {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.result-badge.loss {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.result-badge.normal {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+/* 操作按钮 */
+.action-buttons {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.primary-btn {
+    padding: 12px 32px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.primary-btn:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.primary-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.secondary-btn {
+    padding: 12px 32px;
+    background: #f5f5f5;
+    color: #666;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.secondary-btn:hover {
+    background: #e8e8e8;
+    border-color: #bbb;
+}
+
+/* 弹窗样式 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.modal-close {
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.success-info {
+    text-align: center;
+    padding: 20px;
+    background: #e8f5e9;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.success-icon {
+    width: 60px;
+    height: 60px;
+    background: #4caf50;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 12px;
+}
+
+.success-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2e7d32;
+}
+
+.container-info {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.container-info .info-item {
+    margin-bottom: 12px;
+}
+
+.container-info .info-item:last-child {
+    margin-bottom: 0;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.form-group label.required::after {
+    content: '*';
+    color: #ff4d4f;
+    margin-left: 4px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #d9d9d9;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.3s;
+}
+
+.form-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.help-text {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #999;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    position: sticky;
+    bottom: 0;
+    background: white;
+    z-index: 1;
+}
+
+.modal-btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.modal-btn.primary {
+    background: #667eea;
+    color: white;
+}
+
+.modal-btn.primary:hover {
+    background: #5568d3;
+}
+
+.modal-btn.secondary {
+    background: #f5f5f5;
+    color: #666;
+}
+
+.modal-btn.secondary:hover {
+    background: #e8e8e8;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .plan-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .scan-container-area,
+    .scan-area {
+        grid-template-columns: 1fr;
+    }
+    
+    .scan-container-btn,
+    .scan-material-btn {
+        width: 100%;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .primary-btn,
+    .secondary-btn {
+        width: 100%;
+    }
+    
+    .mini-table {
+        font-size: 12px;
+    }
+    
+    .mini-table th,
+    .mini-table td {
+        padding: 8px;
+    }
+}
