@@ -76,7 +76,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="filter-group">
+                <div class="filter-group" id="levelFilterGroup">
                     <label>层：</label>
                     <select class="filter-select" id="levelSelect">
                         <option value="1">1层</option>
@@ -91,6 +91,13 @@
                         <option value="10">10层</option>
                         <option value="11">11层</option>
                         <option value="12" selected>12层</option>
+                    </select>
+                </div>
+                <div class="filter-group" id="depthFilterGroup">
+                    <label>深：</label>
+                    <select class="filter-select" id="depthSelect">
+                        <option value="1" selected>1深</option>
+                        <option value="2">2深</option>
                     </select>
                 </div>
                 <div class="filter-group">
@@ -147,17 +154,22 @@
         <div class="operations-section">
             <h3 class="operations-title">🔧 常用操作</h3>
             <div class="operations-row">
-                <button class="op-btn">插入库存</button>
-                <button class="op-btn">清空库存</button>
-                <button class="op-btn">库位锁定</button>
-                <button class="op-btn">库位解锁</button>
-                <button class="op-btn">库存明细</button>
+                <button class="op-btn" id="insertStockBtn" disabled>插入库存</button>
+                <button class="op-btn" id="clearStockBtn" disabled>清空库存</button>
+                <button class="op-btn" id="lockLocationBtn" disabled>库位锁定</button>
+                <button class="op-btn" id="unlockLocationBtn" disabled>库位解锁</button>
+                <button class="op-btn" id="inventoryDetailBtn" disabled>库存明细</button>
             </div>
         </div>
 
         <!-- 库位网格 -->
         <div class="warehouse-grid-container" id="warehouseGrid">
-            <!-- 网格将通过JavaScript动态生成 -->
+            <!-- 俯视图网格将通过JavaScript动态生成 -->
+        </div>
+
+        <!-- 侧视图网格 -->
+        <div class="warehouse-grid-container" id="warehouseSideView" style="display: none;">
+            <!-- 侧视图网格将通过JavaScript动态生成 -->
         </div>
 
         <!-- 库位详情弹窗 -->
@@ -185,6 +197,262 @@
                         <span class="detail-label">物料数量：</span>
                         <span class="detail-value" id="popupQty">1</span>
                     </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- 插入库存弹窗 -->
+        <div class="modal-overlay" id="insertStockModal">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h3 class="modal-title">📦 插入库存</h3>
+                    <button class="modal-close" id="closeInsertModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- 库位信息 -->
+                    <div class="form-section">
+                        <h4 class="section-title">库位信息</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">库位编码</label>
+                                <input type="text" class="form-input" id="modalLocationCode" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">库位名称</label>
+                                <input type="text" class="form-input" id="modalLocationName" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 容器信息 -->
+                    <div class="form-section">
+                        <h4 class="section-title">容器信息</h4>
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label class="form-label">容器编码 <span class="required">*</span></label>
+                                <div class="search-input-wrapper">
+                                    <input type="text" class="form-input" id="containerCodeInput" 
+                                           placeholder="请输入容器编码进行搜索">
+                                    <div class="search-dropdown" id="containerDropdown"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 物料明细 -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h4 class="section-title">物料明细</h4>
+                            <button class="add-btn" id="addMaterialBtn">+ 添加物料</button>
+                        </div>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th width="30%">物料编码 <span class="required">*</span></th>
+                                        <th width="35%">物料名称 <span class="required">*</span></th>
+                                        <th width="20%">数量 <span class="required">*</span></th>
+                                        <th width="15%">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="materialTableBody">
+                                    <tr><td colspan="4" class="empty-row">暂无物料，点击"添加物料"按钮添加</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="form-hint">提示：物料编码和物料名称只需填写其中一个，另一个会自动带出</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" id="cancelInsertBtn">取消</button>
+                    <button class="btn-primary" id="confirmInsertBtn">确认</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 清空库存确认弹窗 -->
+        <div class="modal-overlay" id="clearStockModal">
+            <div class="modal-container small">
+                <div class="modal-header">
+                    <h3 class="modal-title">⚠️ 清空库存确认</h3>
+                    <button class="modal-close" id="closeClearModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="confirm-content">
+                        <div class="confirm-icon">🗑️</div>
+                        <div class="confirm-message">
+                            <p class="confirm-title">确认要清空该库位的所有库存吗？</p>
+                            <div class="confirm-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">库位编码：</span>
+                                    <span class="detail-value" id="clearLocationCode">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">库位名称：</span>
+                                    <span class="detail-value" id="clearLocationName">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">容器编码：</span>
+                                    <span class="detail-value" id="clearContainerCode">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">物料数量：</span>
+                                    <span class="detail-value" id="clearMaterialCount">-</span>
+                                </div>
+                            </div>
+                            <div class="confirm-warning">
+                                <p>⚠️ 注意：此操作将清空该库位内的所有物料，但保留容器，库位状态将变为"空托"。</p>
+                                <p>此操作不可撤销，请谨慎操作！</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" id="cancelClearBtn">取消</button>
+                    <button class="btn-primary" id="confirmClearOnlyBtn">确认</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 库位锁定弹窗 -->
+        <div class="modal-overlay" id="lockLocationModal">
+            <div class="modal-container small">
+                <div class="modal-header">
+                    <h3 class="modal-title">🔒 库位锁定</h3>
+                    <button class="modal-close" id="closeLockModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-section">
+                        <h4 class="section-title">库位信息</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">库位编码</label>
+                                <input type="text" class="form-input" id="lockLocationCode" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">库位名称</label>
+                                <input type="text" class="form-input" id="lockLocationName" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4 class="section-title">锁定信息</h4>
+                        <div class="form-group full-width">
+                            <label class="form-label">锁定原因 <span class="required">*</span></label>
+                            <textarea class="form-textarea" id="lockReason" 
+                                      placeholder="请输入库位锁定原因" 
+                                      rows="4"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" id="cancelLockBtn">取消</button>
+                    <button class="btn-primary" id="confirmLockBtn">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 库位解锁弹窗 -->
+        <div class="modal-overlay" id="unlockLocationModal">
+            <div class="modal-container small">
+                <div class="modal-header">
+                    <h3 class="modal-title">🔓 库位解锁</h3>
+                    <button class="modal-close" id="closeUnlockModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="confirm-content">
+                        <div class="confirm-icon">🔓</div>
+                        <div class="confirm-message">
+                            <p class="confirm-title">确认要解锁该库位吗？</p>
+                            <div class="confirm-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">库位编码：</span>
+                                    <span class="detail-value" id="unlockLocationCode">-</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">库位名称：</span>
+                                    <span class="detail-value" id="unlockLocationName">-</span>
+                                </div>
+                            </div>
+                            <div class="confirm-warning">
+                                <p>解锁后该库位可正常出入库。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" id="cancelUnlockBtn">取消</button>
+                    <button class="btn-primary" id="confirmUnlockBtn">确认</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 库存明细弹窗 -->
+        <div class="modal-overlay" id="inventoryDetailModal">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h3 class="modal-title">📦 库存明细</h3>
+                    <button class="modal-close" id="closeInventoryDetailModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- 库位信息 -->
+                    <div class="form-section">
+                        <h4 class="section-title">库位信息</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">库位编码</label>
+                                <input type="text" class="form-input" id="detailLocationCode" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">库位名称</label>
+                                <input type="text" class="form-input" id="detailLocationName" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 容器信息 -->
+                    <div class="form-section">
+                        <h4 class="section-title">容器信息</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">容器编码</label>
+                                <input type="text" class="form-input" id="detailContainerCode" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">容器类型</label>
+                                <input type="text" class="form-input" id="detailContainerType" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 物料明细 -->
+                    <div class="form-section">
+                        <h4 class="section-title">物料明细</h4>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th width="12%">物料编码</th>
+                                        <th width="15%">物料名称</th>
+                                        <th width="8%">数量</th>
+                                        <th width="13%">组盘时间</th>
+                                        <th width="13%">入库时间</th>
+                                        <th width="10%">库龄（天）</th>
+                                        <th width="10%">库存状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventoryDetailTableBody">
+                                    <tr><td colspan="7" class="empty-row">暂无物料</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" id="closeInventoryDetailBtn">关闭</button>
                 </div>
             </div>
         </div>
