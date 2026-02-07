@@ -1,5 +1,22 @@
 // 菜单切换功能
 document.addEventListener('DOMContentLoaded', function() {
+    // 检查登录状态
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+    if (!isLoggedIn) {
+        // 未登录，跳转到登录页面
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // 显示用户名
+    const username = sessionStorage.getItem('username');
+    if (username) {
+        const userNameElement = document.querySelector('.user-name');
+        if (userNameElement) {
+            userNameElement.textContent = username;
+        }
+    }
+
     const menuItems = document.querySelectorAll('.menu-item');
     const menuGroups = document.querySelectorAll('.menu-group');
     const contentFrame = document.getElementById('content-frame');
@@ -34,8 +51,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoutBtn = document.querySelector('.logout-btn');
     logoutBtn.addEventListener('click', function() {
         if (confirm('确定要退出系统吗？')) {
-            alert('退出成功');
-            // 这里可以添加实际的退出逻辑
+            // 清除登录状态
+            sessionStorage.removeItem('isLoggedIn');
+            sessionStorage.removeItem('username');
+            
+            // 跳转到登录页面
+            window.location.href = 'login.html';
         }
     });
 });
