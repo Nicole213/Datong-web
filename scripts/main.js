@@ -1,21 +1,6 @@
 // 菜单切换功能
 document.addEventListener('DOMContentLoaded', function() {
-    // 检查登录状态
-    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
-    if (!isLoggedIn) {
-        // 未登录，跳转到登录页面
-        window.location.href = 'login.html';
-        return;
-    }
-
-    // 显示用户名
-    const username = sessionStorage.getItem('username');
-    if (username) {
-        const userNameElement = document.querySelector('.user-name');
-        if (userNameElement) {
-            userNameElement.textContent = username;
-        }
-    }
+    // 直接显示系统首页，不进行登录验证
 
     const menuItems = document.querySelectorAll('.menu-item');
     const menuGroups = document.querySelectorAll('.menu-group');
@@ -56,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sessionStorage.removeItem('username');
             
             // 跳转到登录页面
-            window.location.href = 'login.html';
+            window.location.href = 'pages/login.html';
         }
     });
 });

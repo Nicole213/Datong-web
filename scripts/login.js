@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // 延迟跳转到主页
             setTimeout(function() {
-                window.location.href = 'index.html';
+                window.location.href = '../index.html';
             }, 800);
         } else {
             showMessage('手机号码或密码错误', 'error');
