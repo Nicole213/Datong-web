@@ -12,6 +12,8 @@ let inboundOrdersData = [
             { code: 'WL-2024-001', name: '电子元件A型', plannedQty: 100, inboundQty: 100, portAisle: '1号巷道' }
         ],
         status: '已完成',
+        allocationStatus: '已分配',
+        interfaceSyncStatus: '是',
         createTime: '2024-01-15 09:30:00',
         canEdit: false,
         canDelete: false
@@ -26,6 +28,7 @@ let inboundOrdersData = [
             { code: 'WL-2024-002', name: '机械零件B型', plannedQty: 50, inboundQty: 30, portAisle: '1号巷道' }
         ],
         status: '入库中',
+        allocationStatus: '已分配',
         createTime: '2024-01-16 10:15:00',
         canEdit: false,
         canDelete: false
@@ -42,6 +45,7 @@ let inboundOrdersData = [
             { code: 'WL-2024-005', name: '金属材料E型', plannedQty: 40, inboundQty: 0, portAisle: '1号巷道' }
         ],
         status: '待入库',
+        allocationStatus: '待分配',
         createTime: '2024-01-17 14:20:00',
         canEdit: true,
         canDelete: true
@@ -56,7 +60,23 @@ let inboundOrdersData = [
             { code: 'WL-2024-004', name: '长物料钢材D型', plannedQty: 120, inboundQty: 60, portAisle: '2号巷道' }
         ],
         status: '入库中',
+        allocationStatus: '已分配',
         createTime: '2024-01-18 11:00:00',
+        canEdit: false,
+        canDelete: false
+    },
+    {
+        id: 5,
+        orderNo: 'RK-2024-0005',
+        source: '客户WMS同步',
+        upstreamNo: 'WMS-IN-20240119-003',
+        type: '采购入库',
+        materials: [
+            { code: 'WL-2024-003', name: '塑料配件C型', plannedQty: 30, inboundQty: 0, portAisle: '1号巷道' }
+        ],
+        status: '待入库',
+        allocationStatus: '待分配',
+        createTime: '2024-01-19 08:20:00',
         canEdit: false,
         canDelete: false
     }
@@ -70,6 +90,14 @@ const systemMaterials = [
     { code: 'WL-2024-004', name: '长物料钢材D型', containerTypes: ['长物料钢托盘'], maxQtyPerContainer: 20 },
     { code: 'WL-2024-005', name: '金属材料E型', containerTypes: ['大金属框'], maxQtyPerContainer: 40 }
 ];
+
+const materialImageThemes = {
+    'WL-2024-001': { background: '#eef2ff', accent: '#4f46e5', secondary: '#c7d2fe' },
+    'WL-2024-002': { background: '#ecfeff', accent: '#0891b2', secondary: '#a5f3fc' },
+    'WL-2024-003': { background: '#f0fdf4', accent: '#16a34a', secondary: '#bbf7d0' },
+    'WL-2024-004': { background: '#fff7ed', accent: '#ea580c', secondary: '#fed7aa' },
+    'WL-2024-005': { background: '#fef2f2', accent: '#dc2626', secondary: '#fecaca' }
+};
 
 // 分页配置
 let currentPage = 1;
@@ -141,6 +169,12 @@ const availablePallets = [
     }
 ];
 
+let emptyPalletInventory = {
+    '塑料托盘': 36,
+    '标准钢托盘': 18,
+    '长物料钢托盘': 9
+};
+
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
     renderTable();
@@ -155,7 +189,17 @@ function renderTable() {
     const pageData = filteredData.slice(start, end);
 
     tbody.innerHTML = pageData.map(order => {
-        const material = order.materials[0]; // 显示第一个物料
+        const material = order.materials[0] || {
+            code: '-',
+            name: '-',
+            plannedQty: '-',
+            inboundQty: '-'
+        }; // 显示第一个物料
+        const allocationStatus = getAllocationStatus(order);
+        const interfaceSyncStatus = getInterfaceSyncStatus(order);
+        const canVoid = order.source === '客户WMS同步' &&
+                        allocationStatus === '待分配' &&
+                        order.status === '待入库';
         return `
         <tr>
             <td>${order.orderNo}</td>
@@ -171,8 +215,18 @@ function renderTable() {
             <td>${material.plannedQty}</td>
             <td>${material.inboundQty}</td>
             <td>
+                <span class="allocation-badge ${getAllocationStatusClass(allocationStatus)}">
+                    ${allocationStatus}
+                </span>
+            </td>
+            <td>
                 <span class="status-badge ${getStatusClass(order.status)}">
                     ${order.status}
+                </span>
+            </td>
+            <td>
+                <span class="sync-status-badge ${getInterfaceSyncStatusClass(interfaceSyncStatus)}">
+                    ${interfaceSyncStatus}
                 </span>
             </td>
             <td>${order.createTime}</td>
@@ -183,6 +237,7 @@ function renderTable() {
                     <button class="detail-btn" onclick="showDetail(${order.id})">详情</button>
                     ${order.canEdit ? `<button class="edit-btn" onclick="editOrder(${order.id})">编辑</button>` : ''}
                     ${order.canDelete ? `<button class="delete-btn" onclick="deleteOrder(${order.id})">删除</button>` : ''}
+                    ${canVoid ? `<button class="void-btn" onclick="voidOrder(${order.id})">作废</button>` : ''}
                     ${(order.status === '待入库' || order.status === '入库中') ? 
                         `<button class="force-btn" onclick="forceComplete(${order.id})">强制完成</button>` : ''}
                 </div>
@@ -198,9 +253,245 @@ function getStatusClass(status) {
     const statusMap = {
         '待入库': 'pending',
         '入库中': 'processing',
-        '已完成': 'completed'
+        '已完成': 'completed',
+        '已作废': 'cancelled'
     };
     return statusMap[status] || 'pending';
+}
+
+function getAllocationStatus(order) {
+    return order.allocationStatus || '待分配';
+}
+
+function getAllocationStatusClass(status) {
+    return status === '已分配' ? 'completed' : 'pending';
+}
+
+function getInterfaceSyncStatus(order) {
+    if (order.status !== '已完成') {
+        return '否';
+    }
+
+    return order.interfaceSyncStatus || '否';
+}
+
+function getInterfaceSyncStatusClass(status) {
+    return status === '是' ? 'synced' : 'unsynced';
+}
+
+function getActualInboundStatusClass(status) {
+    const statusMap = {
+        '入库中': 'processing',
+        '已入库': 'completed'
+    };
+    return statusMap[status] || 'processing';
+}
+
+function getDetailInterfaceSyncStatus(order, actualRecord) {
+    if (actualRecord?.inboundStatus !== '已入库') {
+        return '否';
+    }
+
+    if (order.status !== '已完成') {
+        return '否';
+    }
+
+    return order.interfaceSyncStatus || '否';
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function getMaterialImageTheme(materialCode) {
+    return materialImageThemes[materialCode] || {
+        background: '#f8fafc',
+        accent: '#475569',
+        secondary: '#cbd5e1'
+    };
+}
+
+function buildMaterialImageSvg(materialCode, materialName) {
+    const theme = getMaterialImageTheme(materialCode);
+    const titleText = escapeHtml(materialName || '物料图片');
+    const codeText = escapeHtml(materialCode || 'MATERIAL');
+
+    return `
+        <svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+            <rect width="320" height="320" rx="36" fill="${theme.background}"/>
+            <circle cx="254" cy="68" r="34" fill="${theme.secondary}"/>
+            <rect x="42" y="62" width="132" height="132" rx="24" fill="${theme.accent}" opacity="0.92"/>
+            <rect x="72" y="92" width="72" height="72" rx="16" fill="#ffffff" opacity="0.92"/>
+            <path d="M104 92v72M72 128h72" stroke="${theme.accent}" stroke-width="10" stroke-linecap="round" opacity="0.28"/>
+            <rect x="42" y="214" width="236" height="18" rx="9" fill="${theme.secondary}" opacity="0.72"/>
+            <text x="42" y="262" fill="#0f172a" font-size="28" font-family="Arial, sans-serif" font-weight="700">${titleText}</text>
+            <text x="42" y="294" fill="${theme.accent}" font-size="20" font-family="Arial, sans-serif" font-weight="600">${codeText}</text>
+        </svg>
+    `.trim();
+}
+
+function getMaterialImageUrl(materialCode, materialName) {
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(buildMaterialImageSvg(materialCode, materialName))}`;
+}
+
+function renderMaterialImageCell(materialCode, materialName) {
+    if (!materialCode || materialCode === '-') {
+        return '<span class="material-image-empty">-</span>';
+    }
+
+    const imageUrl = getMaterialImageUrl(materialCode, materialName);
+    const imageAlt = escapeHtml(`${materialName || materialCode}物料图片`);
+
+    return `
+        <button
+            type="button"
+            class="material-image-trigger"
+            data-material-code="${escapeHtml(materialCode)}"
+            data-material-name="${escapeHtml(materialName || materialCode)}"
+            title="点击查看大图"
+        >
+            <img class="material-image-thumb" src="${imageUrl}" alt="${imageAlt}">
+        </button>
+    `;
+}
+
+function openMaterialImagePreview(materialCode, materialName) {
+    if (!materialCode || materialCode === '-') return;
+
+    const viewer = document.getElementById('materialImageViewer');
+    const viewerTitle = document.getElementById('materialImageViewerTitle');
+    const viewerImg = document.getElementById('materialImageViewerImg');
+    const title = materialName || materialCode;
+
+    viewerTitle.textContent = `${title} 物料图片`;
+    viewerImg.src = getMaterialImageUrl(materialCode, materialName);
+    viewerImg.alt = `${title}物料图片`;
+    viewer.classList.add('active');
+}
+
+function closeMaterialImagePreview() {
+    const viewer = document.getElementById('materialImageViewer');
+    const viewerImg = document.getElementById('materialImageViewerImg');
+
+    viewer.classList.remove('active');
+    viewerImg.src = '';
+}
+
+function getPendingAllocationQty(material) {
+    const plannedQty = Number(material?.plannedQty || 0);
+    const inboundQty = Number(material?.inboundQty || 0);
+    const remainingQty = plannedQty - inboundQty;
+
+    return remainingQty > 0 ? remainingQty : plannedQty;
+}
+
+function createDefaultDetailRecords(order) {
+    const materials = order.materials || [];
+    const material1 = materials[0] || {};
+    const material2 = materials[1] || {};
+    const material3 = materials[2] || {};
+
+    const detailRecordsMap = {
+        1: {
+            palletAllocationRecords: [
+                { palletCode: 'TP-001', packingStatus: '已组盘', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 20, currentLocation: '1-5-12-1' },
+                { palletCode: 'TP-002', packingStatus: '已组盘', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 80, currentLocation: '1-6-12-1' }
+            ],
+            actualPackingRecords: [
+                { palletCode: 'TP-001', inboundStatus: '已入库', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 20, inboundLocation: '1-5-12-1' },
+                { palletCode: 'TP-003', inboundStatus: '已入库', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 80, inboundLocation: '1-7-12-1' }
+            ]
+        },
+        2: {
+            palletAllocationRecords: [
+                { palletCode: 'TP-003', packingStatus: '已组盘', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 15, currentLocation: '1-4-9-1' },
+                { palletCode: 'TP-004', packingStatus: '已组盘', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 15, currentLocation: '入库口1' },
+                { palletCode: 'TP-005', packingStatus: '待组盘', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: getPendingAllocationQty(material1), currentLocation: '入库口1' }
+            ],
+            actualPackingRecords: [
+                { palletCode: 'TP-003', inboundStatus: '已入库', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 15, inboundLocation: '1-4-9-1' },
+                { palletCode: 'TP-006', inboundStatus: '入库中', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 15, inboundLocation: '1-4-10-1' }
+            ]
+        },
+        3: {
+            palletAllocationRecords: [
+                { palletCode: 'TP-006', packingStatus: '已组盘', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 20, currentLocation: '入库口1' },
+                { palletCode: 'TP-007', packingStatus: '已组盘', materialCode: material2.code || '-', materialName: material2.name || '-', quantity: 15, currentLocation: '入库口1' },
+                { palletCode: 'TP-008', packingStatus: '待组盘', materialCode: material3.code || material1.code || '-', materialName: material3.name || material1.name || '-', quantity: getPendingAllocationQty(material3.code ? material3 : material1), currentLocation: '入库口1' }
+            ],
+            actualPackingRecords: []
+        },
+        4: {
+            palletAllocationRecords: [
+                { palletCode: 'TP-009', packingStatus: '已组盘', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 20, currentLocation: '2-1-6-1' },
+                { palletCode: 'TP-010', packingStatus: '已组盘', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 20, currentLocation: '2-2-6-1' },
+                { palletCode: 'TP-011', packingStatus: '已组盘', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 20, currentLocation: '入库口2' }
+            ],
+            actualPackingRecords: [
+                { palletCode: 'TP-009', inboundStatus: '已入库', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 20, inboundLocation: '2-1-6-1' },
+                { palletCode: 'TP-010', inboundStatus: '已入库', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 20, inboundLocation: '2-2-6-1' },
+                { palletCode: 'TP-011', inboundStatus: '入库中', materialCode: material1.code || '-', materialName: material1.name || '-', quantity: 20, inboundLocation: '2-3-6-1' }
+            ]
+        }
+    };
+
+    return detailRecordsMap[order.id] || {
+        palletAllocationRecords: materials.map((material, index) => ({
+            palletCode: `TP-${String(index + 1).padStart(3, '0')}`,
+            packingStatus: order.status === '待入库' ? '待组盘' : '已组盘',
+            materialCode: material.code,
+            materialName: material.name,
+            quantity: order.status === '待入库' ? getPendingAllocationQty(material) : material.inboundQty,
+            currentLocation: order.status === '待入库' ? '入库口1' : `${index + 1}-5-10-1`
+        })),
+        actualPackingRecords: materials
+            .filter(material => (material.inboundQty || 0) > 0)
+            .map((material, index) => ({
+                palletCode: `TP-${String(index + 1).padStart(3, '0')}`,
+                inboundStatus: order.status === '已完成' ? '已入库' : '入库中',
+                materialCode: material.code,
+                materialName: material.name,
+                quantity: material.inboundQty,
+                inboundLocation: `${index + 1}-5-10-1`
+            }))
+    };
+}
+
+function ensureDetailRecords(order) {
+    if (!order.detailRecords) {
+        order.detailRecords = createDefaultDetailRecords(order);
+    }
+
+    if (!order.detailRecords.palletAllocationRecords) {
+        order.detailRecords.palletAllocationRecords = [];
+    }
+
+    if (!order.detailRecords.actualPackingRecords) {
+        order.detailRecords.actualPackingRecords = [];
+    }
+
+    order.detailRecords.actualPackingRecords = order.detailRecords.actualPackingRecords.map((record, index) => ({
+        ...record,
+        inboundLocation: record.inboundLocation || record.currentLocation || `${index + 1}-5-10-1`
+    }));
+
+    return order.detailRecords;
+}
+
+function buildDetailInterfaceSyncRecords(order, detailRecords) {
+    return (detailRecords.actualPackingRecords || []).map((record, index) => ({
+        rowId: index + 1,
+        materialCode: record.materialCode || '-',
+        materialName: record.materialName || '-',
+        palletCode: record.palletCode || '-',
+        inboundLocation: record.inboundLocation || '-',
+        interfaceSyncStatus: getDetailInterfaceSyncStatus(order, record)
+    }));
 }
 
 // 更新分页
@@ -222,6 +513,7 @@ function initEventListeners() {
     
     // 新增按钮
     document.getElementById('addBtn').addEventListener('click', openAddModal);
+    document.getElementById('emptyPalletOutboundBtn').addEventListener('click', openEmptyPalletOutboundModal);
     
     // 分页按钮
     document.getElementById('prevPage').addEventListener('click', () => {
@@ -247,6 +539,10 @@ function initEventListeners() {
     // 保存按钮
     document.getElementById('saveBtn').addEventListener('click', saveOrder);
     document.getElementById('cancelBtn').addEventListener('click', closeAllModals);
+    document.getElementById('emptyPalletOutboundCancelBtn').addEventListener('click', closeEmptyPalletOutboundModal);
+    document.getElementById('emptyPalletOutboundConfirmBtn').addEventListener('click', saveEmptyPalletOutbound);
+    document.getElementById('emptyPalletOutboundType').addEventListener('change', updateEmptyPalletOutboundStock);
+    document.getElementById('emptyPalletOutboundQty').addEventListener('input', sanitizeEmptyPalletOutboundQty);
     
     // 添加物料按钮
     document.getElementById('addMaterialBtn').addEventListener('click', addMaterialItem);
@@ -255,11 +551,25 @@ function initEventListeners() {
     document.getElementById('addPalletBtn').addEventListener('click', addPalletItem);
     
     // 入库类型变化监听
+    document.getElementById('orderType').addEventListener('input', handleOrderTypeChange);
     document.getElementById('orderType').addEventListener('change', handleOrderTypeChange);
     
     // 详情弹窗
     document.getElementById('detailClose').addEventListener('click', closeDetailModal);
     document.getElementById('detailCloseBtn').addEventListener('click', closeDetailModal);
+    document.getElementById('detailModal').addEventListener('click', (e) => {
+        const trigger = e.target.closest('.material-image-trigger');
+        if (!trigger) return;
+
+        openMaterialImagePreview(trigger.dataset.materialCode, trigger.dataset.materialName);
+    });
+
+    document.getElementById('materialImageViewerClose').addEventListener('click', closeMaterialImagePreview);
+    document.getElementById('materialImageViewer').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) {
+            closeMaterialImagePreview();
+        }
+    });
     
     // 强制完成
     document.getElementById('forceClose').addEventListener('click', closeForceModal);
@@ -361,10 +671,118 @@ function resetSearch() {
     renderTable();
 }
 
+function resetEmptyPalletOutboundForm() {
+    document.getElementById('emptyPalletOutboundType').value = '';
+    document.getElementById('emptyPalletOutboundStock').value = '';
+
+    const qtyInput = document.getElementById('emptyPalletOutboundQty');
+    qtyInput.value = '';
+    qtyInput.disabled = true;
+    qtyInput.max = '';
+
+    document.getElementById('emptyPalletOutboundTip').textContent = '请输入正整数，且不能大于空托库存数';
+}
+
+function openEmptyPalletOutboundModal() {
+    resetEmptyPalletOutboundForm();
+    document.getElementById('emptyPalletOutboundModal').classList.add('active');
+}
+
+function closeEmptyPalletOutboundModal() {
+    document.getElementById('emptyPalletOutboundModal').classList.remove('active');
+    resetEmptyPalletOutboundForm();
+}
+
+function getEmptyPalletStock(palletType) {
+    return emptyPalletInventory[palletType] || 0;
+}
+
+function updateEmptyPalletOutboundStock() {
+    const palletType = document.getElementById('emptyPalletOutboundType').value;
+    const stockInput = document.getElementById('emptyPalletOutboundStock');
+    const qtyInput = document.getElementById('emptyPalletOutboundQty');
+    const tip = document.getElementById('emptyPalletOutboundTip');
+
+    if (!palletType) {
+        stockInput.value = '';
+        qtyInput.value = '';
+        qtyInput.disabled = true;
+        qtyInput.max = '';
+        tip.textContent = '请输入正整数，且不能大于空托库存数';
+        return;
+    }
+
+    const stock = getEmptyPalletStock(palletType);
+    stockInput.value = String(stock);
+    qtyInput.disabled = stock <= 0;
+    qtyInput.max = String(stock);
+
+    if (stock <= 0) {
+        qtyInput.value = '';
+        tip.textContent = '当前该类型空托库存为 0，暂不可出库';
+        return;
+    }
+
+    if (Number(qtyInput.value || 0) > stock) {
+        qtyInput.value = String(stock);
+    }
+
+    tip.textContent = `当前可出库空托库存数：${stock}`;
+}
+
+function sanitizeEmptyPalletOutboundQty() {
+    const qtyInput = document.getElementById('emptyPalletOutboundQty');
+    const palletType = document.getElementById('emptyPalletOutboundType').value;
+    const stock = getEmptyPalletStock(palletType);
+    const digits = qtyInput.value.replace(/[^\d]/g, '');
+
+    if (!digits) {
+        qtyInput.value = '';
+        return;
+    }
+
+    let qty = Number(digits);
+    if (qty < 1) qty = 1;
+    if (stock > 0 && qty > stock) qty = stock;
+    qtyInput.value = String(qty);
+}
+
+function saveEmptyPalletOutbound() {
+    const palletType = document.getElementById('emptyPalletOutboundType').value;
+    const qtyValue = document.getElementById('emptyPalletOutboundQty').value.trim();
+    const stock = getEmptyPalletStock(palletType);
+
+    if (!palletType) {
+        alert('请选择容器类型！');
+        return;
+    }
+
+    if (stock <= 0) {
+        alert('当前该类型空托库存不足，无法出库！');
+        return;
+    }
+
+    if (!/^[1-9]\d*$/.test(qtyValue)) {
+        alert('空托数量必须为正整数！');
+        return;
+    }
+
+    const qty = Number(qtyValue);
+    if (qty > stock) {
+        alert('空托数量不能大于空托库存数！');
+        return;
+    }
+
+    emptyPalletInventory[palletType] = stock - qty;
+    alert(`空托出库已提交！\n\n容器类型：${palletType}\n空托数量：${qty}`);
+    closeEmptyPalletOutboundModal();
+}
+
 // 打开新增弹窗
 function openAddModal() {
     editingOrderId = null;
     materialCounter = 0;
+    palletCounter = 0;
     document.getElementById('modalTitle').textContent = '新增入库单';
     document.getElementById('inboundForm').reset();
     
@@ -374,6 +792,8 @@ function openAddModal() {
     
     // 清空物料列表
     document.getElementById('materialList').innerHTML = '';
+    document.getElementById('palletList').innerHTML = '';
+    handleOrderTypeChange();
     
     document.getElementById('inboundModal').classList.add('active');
 }
@@ -606,6 +1026,7 @@ function editOrder(id) {
     
     editingOrderId = id;
     materialCounter = 0;
+    palletCounter = 0;
     document.getElementById('modalTitle').textContent = '编辑入库单';
     document.getElementById('orderNo').value = order.orderNo;
     document.getElementById('orderType').value = order.type;
@@ -614,6 +1035,8 @@ function editOrder(id) {
     
     // 加载物料列表
     document.getElementById('materialList').innerHTML = '';
+    document.getElementById('palletList').innerHTML = '';
+    handleOrderTypeChange();
     order.materials.forEach(material => {
         addMaterialItem();
         const items = document.querySelectorAll('.material-item');
@@ -631,7 +1054,7 @@ function editOrder(id) {
 // 保存入库单
 function saveOrder() {
     const orderNo = document.getElementById('orderNo').value.trim();
-    const orderType = document.getElementById('orderType').value;
+    const orderType = document.getElementById('orderType').value.trim();
     const upstreamNo = document.getElementById('upstreamNo').value.trim();
     const orderRemark = document.getElementById('orderRemark').value.trim();
     
@@ -679,6 +1102,8 @@ function saveOrder() {
                 order.remark = finalRemark;
                 order.materials = materials;
                 order.palletCodes = palletCodes; // 保存托盘编码
+                order.allocationStatus = order.allocationStatus || '待分配';
+                order.interfaceSyncStatus = order.interfaceSyncStatus || '否';
             }
             alert('空托盘入库单已更新！');
         } else {
@@ -694,6 +1119,8 @@ function saveOrder() {
                 type: orderType,
                 materials,
                 status: '待入库',
+                allocationStatus: '待分配',
+                interfaceSyncStatus: '否',
                 createTime,
                 remark: finalRemark,
                 palletCodes: palletCodes, // 保存托盘编码
@@ -737,6 +1164,8 @@ function saveOrder() {
                 order.upstreamNo = upstreamNo;
                 order.remark = orderRemark;
                 order.materials = materials;
+                order.allocationStatus = order.allocationStatus || '待分配';
+                order.interfaceSyncStatus = order.interfaceSyncStatus || '否';
             }
             alert('入库单已更新！');
         } else {
@@ -752,6 +1181,8 @@ function saveOrder() {
                 type: orderType,
                 materials,
                 status: '待入库',
+                allocationStatus: '待分配',
+                interfaceSyncStatus: '否',
                 createTime,
                 remark: orderRemark,
                 canEdit: true,
@@ -783,11 +1214,38 @@ function deleteOrder(id) {
     }
 }
 
+function voidOrder(id) {
+    const order = inboundOrdersData.find(o => o.id === id);
+    if (!order) return;
+
+    const canVoid = order.source === '客户WMS同步' &&
+                    getAllocationStatus(order) === '待分配' &&
+                    order.status === '待入库';
+
+    if (!canVoid) {
+        alert('该入库单当前不可作废！');
+        return;
+    }
+
+    if (confirm(`确定要作废入库单"${order.orderNo}"吗？`)) {
+        order.status = '已作废';
+        order.canEdit = false;
+        order.canDelete = false;
+        alert('入库单已作废！');
+        searchOrders();
+    }
+}
+
 // 显示详情
 function showDetail(id) {
     detailOrderId = id;
     const order = inboundOrdersData.find(o => o.id === id);
     if (!order) return;
+    const detailRecords = ensureDetailRecords(order);
+    const primaryMaterial = order.materials[0] || null;
+    const primaryMaterialText = primaryMaterial
+        ? `${primaryMaterial.code} - ${primaryMaterial.name}`
+        : '空托盘';
     
     // 基本信息
     document.getElementById('detailOrderNo').textContent = order.orderNo;
@@ -797,35 +1255,60 @@ function showDetail(id) {
     
     // 物料信息
     const materialBody = document.getElementById('detailMaterialBody');
-    materialBody.innerHTML = order.materials.map(m => `
-        <tr>
-            <td>${m.code}</td>
-            <td>${m.name}</td>
-            <td>${m.plannedQty}</td>
-            <td>${m.inboundQty}</td>
-        </tr>
-    `).join('');
+    materialBody.innerHTML = order.materials.length > 0
+        ? order.materials.map(m => `
+            <tr>
+                <td>${m.code}</td>
+                <td>${m.name}</td>
+                <td>${m.plannedQty}</td>
+                <td>${m.inboundQty}</td>
+            </tr>
+        `).join('')
+        : `
+            <tr class="detail-empty-row">
+                <td colspan="4">暂无物料明细</td>
+            </tr>
+        `;
     
     // 分配托盘记录（模拟数据）
     const palletBody = document.getElementById('detailPalletBody');
-    palletBody.innerHTML = `
-        <tr>
-            <td>TP-001</td>
-            <td><span class="status-badge completed">已组盘</span></td>
-            <td>${order.materials[0].code}</td>
-            <td>${order.materials[0].name}</td>
-            <td>20</td>
-            <td>1-5-12-1</td>
-        </tr>
-        <tr>
-            <td>TP-002</td>
-            <td><span class="status-badge pending">未组盘</span></td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>入库口1</td>
-        </tr>
-    `;
+    const palletAllocationRecords = detailRecords.palletAllocationRecords;
+    palletBody.innerHTML = palletAllocationRecords.length > 0
+        ? palletAllocationRecords.map(record => `
+            <tr>
+                <td>${record.palletCode}</td>
+                <td><span class="status-badge ${record.packingStatus === '已组盘' ? 'completed' : 'pending'}">${record.packingStatus}</span></td>
+                <td>${record.materialCode}</td>
+                <td>${record.materialName}</td>
+                <td>${renderMaterialImageCell(record.materialCode, record.materialName)}</td>
+                <td>${record.quantity}</td>
+            </tr>
+        `).join('')
+        : `
+            <tr class="detail-empty-row">
+                <td colspan="6">暂无分配托盘记录</td>
+            </tr>
+        `;
+
+    // 实际组盘记录
+    const actualPalletBody = document.getElementById('detailActualPalletBody');
+    const actualPackingRecords = detailRecords.actualPackingRecords;
+    actualPalletBody.innerHTML = actualPackingRecords.length > 0
+        ? actualPackingRecords.map(record => `
+            <tr>
+                <td>${record.palletCode}</td>
+                <td><span class="status-badge ${getActualInboundStatusClass(record.inboundStatus)}">${record.inboundStatus}</span></td>
+                <td>${record.materialCode}</td>
+                <td>${record.materialName}</td>
+                <td>${renderMaterialImageCell(record.materialCode, record.materialName)}</td>
+                <td>${record.quantity}</td>
+            </tr>
+        `).join('')
+        : `
+            <tr class="detail-empty-row">
+                <td colspan="6">暂无实际组盘记录</td>
+            </tr>
+        `;
     
     // 入库任务（模拟数据）
     const taskBody = document.getElementById('detailTaskBody');
@@ -836,7 +1319,7 @@ function showDetail(id) {
             <td><span class="command-badge inbound">入库</span></td>
             <td><span class="task-type-badge">普通入库</span></td>
             <td>TP-001</td>
-            <td>${order.materials[0].code} - ${order.materials[0].name} × 20</td>
+            <td>${primaryMaterialText} × 20</td>
             <td>-</td>
             <td>1-5-12-1</td>
             <td>1号入库口</td>
@@ -852,7 +1335,7 @@ function showDetail(id) {
             <td><span class="command-badge inbound">入库</span></td>
             <td><span class="task-type-badge">普通入库</span></td>
             <td>TP-002</td>
-            <td>${order.materials[0].code} - ${order.materials[0].name} × 30</td>
+            <td>${primaryMaterialText} × 30</td>
             <td>-</td>
             <td>1-6-12-1</td>
             <td>1号入库口</td>
@@ -863,6 +1346,30 @@ function showDetail(id) {
             <td>-</td>
         </tr>
     `;
+
+    // 接口同步明细
+    const interfaceSyncBody = document.getElementById('detailInterfaceSyncBody');
+    const interfaceSyncRecords = buildDetailInterfaceSyncRecords(order, detailRecords);
+    interfaceSyncBody.innerHTML = interfaceSyncRecords.length > 0
+        ? interfaceSyncRecords.map(record => `
+            <tr>
+                <td>${record.rowId}</td>
+                <td>${record.materialCode}</td>
+                <td>${record.materialName}</td>
+                <td>${record.palletCode}</td>
+                <td>${record.inboundLocation}</td>
+                <td>
+                    <span class="sync-status-badge ${getInterfaceSyncStatusClass(record.interfaceSyncStatus)}">
+                        ${record.interfaceSyncStatus}
+                    </span>
+                </td>
+            </tr>
+        `).join('')
+        : `
+            <tr class="detail-empty-row">
+                <td colspan="6">暂无接口同步明细</td>
+            </tr>
+        `;
     
     document.getElementById('detailModal').classList.add('active');
 }
@@ -888,6 +1395,7 @@ function saveForceComplete() {
         order.status = '已完成';
         order.canEdit = false;
         order.canDelete = false;
+        order.interfaceSyncStatus = order.interfaceSyncStatus || '否';
         order.forceCompleteReason = reason;
         alert('入库单已强制完成！');
         closeForceModal();
@@ -898,6 +1406,7 @@ function saveForceComplete() {
 // 关闭详情弹窗
 function closeDetailModal() {
     document.getElementById('detailModal').classList.remove('active');
+    closeMaterialImagePreview();
     detailOrderId = null;
 }
 
@@ -909,11 +1418,14 @@ function closeForceModal() {
 
 // 关闭所有弹窗
 function closeAllModals() {
+    document.getElementById('emptyPalletOutboundModal').classList.remove('active');
     document.getElementById('inboundModal').classList.remove('active');
     document.getElementById('detailModal').classList.remove('active');
     document.getElementById('forceCompleteModal').classList.remove('active');
     document.getElementById('allocatePalletModal').classList.remove('active');
     document.getElementById('customAllocateModal').classList.remove('active');
+    resetEmptyPalletOutboundForm();
+    closeMaterialImagePreview();
     editingOrderId = null;
     detailOrderId = null;
     forceCompleteOrderId = null;
@@ -1163,6 +1675,7 @@ function confirmAllocate() {
     
     const order = inboundOrdersData.find(o => o.id === allocatingOrderId);
     if (!order) return;
+    const detailRecords = ensureDetailRecords(order);
     
     // 从推荐托盘列表中收集所有有效的分配数据（不管是否勾选）
     const allocations = [];
@@ -1198,10 +1711,56 @@ function confirmAllocate() {
     // 更新各物料的入库数量
     allocations.forEach(alloc => {
         const material = order.materials.find(m => m.code === alloc.materialCode);
+        const pallet = availablePallets.find(p => p.id === alloc.palletId);
         if (material) {
             material.inboundQty = (material.inboundQty || 0) + alloc.quantity;
         }
+
+        if (material && pallet) {
+            detailRecords.palletAllocationRecords = detailRecords.palletAllocationRecords.filter(record =>
+                !(record.palletCode === pallet.code && record.packingStatus === '待组盘')
+            );
+
+            const allocationRecord = detailRecords.palletAllocationRecords.find(record =>
+                record.palletCode === pallet.code && record.materialCode === material.code
+            );
+
+            if (allocationRecord) {
+                allocationRecord.quantity = Number(allocationRecord.quantity || 0) + alloc.quantity;
+                allocationRecord.packingStatus = '已组盘';
+                allocationRecord.currentLocation = pallet.locationCode;
+            } else {
+                detailRecords.palletAllocationRecords.push({
+                    palletCode: pallet.code,
+                    packingStatus: '已组盘',
+                    materialCode: material.code,
+                    materialName: material.name,
+                    quantity: alloc.quantity,
+                    currentLocation: pallet.locationCode
+                });
+            }
+
+            const actualPackingRecord = detailRecords.actualPackingRecords.find(record =>
+                record.palletCode === pallet.code && record.materialCode === material.code
+            );
+
+            if (actualPackingRecord) {
+                actualPackingRecord.quantity += alloc.quantity;
+                actualPackingRecord.inboundLocation = pallet.locationCode;
+            } else {
+                detailRecords.actualPackingRecords.push({
+                    palletCode: pallet.code,
+                    inboundStatus: '入库中',
+                    materialCode: material.code,
+                    materialName: material.name,
+                    quantity: alloc.quantity,
+                    inboundLocation: pallet.locationCode
+                });
+            }
+        }
     });
+
+    order.allocationStatus = '已分配';
     
     // 第一次分配后，状态变为入库中
     if (order.status === '待入库') {
@@ -1214,6 +1773,10 @@ function confirmAllocate() {
         order.status = '已完成';
         order.canEdit = false;
         order.canDelete = false;
+        order.interfaceSyncStatus = order.interfaceSyncStatus || '否';
+        detailRecords.actualPackingRecords.forEach(record => {
+            record.inboundStatus = '已入库';
+        });
     }
     
     const totalQty = allocations.reduce((sum, alloc) => sum + alloc.quantity, 0);

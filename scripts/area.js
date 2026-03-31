@@ -108,15 +108,11 @@ function renderTable() {
             <td>${area.code}</td>
             <td>${area.name}</td>
             <td>${area.containerTypes.join('、')}</td>
-            <td>${area.totalLocations}</td>
-            <td>${area.usedLocations}</td>
-            <td>${area.freeLocations}</td>
             <td>
                 <span class="status-badge ${area.status === '启用' ? 'enabled' : 'disabled'}">
                     ${area.status}
                 </span>
             </td>
-            <td>${area.materialCount}</td>
             <td>${area.remark || '-'}</td>
             <td>
                 <div class="action-btns">

@@ -225,6 +225,11 @@
     color: #fa8c16;
 }
 
+.command-badge.move {
+    background: #f6ffed;
+    color: #52c41a;
+}
+
 /* 任务类型标签 */
 .task-type-badge {
     display: inline-block;
@@ -289,7 +294,7 @@
     color: #666;
 }
 
-/* 加急标识 */
+/* 置顶标识 */
 .urgent-flag {
     display: inline-block;
     padding: 2px 8px;

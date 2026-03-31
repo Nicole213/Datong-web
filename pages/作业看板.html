@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作业看板</title>
+    <link rel="stylesheet" href="../styles/work-board.css">
+</head>
+<body>
+    <div class="board-shell">
+        <header class="board-header">
+            <div class="board-title-group">
+                <div class="board-kicker">Operation Command Screen</div>
+                <h1>作业看板</h1>
+            </div>
+            <div class="board-meta">
+                <div class="board-time" id="boardTime">--:--:--</div>
+                <div class="board-date" id="boardDate">----.--.--</div>
+            </div>
+        </header>
+
+        <section class="alarm-section">
+            <div class="section-heading">
+                <div>
+                    <span class="section-kicker">Persistent Alert</span>
+                    <h2>入库异常报警</h2>
+                </div>
+                <div class="alarm-summary">
+                    <span class="alarm-count-label">当前未解除异常</span>
+                    <strong id="alarmCount">0</strong>
+                </div>
+            </div>
+            <div class="alarm-grid" id="alarmGrid"></div>
+        </section>
+
+        <main class="board-main">
+            <section class="work-panel inbound-panel">
+                <div class="panel-header">
+                    <div>
+                        <span class="section-kicker">Inbound Live</span>
+                        <h2>入库作业</h2>
+                    </div>
+                    <div class="panel-status live">
+                        <span class="pulse-dot"></span>
+                        当前容器已到位
+                    </div>
+                </div>
+
+                <div class="hero-card inbound-hero">
+                    <div class="hero-row">
+                        <div>
+                            <div class="hero-label">当前到达入库口</div>
+                            <div class="hero-port" id="inboundPort">-</div>
+                        </div>
+                        <div class="hero-side">
+                            <div class="hero-side-label">到位时间</div>
+                            <div class="hero-side-value" id="inboundArrivalTime">-</div>
+                        </div>
+                    </div>
+                    <div class="hero-code" id="inboundContainerCode">-</div>
+                    <div class="hero-meta-grid" id="inboundMetaGrid"></div>
+                </div>
+
+                <div class="panel-subtitle">
+                    <h3>推荐存储物料</h3>
+                    <span>同一容器支持展示多种推荐存储物料</span>
+                </div>
+                <div class="recommendation-grid" id="inboundRecommendationGrid"></div>
+            </section>
+
+            <section class="work-panel outbound-panel">
+                <div class="panel-header">
+                    <div>
+                        <span class="section-kicker">Outbound Live</span>
+                        <h2>出库作业</h2>
+                    </div>
+                    <div class="panel-status waiting">
+                        <span class="pulse-dot"></span>
+                        当前容器拣选中
+                    </div>
+                </div>
+
+                <div class="hero-card outbound-hero">
+                    <div class="hero-row">
+                        <div>
+                            <div class="hero-label">当前到达出库口</div>
+                            <div class="hero-port" id="outboundPort">-</div>
+                        </div>
+                        <div class="hero-side">
+                            <div class="hero-side-label">作业批次</div>
+                            <div class="hero-side-value" id="outboundTaskNo">-</div>
+                        </div>
+                    </div>
+                    <div class="hero-code" id="outboundContainerCode">-</div>
+                    <div class="hero-meta-grid" id="outboundMetaGrid"></div>
+                </div>
+
+                <div class="panel-subtitle">
+                    <h3>容器内物料明细</h3>
+                    <span>同个物料关联多个出库单时按多行展示，不需要出库的物料保持单独展示</span>
+                </div>
+
+                <div class="table-card">
+                    <table class="board-table">
+                        <thead>
+                            <tr>
+                                <th width="88">物料图片</th>
+                                <th width="150">物料编码</th>
+                                <th width="180">物料名称</th>
+                                <th width="110">当前数量</th>
+                                <th>关联出库单号</th>
+                                <th width="120">本次出库数量</th>
+                            </tr>
+                        </thead>
+                        <tbody id="outboundDetailBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <footer class="board-footer">
+            <div class="footer-note">说明：入库失败异常会持续显示，直到异常解除后才会从看板移除。</div>
+            <div class="footer-note">当前屏幕适用于工位电视大屏展示，建议 1920×1080 或更高分辨率。</div>
+        </footer>
+    </div>
+
+    <script src="../scripts/work-board.js"></script>
+</body>
+</html>

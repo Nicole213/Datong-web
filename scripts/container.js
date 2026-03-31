@@ -103,20 +103,17 @@ document.addEventListener('DOMContentLoaded', function() {
         tbody.innerHTML = '';
 
         if (filteredContainers.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #999;">暂无数据</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: #999;">暂无数据</td></tr>';
             return;
         }
 
         filteredContainers.forEach(container => {
-            const statusClass = container.status === '空闲' ? 'idle' : container.status === '占用' ? 'occupied' : 'full';
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${container.code}</td>
                 <td>${container.type}</td>
                 <td>${container.length}×${container.width}×${container.height}</td>
-                <td><span class="status-badge ${statusClass}">${container.status}</span></td>
                 <td>${container.createTime}</td>
-                <td>${container.location}</td>
                 <td>
                     <div class="action-btns">
                         <button class="detail-btn" data-id="${container.id}">详情</button>

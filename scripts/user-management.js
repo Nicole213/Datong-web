@@ -13,6 +13,13 @@ const systemMenus = [
         permissions: ['查看']
     },
     {
+        id: 'workboard',
+        name: '作业看板',
+        icon: '📺',
+        isSingle: true,
+        permissions: ['查看']
+    },
+    {
         id: 'map',
         name: '库位地图',
         icon: '🗺️',
@@ -100,6 +107,15 @@ const systemMenus = [
             { id: 'material', name: '物料管理', permissions: ['查看', '新增', '编辑', '删除'] },
             { id: 'container', name: '容器管理', permissions: ['查看', '新增', '编辑', '删除'] }
         ]
+    },
+    {
+        id: 'log',
+        name: '日志管理',
+        icon: '🧾',
+        children: [
+            { id: 'interface-log', name: '接口日志', permissions: ['查看'] },
+            { id: 'inbound-log', name: '入库日志', permissions: ['查看'] }
+        ]
     }
 ];
 
@@ -107,6 +123,7 @@ const systemMenus = [
 const rolePermissionsData = {
     '系统管理员': {
         'home': ['查看'],
+        'workboard': ['查看'],
         'map': ['查看'],
         'area': ['查看', '新增', '编辑', '删除'],
         'location': ['查看', '新增', '编辑', '删除'],
@@ -126,10 +143,13 @@ const rolePermissionsData = {
         'user': ['查看', '新增', '编辑', '禁用', '启用', '重置密码'],
         'role': ['查看', '新增', '编辑', '删除', '权限配置'],
         'material': ['查看', '新增', '编辑', '删除'],
-        'container': ['查看', '新增', '编辑', '删除']
+        'container': ['查看', '新增', '编辑', '删除'],
+        'interface-log': ['查看'],
+        'inbound-log': ['查看']
     },
     '仓库管理员': {
         'home': ['查看'],
+        'workboard': ['查看'],
         'map': ['查看'],
         'area': ['查看', '编辑'],
         'location': ['查看', '编辑'],
@@ -140,10 +160,13 @@ const rolePermissionsData = {
         'inventory-plan': ['查看', '新增', '编辑', '执行'],
         'inventory-operation': ['查看', '执行作业', '完成作业'],
         'stock-detail': ['查看', '导出'],
-        'task-list': ['查看', '加急', '导出']
+        'task-list': ['查看', '加急', '导出'],
+        'interface-log': ['查看'],
+        'inbound-log': ['查看']
     },
     '操作员': {
         'home': ['查看'],
+        'workboard': ['查看'],
         'inbound-operation': ['查看', '执行作业', '完成作业'],
         'outbound-operation': ['查看', '执行作业', '完成作业'],
         'inventory-operation': ['查看', '执行作业', '完成作业'],
@@ -152,6 +175,7 @@ const rolePermissionsData = {
     },
     '查看员': {
         'home': ['查看'],
+        'workboard': ['查看'],
         'map': ['查看'],
         'area': ['查看'],
         'location': ['查看'],
@@ -168,6 +192,7 @@ let currentViewSelectedMenu = null;
 // 角色权限映射（旧版本，保留用于兼容）
 const rolePermissions = {
     '系统管理员': {
+        '作业看板': ['查看'],
         '系统管理': ['用户管理', '角色管理', '系统配置', '日志查看'],
         '仓库管理': ['库区管理', '库位管理', '库口管理', '库台管理', '巷道管理'],
         '入库管理': ['入库单管理', '入库作业'],
@@ -179,6 +204,7 @@ const rolePermissions = {
         '基础数据': ['物料管理', '容器管理']
     },
     '仓库管理员': {
+        '作业看板': ['查看'],
         '仓库管理': ['库区管理', '库位管理', '库口管理', '库台管理', '巷道管理'],
         '入库管理': ['入库单管理', '入库作业'],
         '出库管理': ['出库单管理', '出库作业'],
@@ -188,6 +214,7 @@ const rolePermissions = {
         '基础数据': ['物料管理', '容器管理']
     },
     '操作员': {
+        '作业看板': ['查看'],
         '入库管理': ['入库作业'],
         '出库管理': ['出库作业'],
         '盘点管理': ['盘点作业'],
@@ -195,6 +222,7 @@ const rolePermissions = {
         '任务管理': ['任务列表（查看）']
     },
     '查看员': {
+        '作业看板': ['查看'],
         '库存管理': ['库存明细（查看）'],
         '任务管理': ['任务列表（查看）'],
         '入库管理': ['入库单（查看）'],

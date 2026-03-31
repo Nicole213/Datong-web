@@ -208,6 +208,67 @@ let taskData = [
         completeTime: '-',
         errorReason: '',
         isUrgent: false
+    },
+    {
+        id: 11,
+        taskNo: 'TASK-KTC-2024-001',
+        orderNo: '-',
+        commandType: '出库',
+        taskType: '空托出库',
+        containerCode: 'TP-021',
+        materials: [],
+        pickLocation: '1-1-1-1',
+        putLocation: '-',
+        pickPort: '-',
+        putPort: '2号出库口',
+        status: '待执行',
+        createTime: '2024-01-21 13:20:00',
+        startTime: '-',
+        completeTime: '-',
+        errorReason: '',
+        isUrgent: false
+    },
+    {
+        id: 12,
+        taskNo: 'TASK-SD-2024-001',
+        orderNo: 'SD-2024-001',
+        commandType: '出库',
+        taskType: '手动出库',
+        containerCode: 'TP-004',
+        materials: [
+            { name: '机械零件B型', qty: 12 }
+        ],
+        pickLocation: '2-1-6-1',
+        putLocation: '-',
+        pickPort: '-',
+        putPort: '1号出库口',
+        status: '执行中',
+        createTime: '2024-01-21 14:10:00',
+        startTime: '2024-01-21 14:15:00',
+        completeTime: '-',
+        errorReason: '',
+        isUrgent: false
+    },
+    {
+        id: 13,
+        taskNo: 'TASK-YK-2024-001',
+        orderNo: 'YK-2024-001',
+        commandType: '移库',
+        taskType: '移库',
+        containerCode: 'TP-008',
+        materials: [
+            { name: '机械零件B型', qty: 18 }
+        ],
+        pickLocation: '2-4-9-1',
+        putLocation: '2-2-4-1',
+        pickPort: '-',
+        putPort: '-',
+        status: '待执行',
+        createTime: '2024-01-21 15:30:00',
+        startTime: '-',
+        completeTime: '-',
+        errorReason: '',
+        isUrgent: false
     }
 ];
 
@@ -223,23 +284,44 @@ document.addEventListener('DOMContentLoaded', function() {
     initEventListeners();
 });
 
+function getSortedTasks(tasks) {
+    return [...tasks].sort((a, b) => {
+        if (a.isUrgent !== b.isUrgent) {
+            return Number(b.isUrgent) - Number(a.isUrgent);
+        }
+
+        return a.id - b.id;
+    });
+}
+
+function getCommandClass(commandType) {
+    const classMap = {
+        '入库': 'inbound',
+        '出库': 'outbound',
+        '移库': 'move'
+    };
+
+    return classMap[commandType] || 'outbound';
+}
+
 // 渲染表格
 function renderTable() {
     const tbody = document.getElementById('taskTableBody');
+    const sortedData = getSortedTasks(filteredData);
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize;
-    const pageData = filteredData.slice(start, end);
+    const pageData = sortedData.slice(start, end);
 
     tbody.innerHTML = pageData.map(task => {
         const statusClass = getStatusClass(task.status);
-        const commandClass = task.commandType === '入库' ? 'inbound' : 'outbound';
+        const commandClass = getCommandClass(task.commandType);
         
         // 格式化物料信息
         let materialInfo = '-';
         if (task.materials && task.materials.length > 0) {
             materialInfo = task.materials.map(m => `${m.name}×${m.qty}`).join('、');
-        } else if (task.taskType.includes('空托盘') || task.taskType === '托盘回库') {
-            materialInfo = task.taskType.includes('空托盘') ? '空托盘' : 
+        } else if (task.taskType.includes('空托') || task.taskType === '托盘回库') {
+            materialInfo = task.taskType.includes('空托') ? '空托盘' : 
                           (task.materials.length === 0 ? '空托盘' : '非空托盘');
         }
         
@@ -247,7 +329,7 @@ function renderTable() {
         let actions = [];
         if (task.status === '待执行') {
             if (!task.isUrgent) {
-                actions.push(`<button class="urgent-btn" onclick="urgentTask(${task.id})">加急</button>`);
+                actions.push(`<button class="urgent-btn" onclick="urgentTask(${task.id})">置顶</button>`);
             }
             actions.push(`<button class="cancel-btn" onclick="cancelTask(${task.id})">取消</button>`);
         }
@@ -259,7 +341,7 @@ function renderTable() {
         <tr>
             <td>
                 ${task.taskNo}
-                ${task.isUrgent ? '<span class="urgent-flag">加急</span>' : ''}
+                ${task.isUrgent ? '<span class="urgent-flag">置顶</span>' : ''}
             </td>
             <td>${task.orderNo}</td>
             <td><span class="command-badge ${commandClass}">${task.commandType}</span></td>
@@ -414,19 +496,19 @@ function resetSearch() {
     renderTable();
 }
 
-// 加急任务
+// 置顶任务
 function urgentTask(id) {
     const task = taskData.find(t => t.id === id);
     if (!task) return;
     
     if (task.status !== '待执行') {
-        alert('只有待执行状态的任务可以加急！');
+        alert('只有待执行状态的任务可以置顶！');
         return;
     }
     
-    if (confirm(`确定要将任务"${task.taskNo}"设置为加急吗？\n\n加急后该任务将优先执行。`)) {
+    if (confirm(`确定要将任务"${task.taskNo}"置顶吗？\n\n置顶后该任务将显示在列表顶部。`)) {
         task.isUrgent = true;
-        alert('任务已设置为加急！');
+        alert('任务已置顶！');
         renderTable();
     }
 }
@@ -514,18 +596,18 @@ function exportData() {
     const headers = [
         '任务号', '关联单据号', '命令类型', '任务类型', '容器编码', '物料信息',
         '取货库位', '放货库位', '取货库口', '放货库口', '状态', 
-        '创建时间', '开始时间', '完成时间', '异常原因', '是否加急'
+        '创建时间', '开始时间', '完成时间', '异常原因', '是否置顶'
     ];
     
     let csvContent = headers.join(',') + '\n';
     
-    filteredData.forEach(task => {
+    getSortedTasks(filteredData).forEach(task => {
         // 格式化物料信息
         let materialInfo = '-';
         if (task.materials && task.materials.length > 0) {
             materialInfo = task.materials.map(m => `${m.name}×${m.qty}`).join('、');
-        } else if (task.taskType.includes('空托盘') || task.taskType === '托盘回库') {
-            materialInfo = task.taskType.includes('空托盘') ? '空托盘' : 
+        } else if (task.taskType.includes('空托') || task.taskType === '托盘回库') {
+            materialInfo = task.taskType.includes('空托') ? '空托盘' : 
                           (task.materials.length === 0 ? '空托盘' : '非空托盘');
         }
         

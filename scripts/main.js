@@ -10,15 +10,22 @@ document.addEventListener('DOMContentLoaded', function() {
     menuItems.forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            // 移除所有active类
-            menuItems.forEach(mi => mi.classList.remove('active'));
-            
-            // 添加active类到当前项
-            this.classList.add('active');
-            
-            // 获取页面名称并加载对应页面
+
             const pageName = this.getAttribute('data-page');
+            const openMode = this.getAttribute('data-open-mode');
+
+            if (openMode === 'standalone') {
+                window.open(`pages/${pageName}.html`, '_blank');
+                return;
+            }
+
+            // 移除所有 active 类
+            menuItems.forEach(mi => mi.classList.remove('active'));
+
+            // 添加 active 类到当前项
+            this.classList.add('active');
+
+            // 获取页面名称并加载对应页面
             contentFrame.src = `pages/${pageName}.html`;
         });
     });
@@ -39,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // 清除登录状态
             sessionStorage.removeItem('isLoggedIn');
             sessionStorage.removeItem('username');
-            
+
             // 跳转到登录页面
             window.location.href = 'pages/login.html';
         }

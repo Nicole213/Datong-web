@@ -207,12 +207,6 @@ function renderTable() {
             <td>${location.row}</td>
             <td>${location.col}</td>
             <td>${location.level}</td>
-            <td>${location.containerTypes.join('、')}</td>
-            <td>
-                <span class="status-badge ${getStatusClass(location.currentStatus)}">
-                    ${location.currentStatus}
-                </span>
-            </td>
             <td>
                 <span class="status-badge ${location.lockStatus === '锁定' ? 'locked' : 'normal'}">
                     ${location.lockStatus}
@@ -223,7 +217,6 @@ function renderTable() {
                     ${location.enableStatus}
                 </span>
             </td>
-            <td>${location.containerCode || '-'}</td>
             <td>
                 <div class="action-btns">
                     <button class="edit-btn" onclick="editLocation(${location.id})">编辑</button>
@@ -447,7 +440,6 @@ function openAddModal() {
     editingLocationId = null;
     document.getElementById('modalTitle').textContent = '新增库位';
     document.getElementById('locationForm').reset();
-    document.querySelectorAll('input[name="containerType"]').forEach(cb => cb.checked = false);
     document.getElementById('locationModal').classList.add('active');
 }
 
@@ -462,12 +454,7 @@ function editLocation(id) {
     document.getElementById('locationCol').value = location.col;
     document.getElementById('locationLevel').value = location.level;
     document.getElementById('locationDepth').value = location.depth;
-    
-    // 设置容器类型
-    document.querySelectorAll('input[name="containerType"]').forEach(checkbox => {
-        checkbox.checked = location.containerTypes.includes(checkbox.value);
-    });
-    
+
     document.getElementById('locationModal').classList.add('active');
 }
 
@@ -477,12 +464,9 @@ function saveLocation() {
     const col = parseInt(document.getElementById('locationCol').value);
     const level = parseInt(document.getElementById('locationLevel').value);
     const depth = parseInt(document.getElementById('locationDepth').value);
-    
-    const containerTypes = Array.from(document.querySelectorAll('input[name="containerType"]:checked'))
-        .map(cb => cb.value);
-    
-    if (!row || !col || !level || !depth || containerTypes.length === 0) {
-        alert('请填写所有必填项！至少选择一种容器类型。');
+
+    if (!row || !col || !level || !depth) {
+        alert('请填写所有必填项！');
         return;
     }
     
@@ -497,7 +481,6 @@ function saveLocation() {
             location.col = col;
             location.level = level;
             location.depth = depth;
-            location.containerTypes = containerTypes;
         }
         alert('库位信息已更新！');
     } else {
@@ -512,7 +495,7 @@ function saveLocation() {
             col,
             level,
             depth,
-            containerTypes,
+            containerTypes: ['小金属框'],
             currentStatus: '空库位',
             lockStatus: '正常',
             enableStatus: '启用',
@@ -530,7 +513,6 @@ function saveLocation() {
 // 打开批量新增弹窗
 function openBatchAddModal() {
     document.getElementById('batchForm').reset();
-    document.querySelectorAll('input[name="batchContainerType"]').forEach(cb => cb.checked = false);
     document.getElementById('batchAddModal').classList.add('active');
 }
 
@@ -544,13 +526,10 @@ function saveBatchLocations() {
     const endLevel = parseInt(document.getElementById('batchEndLevel').value);
     const startDepth = parseInt(document.getElementById('batchStartDepth').value);
     const endDepth = parseInt(document.getElementById('batchEndDepth').value);
-    
-    const containerTypes = Array.from(document.querySelectorAll('input[name="batchContainerType"]:checked'))
-        .map(cb => cb.value);
-    
+
     if (!startRow || !endRow || !startCol || !endCol || !startLevel || !endLevel || 
-        !startDepth || !endDepth || containerTypes.length === 0) {
-        alert('请填写所有必填项！至少选择一种容器类型。');
+        !startDepth || !endDepth) {
+        alert('请填写所有必填项！');
         return;
     }
     
@@ -581,7 +560,7 @@ function saveBatchLocations() {
                         col,
                         level,
                         depth,
-                        containerTypes: [...containerTypes],
+                        containerTypes: ['小金属框'],
                         currentStatus: '空库位',
                         lockStatus: '正常',
                         enableStatus: '启用',

@@ -12,6 +12,7 @@ let outboundOrdersData = [
             { code: 'WL-2024-001', name: '电子元件A型', plannedQty: 80, outboundQty: 80, allocatedQty: 80 }
         ],
         status: '已完成',
+        interfaceSyncStatus: '是',
         createTime: '2024-01-15 10:30:00',
         canEdit: false,
         canDelete: false
@@ -43,6 +44,20 @@ let outboundOrdersData = [
         createTime: '2024-01-17 15:20:00',
         canEdit: true,
         canDelete: true
+    },
+    {
+        id: 4,
+        orderNo: 'CK-2024-0004',
+        source: '客户WMS同步',
+        upstreamNo: 'WMS-OUT-20240118-002',
+        type: '销售出库',
+        materials: [
+            { code: 'WL-2024-004', name: '长物料钢材D型', plannedQty: 25, outboundQty: 0, allocatedQty: 0 }
+        ],
+        status: '待出库',
+        createTime: '2024-01-18 09:40:00',
+        canEdit: false,
+        canDelete: false
     }
 ];
 
@@ -54,6 +69,14 @@ const systemMaterials = [
     { code: 'WL-2024-004', name: '长物料钢材D型', stockQty: 45 },
     { code: 'WL-2024-005', name: '金属材料E型', stockQty: 120 }
 ];
+
+const materialImageThemes = {
+    'WL-2024-001': { background: '#eef2ff', accent: '#4f46e5', secondary: '#c7d2fe' },
+    'WL-2024-002': { background: '#ecfeff', accent: '#0891b2', secondary: '#a5f3fc' },
+    'WL-2024-003': { background: '#f0fdf4', accent: '#16a34a', secondary: '#bbf7d0' },
+    'WL-2024-004': { background: '#fff7ed', accent: '#ea580c', secondary: '#fed7aa' },
+    'WL-2024-005': { background: '#fef2f2', accent: '#dc2626', secondary: '#fecaca' }
+};
 
 // 分页配置
 let currentPage = 1;
@@ -101,9 +124,14 @@ function renderTable() {
 
     tbody.innerHTML = pageData.map(order => {
         const material = order.materials[0];
+        const allocationStatus = getAllocationStatus(order);
+        const interfaceSyncStatus = getInterfaceSyncStatus(order);
         // 检查是否可以分配（待出库/出库中 且 已分配数量 < 计划数量）
         const canAllocate = (order.status === '待出库' || order.status === '出库中') && 
                            order.materials.some(m => (m.allocatedQty || 0) < m.plannedQty);
+        const canVoid = order.source === '客户WMS同步' &&
+                        allocationStatus === '待分配' &&
+                        order.status === '待出库';
         
         return `
         <tr>
@@ -121,8 +149,18 @@ function renderTable() {
             <td>${material.plannedQty}</td>
             <td>${material.outboundQty}</td>
             <td>
+                <span class="allocation-badge ${getAllocationStatusClass(allocationStatus)}">
+                    ${allocationStatus}
+                </span>
+            </td>
+            <td>
                 <span class="status-badge ${getStatusClass(order.status)}">
                     ${order.status}
+                </span>
+            </td>
+            <td>
+                <span class="sync-status-badge ${getInterfaceSyncStatusClass(interfaceSyncStatus)}">
+                    ${interfaceSyncStatus}
                 </span>
             </td>
             <td>${order.createTime}</td>
@@ -133,6 +171,7 @@ function renderTable() {
                     <button class="detail-btn" onclick="showDetail(${order.id})">详情</button>
                     ${order.canEdit ? `<button class="edit-btn" onclick="editOrder(${order.id})">编辑</button>` : ''}
                     ${order.canDelete ? `<button class="delete-btn" onclick="deleteOrder(${order.id})">删除</button>` : ''}
+                    ${canVoid ? `<button class="void-btn" onclick="voidOrder(${order.id})">作废</button>` : ''}
                     ${(order.status === '待出库' || order.status === '出库中') ? 
                         `<button class="force-btn" onclick="forceComplete(${order.id})">强制完成</button>` : ''}
                 </div>
@@ -161,9 +200,126 @@ function getStatusClass(status) {
     const statusMap = {
         '待出库': 'pending',
         '出库中': 'processing',
-        '已完成': 'completed'
+        '已完成': 'completed',
+        '已作废': 'cancelled'
     };
     return statusMap[status] || 'pending';
+}
+
+function getAllocationStatus(order) {
+    const hasAllocated = order.materials.some(m => (m.allocatedQty || 0) > 0);
+    return hasAllocated ? '已分配' : '待分配';
+}
+
+function getAllocationStatusClass(status) {
+    return status === '已分配' ? 'completed' : 'pending';
+}
+
+function getInterfaceSyncStatus(order) {
+    if (order.status !== '已完成') {
+        return '否';
+    }
+
+    return order.interfaceSyncStatus || '否';
+}
+
+function getInterfaceSyncStatusClass(status) {
+    return status === '是' ? 'synced' : 'unsynced';
+}
+
+function getDetailInterfaceSyncStatus(order, taskRecord) {
+    if (taskRecord?.status !== '已完成') {
+        return '否';
+    }
+
+    if (order.status !== '已完成') {
+        return '否';
+    }
+
+    return order.interfaceSyncStatus || '否';
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function getMaterialImageTheme(materialCode) {
+    return materialImageThemes[materialCode] || {
+        background: '#f8fafc',
+        accent: '#475569',
+        secondary: '#cbd5e1'
+    };
+}
+
+function buildMaterialImageSvg(materialCode, materialName) {
+    const theme = getMaterialImageTheme(materialCode);
+    const titleText = escapeHtml(materialName || '物料图片');
+    const codeText = escapeHtml(materialCode || 'MATERIAL');
+
+    return `
+        <svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+            <rect width="320" height="320" rx="36" fill="${theme.background}"/>
+            <circle cx="254" cy="68" r="34" fill="${theme.secondary}"/>
+            <rect x="42" y="62" width="132" height="132" rx="24" fill="${theme.accent}" opacity="0.92"/>
+            <rect x="72" y="92" width="72" height="72" rx="16" fill="#ffffff" opacity="0.92"/>
+            <path d="M104 92v72M72 128h72" stroke="${theme.accent}" stroke-width="10" stroke-linecap="round" opacity="0.28"/>
+            <rect x="42" y="214" width="236" height="18" rx="9" fill="${theme.secondary}" opacity="0.72"/>
+            <text x="42" y="262" fill="#0f172a" font-size="28" font-family="Arial, sans-serif" font-weight="700">${titleText}</text>
+            <text x="42" y="294" fill="${theme.accent}" font-size="20" font-family="Arial, sans-serif" font-weight="600">${codeText}</text>
+        </svg>
+    `.trim();
+}
+
+function getMaterialImageUrl(materialCode, materialName) {
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(buildMaterialImageSvg(materialCode, materialName))}`;
+}
+
+function renderMaterialImageCell(materialCode, materialName) {
+    if (!materialCode || materialCode === '-') {
+        return '<span class="material-image-empty">-</span>';
+    }
+
+    const imageUrl = getMaterialImageUrl(materialCode, materialName);
+    const imageAlt = escapeHtml(`${materialName || materialCode}物料图片`);
+
+    return `
+        <button
+            type="button"
+            class="material-image-trigger"
+            data-material-code="${escapeHtml(materialCode)}"
+            data-material-name="${escapeHtml(materialName || materialCode)}"
+            title="点击查看大图"
+        >
+            <img class="material-image-thumb" src="${imageUrl}" alt="${imageAlt}">
+        </button>
+    `;
+}
+
+function openMaterialImagePreview(materialCode, materialName) {
+    if (!materialCode || materialCode === '-') return;
+
+    const viewer = document.getElementById('materialImageViewer');
+    const viewerTitle = document.getElementById('materialImageViewerTitle');
+    const viewerImg = document.getElementById('materialImageViewerImg');
+    const title = materialName || materialCode;
+
+    viewerTitle.textContent = `${title} 物料图片`;
+    viewerImg.src = getMaterialImageUrl(materialCode, materialName);
+    viewerImg.alt = `${title}物料图片`;
+    viewer.classList.add('active');
+}
+
+function closeMaterialImagePreview() {
+    const viewer = document.getElementById('materialImageViewer');
+    const viewerImg = document.getElementById('materialImageViewerImg');
+
+    viewer.classList.remove('active');
+    viewerImg.src = '';
 }
 
 // 更新分页
@@ -207,6 +363,18 @@ function initEventListeners() {
     document.getElementById('addMaterialBtn').addEventListener('click', addMaterialItem);
     document.getElementById('detailClose').addEventListener('click', closeDetailModal);
     document.getElementById('detailCloseBtn').addEventListener('click', closeDetailModal);
+    document.getElementById('detailModal').addEventListener('click', (e) => {
+        const trigger = e.target.closest('.material-image-trigger');
+        if (!trigger) return;
+
+        openMaterialImagePreview(trigger.dataset.materialCode, trigger.dataset.materialName);
+    });
+    document.getElementById('materialImageViewerClose').addEventListener('click', closeMaterialImagePreview);
+    document.getElementById('materialImageViewer').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) {
+            closeMaterialImagePreview();
+        }
+    });
     document.getElementById('forceClose').addEventListener('click', closeForceModal);
     document.getElementById('forceSaveBtn').addEventListener('click', saveForceComplete);
     document.getElementById('forceCancelBtn').addEventListener('click', closeForceModal);
@@ -556,6 +724,7 @@ function saveOrder() {
             order.upstreamNo = upstreamNo;
             order.remark = orderRemark;
             order.materials = materials;
+            order.interfaceSyncStatus = order.interfaceSyncStatus || '否';
         }
         alert('出库单已更新！');
     } else {
@@ -570,6 +739,7 @@ function saveOrder() {
             type: orderType,
             materials,
             status: '待出库',
+            interfaceSyncStatus: '否',
             createTime,
             remark: orderRemark,
             canEdit: true,
@@ -595,7 +765,32 @@ function deleteOrder(id) {
     
     if (confirm(`确定要删除出库单"${order.orderNo}"吗？`)) {
         outboundOrdersData = outboundOrdersData.filter(o => o.id !== id);
+        selectedOrders.delete(id);
         alert('出库单已删除！');
+        searchOrders();
+    }
+}
+
+function voidOrder(id) {
+    const order = outboundOrdersData.find(o => o.id === id);
+    if (!order) return;
+
+    const allocationStatus = getAllocationStatus(order);
+    const canVoid = order.source === '客户WMS同步' &&
+                    allocationStatus === '待分配' &&
+                    order.status === '待出库';
+
+    if (!canVoid) {
+        alert('该出库单当前不可作废！');
+        return;
+    }
+
+    if (confirm(`确定要作废出库单"${order.orderNo}"吗？`)) {
+        order.status = '已作废';
+        order.canEdit = false;
+        order.canDelete = false;
+        selectedOrders.delete(id);
+        alert('出库单已作废！');
         searchOrders();
     }
 }
@@ -605,6 +800,12 @@ function showDetail(id) {
     detailOrderId = id;
     const order = outboundOrdersData.find(o => o.id === id);
     if (!order) return;
+    const primaryMaterial = order.materials[0] || null;
+    const primaryMaterialCode = primaryMaterial ? primaryMaterial.code : '-';
+    const primaryMaterialName = primaryMaterial ? primaryMaterial.name : '-';
+    const primaryMaterialText = primaryMaterial
+        ? `${primaryMaterial.code} - ${primaryMaterial.name}`
+        : '空物料';
     
     document.getElementById('detailOrderNo').textContent = order.orderNo;
     document.getElementById('detailSource').textContent = order.source;
@@ -625,58 +826,115 @@ function showDetail(id) {
     const allocationBody = document.getElementById('detailAllocationBody');
     allocationBody.innerHTML = `
         <tr>
-            <td>${order.materials[0].code}</td>
-            <td>${order.materials[0].name}</td>
+            <td>${primaryMaterialCode}</td>
+            <td>${primaryMaterialName}</td>
+            <td>${renderMaterialImageCell(primaryMaterialCode, primaryMaterialName)}</td>
             <td>TP-001</td>
             <td>1-5-12-1</td>
             <td>30</td>
+            <td>张三</td>
+            <td>2024-01-17 16:18:20</td>
             <td><span class="status-badge completed">已出库</span></td>
         </tr>
         <tr>
-            <td>${order.materials[0].code}</td>
-            <td>${order.materials[0].name}</td>
+            <td>${primaryMaterialCode}</td>
+            <td>${primaryMaterialName}</td>
+            <td>${renderMaterialImageCell(primaryMaterialCode, primaryMaterialName)}</td>
             <td>TP-002</td>
             <td>1-6-12-1</td>
             <td>20</td>
+            <td>李四</td>
+            <td>2024-01-17 16:24:05</td>
             <td><span class="status-badge pending">待出库</span></td>
         </tr>
     `;
-    
+
+    const taskRecords = [
+        {
+            taskNo: `TASK-${order.orderNo}-001`,
+            orderNo: order.orderNo,
+            containerCode: 'TP-001',
+            materialText: `${primaryMaterialText} × 30`,
+            materialCode: primaryMaterialCode,
+            materialName: primaryMaterialName,
+            pickLocation: '1-5-12-1',
+            dropLocation: '-',
+            pickPort: '-',
+            dropPort: '1号出库口',
+            status: '已完成',
+            statusClass: 'completed',
+            createTime: '2024-01-17 16:20:00',
+            startTime: '2024-01-17 16:25:00',
+            finishTime: '2024-01-17 16:30:25'
+        },
+        {
+            taskNo: `TASK-${order.orderNo}-002`,
+            orderNo: order.orderNo,
+            containerCode: 'TP-002',
+            materialText: `${primaryMaterialText} × 20`,
+            materialCode: primaryMaterialCode,
+            materialName: primaryMaterialName,
+            pickLocation: '1-6-12-1',
+            dropLocation: '-',
+            pickPort: '-',
+            dropPort: '1号出库口',
+            status: '执行中',
+            statusClass: 'processing',
+            createTime: '2024-01-17 16:25:00',
+            startTime: '2024-01-17 16:30:00',
+            finishTime: '-'
+        }
+    ];
+
     const taskBody = document.getElementById('detailTaskBody');
-    taskBody.innerHTML = `
+    taskBody.innerHTML = taskRecords.map(task => `
         <tr>
-            <td>TASK-${order.orderNo}-001</td>
-            <td>${order.orderNo}</td>
+            <td>${task.taskNo}</td>
+            <td>${task.orderNo}</td>
             <td><span class="command-badge outbound">出库</span></td>
             <td><span class="task-type-badge">普通出库</span></td>
-            <td>TP-001</td>
-            <td>${order.materials[0].code} - ${order.materials[0].name} × 30</td>
-            <td>1-5-12-1</td>
-            <td>-</td>
-            <td>-</td>
-            <td>1号出库口</td>
-            <td><span class="status-badge completed">已完成</span></td>
-            <td>2024-01-17 16:20:00</td>
-            <td>2024-01-17 16:25:00</td>
-            <td>2024-01-17 16:30:25</td>
+            <td>${task.containerCode}</td>
+            <td>${task.materialText}</td>
+            <td>${task.pickLocation}</td>
+            <td>${task.dropLocation}</td>
+            <td>${task.pickPort}</td>
+            <td>${task.dropPort}</td>
+            <td><span class="status-badge ${task.statusClass}">${task.status}</span></td>
+            <td>${task.createTime}</td>
+            <td>${task.startTime}</td>
+            <td>${task.finishTime}</td>
         </tr>
-        <tr>
-            <td>TASK-${order.orderNo}-002</td>
-            <td>${order.orderNo}</td>
-            <td><span class="command-badge outbound">出库</span></td>
-            <td><span class="task-type-badge">普通出库</span></td>
-            <td>TP-002</td>
-            <td>${order.materials[0].code} - ${order.materials[0].name} × 20</td>
-            <td>1-6-12-1</td>
-            <td>-</td>
-            <td>-</td>
-            <td>1号出库口</td>
-            <td><span class="status-badge processing">执行中</span></td>
-            <td>2024-01-17 16:25:00</td>
-            <td>2024-01-17 16:30:00</td>
-            <td>-</td>
-        </tr>
-    `;
+    `).join('');
+
+    const interfaceSyncBody = document.getElementById('detailInterfaceSyncBody');
+    const interfaceSyncRecords = taskRecords.map((task, index) => ({
+        rowId: index + 1,
+        materialCode: task.materialCode,
+        materialName: task.materialName,
+        palletCode: task.containerCode,
+        outboundLocation: task.pickLocation,
+        interfaceSyncStatus: getDetailInterfaceSyncStatus(order, task)
+    }));
+    interfaceSyncBody.innerHTML = interfaceSyncRecords.length > 0
+        ? interfaceSyncRecords.map(record => `
+            <tr>
+                <td>${record.rowId}</td>
+                <td>${record.materialCode}</td>
+                <td>${record.materialName}</td>
+                <td>${record.palletCode}</td>
+                <td>${record.outboundLocation}</td>
+                <td>
+                    <span class="sync-status-badge ${getInterfaceSyncStatusClass(record.interfaceSyncStatus)}">
+                        ${record.interfaceSyncStatus}
+                    </span>
+                </td>
+            </tr>
+        `).join('')
+        : `
+            <tr class="detail-empty-row">
+                <td colspan="6">暂无接口同步明细</td>
+            </tr>
+        `;
     
     document.getElementById('detailModal').classList.add('active');
 }
@@ -702,6 +960,7 @@ function saveForceComplete() {
         order.status = '已完成';
         order.canEdit = false;
         order.canDelete = false;
+        order.interfaceSyncStatus = order.interfaceSyncStatus || '否';
         order.forceCompleteReason = reason;
         alert('出库单已强制完成！');
         closeForceModal();
@@ -712,6 +971,7 @@ function saveForceComplete() {
 // 关闭详情弹窗
 function closeDetailModal() {
     document.getElementById('detailModal').classList.remove('active');
+    closeMaterialImagePreview();
     detailOrderId = null;
 }
 
@@ -731,6 +991,7 @@ function closeAllModals() {
     document.getElementById('autoAllocatePortModal').classList.remove('active');
     document.getElementById('mergeOrderModal').classList.remove('active');
     document.getElementById('batchAllocateModal').classList.remove('active');
+    closeMaterialImagePreview();
     editingOrderId = null;
     detailOrderId = null;
     forceCompleteOrderId = null;

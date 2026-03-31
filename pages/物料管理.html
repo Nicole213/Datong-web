@@ -107,22 +107,22 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="required">重量(kg)：</label>
-                            <input type="number" class="form-input" id="materialWeight" step="0.01" required>
+                            <label>重量(kg)：</label>
+                            <input type="number" class="form-input" id="materialWeight" step="0.01">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="required">长(mm)：</label>
-                            <input type="number" class="form-input" id="materialLength" required>
+                            <label>长(mm)：</label>
+                            <input type="number" class="form-input" id="materialLength">
                         </div>
                         <div class="form-group">
-                            <label class="required">宽(mm)：</label>
-                            <input type="number" class="form-input" id="materialWidth" required>
+                            <label>宽(mm)：</label>
+                            <input type="number" class="form-input" id="materialWidth">
                         </div>
                         <div class="form-group">
-                            <label class="required">高(mm)：</label>
-                            <input type="number" class="form-input" id="materialHeight" required>
+                            <label>高(mm)：</label>
+                            <input type="number" class="form-input" id="materialHeight">
                         </div>
                     </div>
                     <div class="form-row">
@@ -134,9 +134,37 @@
                                         <input type="checkbox" name="container" value="小金属框" data-container="small-metal">
                                         <span>小金属框</span>
                                     </label>
-                                    <div class="quantity-input-wrapper">
-                                        <label>单个容器可存放数量：</label>
-                                        <input type="number" class="quantity-input" id="qty-small-metal" min="1" placeholder="请输入数量" disabled>
+                                    <div class="ratio-config-group">
+                                        <div class="ratio-option-row">
+                                            <label class="radio-label">
+                                                <input type="radio" class="ratio-radio" name="ratio-small-metal" value="1/2" data-container="small-metal" data-ratio-key="half" disabled>
+                                                <span>1/2</span>
+                                            </label>
+                                            <div class="quantity-input-wrapper">
+                                                <label>存储数量：</label>
+                                                <input type="number" class="quantity-input" id="qty-small-metal-half" data-container="small-metal" data-ratio-key="half" min="1" placeholder="请输入存储数量" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="ratio-option-row">
+                                            <label class="radio-label">
+                                                <input type="radio" class="ratio-radio" name="ratio-small-metal" value="1/3" data-container="small-metal" data-ratio-key="third" disabled>
+                                                <span>1/3</span>
+                                            </label>
+                                            <div class="quantity-input-wrapper">
+                                                <label>存储数量：</label>
+                                                <input type="number" class="quantity-input" id="qty-small-metal-third" data-container="small-metal" data-ratio-key="third" min="1" placeholder="请输入存储数量" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="ratio-option-row">
+                                            <label class="radio-label">
+                                                <input type="radio" class="ratio-radio" name="ratio-small-metal" value="1/4" data-container="small-metal" data-ratio-key="quarter" disabled>
+                                                <span>1/4</span>
+                                            </label>
+                                            <div class="quantity-input-wrapper">
+                                                <label>存储数量：</label>
+                                                <input type="number" class="quantity-input" id="qty-small-metal-quarter" data-container="small-metal" data-ratio-key="quarter" min="1" placeholder="请输入存储数量" disabled>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="container-config-item">
@@ -144,9 +172,37 @@
                                         <input type="checkbox" name="container" value="大金属框" data-container="large-metal">
                                         <span>大金属框</span>
                                     </label>
-                                    <div class="quantity-input-wrapper">
-                                        <label>单个容器可存放数量：</label>
-                                        <input type="number" class="quantity-input" id="qty-large-metal" min="1" placeholder="请输入数量" disabled>
+                                    <div class="ratio-config-group">
+                                        <div class="ratio-option-row">
+                                            <label class="radio-label">
+                                                <input type="radio" class="ratio-radio" name="ratio-large-metal" value="1/2" data-container="large-metal" data-ratio-key="half" disabled>
+                                                <span>1/2</span>
+                                            </label>
+                                            <div class="quantity-input-wrapper">
+                                                <label>存储数量：</label>
+                                                <input type="number" class="quantity-input" id="qty-large-metal-half" data-container="large-metal" data-ratio-key="half" min="1" placeholder="请输入存储数量" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="ratio-option-row">
+                                            <label class="radio-label">
+                                                <input type="radio" class="ratio-radio" name="ratio-large-metal" value="1/3" data-container="large-metal" data-ratio-key="third" disabled>
+                                                <span>1/3</span>
+                                            </label>
+                                            <div class="quantity-input-wrapper">
+                                                <label>存储数量：</label>
+                                                <input type="number" class="quantity-input" id="qty-large-metal-third" data-container="large-metal" data-ratio-key="third" min="1" placeholder="请输入存储数量" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="ratio-option-row">
+                                            <label class="radio-label">
+                                                <input type="radio" class="ratio-radio" name="ratio-large-metal" value="1/4" data-container="large-metal" data-ratio-key="quarter" disabled>
+                                                <span>1/4</span>
+                                            </label>
+                                            <div class="quantity-input-wrapper">
+                                                <label>存储数量：</label>
+                                                <input type="number" class="quantity-input" id="qty-large-metal-quarter" data-container="large-metal" data-ratio-key="quarter" min="1" placeholder="请输入存储数量" disabled>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="container-config-item">
@@ -154,9 +210,37 @@
                                         <input type="checkbox" name="container" value="塑料托盘" data-container="plastic-pallet">
                                         <span>塑料托盘</span>
                                     </label>
-                                    <div class="quantity-input-wrapper">
-                                        <label>单个容器可存放数量：</label>
-                                        <input type="number" class="quantity-input" id="qty-plastic-pallet" min="1" placeholder="请输入数量" disabled>
+                                    <div class="ratio-config-group">
+                                        <div class="ratio-option-row">
+                                            <label class="radio-label">
+                                                <input type="radio" class="ratio-radio" name="ratio-plastic-pallet" value="1/2" data-container="plastic-pallet" data-ratio-key="half" disabled>
+                                                <span>1/2</span>
+                                            </label>
+                                            <div class="quantity-input-wrapper">
+                                                <label>存储数量：</label>
+                                                <input type="number" class="quantity-input" id="qty-plastic-pallet-half" data-container="plastic-pallet" data-ratio-key="half" min="1" placeholder="请输入存储数量" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="ratio-option-row">
+                                            <label class="radio-label">
+                                                <input type="radio" class="ratio-radio" name="ratio-plastic-pallet" value="1/3" data-container="plastic-pallet" data-ratio-key="third" disabled>
+                                                <span>1/3</span>
+                                            </label>
+                                            <div class="quantity-input-wrapper">
+                                                <label>存储数量：</label>
+                                                <input type="number" class="quantity-input" id="qty-plastic-pallet-third" data-container="plastic-pallet" data-ratio-key="third" min="1" placeholder="请输入存储数量" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="ratio-option-row">
+                                            <label class="radio-label">
+                                                <input type="radio" class="ratio-radio" name="ratio-plastic-pallet" value="1/4" data-container="plastic-pallet" data-ratio-key="quarter" disabled>
+                                                <span>1/4</span>
+                                            </label>
+                                            <div class="quantity-input-wrapper">
+                                                <label>存储数量：</label>
+                                                <input type="number" class="quantity-input" id="qty-plastic-pallet-quarter" data-container="plastic-pallet" data-ratio-key="quarter" min="1" placeholder="请输入存储数量" disabled>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="container-config-item">
@@ -164,9 +248,37 @@
                                         <input type="checkbox" name="container" value="长物料钢托盘" data-container="long-steel-pallet">
                                         <span>长物料钢托盘</span>
                                     </label>
-                                    <div class="quantity-input-wrapper">
-                                        <label>单个容器可存放数量：</label>
-                                        <input type="number" class="quantity-input" id="qty-long-steel-pallet" min="1" placeholder="请输入数量" disabled>
+                                    <div class="ratio-config-group">
+                                        <div class="ratio-option-row">
+                                            <label class="radio-label">
+                                                <input type="radio" class="ratio-radio" name="ratio-long-steel-pallet" value="1/2" data-container="long-steel-pallet" data-ratio-key="half" disabled>
+                                                <span>1/2</span>
+                                            </label>
+                                            <div class="quantity-input-wrapper">
+                                                <label>存储数量：</label>
+                                                <input type="number" class="quantity-input" id="qty-long-steel-pallet-half" data-container="long-steel-pallet" data-ratio-key="half" min="1" placeholder="请输入存储数量" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="ratio-option-row">
+                                            <label class="radio-label">
+                                                <input type="radio" class="ratio-radio" name="ratio-long-steel-pallet" value="1/3" data-container="long-steel-pallet" data-ratio-key="third" disabled>
+                                                <span>1/3</span>
+                                            </label>
+                                            <div class="quantity-input-wrapper">
+                                                <label>存储数量：</label>
+                                                <input type="number" class="quantity-input" id="qty-long-steel-pallet-third" data-container="long-steel-pallet" data-ratio-key="third" min="1" placeholder="请输入存储数量" disabled>
+                                            </div>
+                                        </div>
+                                        <div class="ratio-option-row">
+                                            <label class="radio-label">
+                                                <input type="radio" class="ratio-radio" name="ratio-long-steel-pallet" value="1/4" data-container="long-steel-pallet" data-ratio-key="quarter" disabled>
+                                                <span>1/4</span>
+                                            </label>
+                                            <div class="quantity-input-wrapper">
+                                                <label>存储数量：</label>
+                                                <input type="number" class="quantity-input" id="qty-long-steel-pallet-quarter" data-container="long-steel-pallet" data-ratio-key="quarter" min="1" placeholder="请输入存储数量" disabled>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

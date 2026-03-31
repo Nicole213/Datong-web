@@ -35,6 +35,7 @@
                         <option value="待入库">待入库</option>
                         <option value="入库中">入库中</option>
                         <option value="已完成">已完成</option>
+                        <option value="已作废">已作废</option>
                     </select>
                 </div>
             </div>
@@ -72,6 +73,7 @@
 
         <!-- 操作按钮区 -->
         <div class="action-bar">
+            <button class="secondary-btn" id="emptyPalletOutboundBtn">空托出库</button>
             <button class="primary-btn" id="addBtn">➕ 新增入库单</button>
         </div>
 
@@ -88,9 +90,11 @@
                         <th width="150">物料名称</th>
                         <th width="80">计划数量</th>
                         <th width="80">已入库数量</th>
+                        <th width="90">分配状态</th>
                         <th width="80">状态</th>
+                        <th width="100">接口同步状态</th>
                         <th width="150">创建时间</th>
-                        <th width="280">操作</th>
+                        <th width="340">操作</th>
                     </tr>
                 </thead>
                 <tbody id="inboundTableBody">
@@ -108,6 +112,55 @@
     </div>
 
     <!-- 新增/编辑入库单弹窗 -->
+    <div class="modal" id="emptyPalletOutboundModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>空托出库</h3>
+                <span class="modal-close" id="emptyPalletOutboundClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="required">容器类型：</label>
+                        <select class="form-input" id="emptyPalletOutboundType" required>
+                            <option value="">请选择容器类型</option>
+                            <option value="塑料托盘">塑料托盘</option>
+                            <option value="标准钢托盘">标准钢托盘</option>
+                            <option value="长物料钢托盘">长物料钢托盘</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>空托库存数：</label>
+                        <input
+                            type="text"
+                            class="form-input input-readonly"
+                            id="emptyPalletOutboundStock"
+                            readonly
+                            placeholder="选择容器类型后自动显示">
+                    </div>
+                    <div class="form-group">
+                        <label class="required">空托数量：</label>
+                        <input
+                            type="number"
+                            class="form-input"
+                            id="emptyPalletOutboundQty"
+                            min="1"
+                            step="1"
+                            disabled
+                            placeholder="请输入空托数量">
+                        <div class="form-tip" id="emptyPalletOutboundTip">请输入正整数，且不能大于空托库存数</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="emptyPalletOutboundConfirmBtn">确认</button>
+                <button class="modal-btn secondary" id="emptyPalletOutboundCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal" id="inboundModal">
         <div class="modal-content large">
             <div class="modal-header">
@@ -124,12 +177,7 @@
                         </div>
                         <div class="form-group">
                             <label class="required">入库类型：</label>
-                            <select class="form-input" id="orderType" required>
-                                <option value="">请选择</option>
-                                <option value="自制件入库">自制件入库</option>
-                                <option value="采购件入库">采购件入库</option>
-                                <option value="其他">其他</option>
-                            </select>
+                            <input type="text" class="form-input" id="orderType" required placeholder="请输入入库类型">
                         </div>
                     </div>
                     <div class="form-row">
@@ -217,11 +265,27 @@
                             <th>组盘状态</th>
                             <th>物料编码</th>
                             <th>物料名称</th>
-                            <th>物料数量</th>
-                            <th>当前位置</th>
+                            <th>物料图片</th>
+                            <th>分配物料数量</th>
                         </tr>
                     </thead>
                     <tbody id="detailPalletBody">
+                    </tbody>
+                </table>
+
+                <div class="section-title">实际组盘记录</div>
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>托盘编码</th>
+                            <th>入库状态</th>
+                            <th>物料编码</th>
+                            <th>物料名称</th>
+                            <th>物料图片</th>
+                            <th>实际入库数量</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailActualPalletBody">
                     </tbody>
                 </table>
                 
@@ -246,6 +310,22 @@
                         </tr>
                     </thead>
                     <tbody id="detailTaskBody">
+                    </tbody>
+                </table>
+
+                <div class="section-title">接口同步明细</div>
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>行ID</th>
+                            <th>物料编码</th>
+                            <th>物料名称</th>
+                            <th>托盘编码</th>
+                            <th>入库库位</th>
+                            <th>接口同步状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailInterfaceSyncBody">
                     </tbody>
                 </table>
             </div>
@@ -374,6 +454,16 @@
             <div class="modal-footer">
                 <button class="modal-btn primary" id="confirmCustomBtn">确认选择</button>
                 <button class="modal-btn secondary" id="customCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="image-viewer" id="materialImageViewer">
+        <div class="image-viewer-dialog">
+            <button type="button" class="image-viewer-close" id="materialImageViewerClose">&times;</button>
+            <div class="image-viewer-title" id="materialImageViewerTitle">物料图片</div>
+            <div class="image-viewer-body">
+                <img id="materialImageViewerImg" src="" alt="物料图片">
             </div>
         </div>
     </div>

@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
             weight: 2.5,
             photo: 'https://via.placeholder.com/60',
             containers: [
-                { type: '小金属框', quantity: 10 },
-                { type: '塑料托盘', quantity: 20 }
+                { type: '小金属框', ratio: '1/2', quantity: 10 },
+                { type: '塑料托盘', ratio: '1/3', quantity: 20 }
             ],
             createTime: '2024-01-15 10:30:00',
             hasTransaction: true
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
             weight: 5.8,
             photo: 'https://via.placeholder.com/60',
             containers: [
-                { type: '大金属框', quantity: 5 }
+                { type: '大金属框', ratio: '1/2', quantity: 5 }
             ],
             createTime: '2024-01-16 14:20:00',
             hasTransaction: false
@@ -49,8 +49,8 @@ document.addEventListener('DOMContentLoaded', function() {
             weight: 1.2,
             photo: 'https://via.placeholder.com/60',
             containers: [
-                { type: '小金属框', quantity: 15 },
-                { type: '塑料托盘', quantity: 25 }
+                { type: '小金属框', ratio: '1/4', quantity: 15 },
+                { type: '塑料托盘', ratio: '1/2', quantity: 25 }
             ],
             createTime: '2024-01-17 09:15:00',
             hasTransaction: true
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
             weight: 15.6,
             photo: 'https://via.placeholder.com/60',
             containers: [
-                { type: '长物料钢托盘', quantity: 3 }
+                { type: '长物料钢托盘', ratio: '1/2', quantity: 3 }
             ],
             createTime: '2024-01-18 16:45:00',
             hasTransaction: false
@@ -82,8 +82,8 @@ document.addEventListener('DOMContentLoaded', function() {
             weight: 8.3,
             photo: 'https://via.placeholder.com/60',
             containers: [
-                { type: '大金属框', quantity: 8 },
-                { type: '塑料托盘', quantity: 12 }
+                { type: '大金属框', ratio: '1/3', quantity: 8 },
+                { type: '塑料托盘', ratio: '1/4', quantity: 12 }
             ],
             createTime: '2024-01-19 11:20:00',
             hasTransaction: true
@@ -92,6 +92,93 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let materials = [...mockMaterials];
     let filteredMaterials = [...materials];
+    const containerMap = {
+        '小金属框': 'small-metal',
+        '大金属框': 'large-metal',
+        '塑料托盘': 'plastic-pallet',
+        '长物料钢托盘': 'long-steel-pallet'
+    };
+    const ratioKeyMap = {
+        '1/2': 'half',
+        '1/3': 'third',
+        '1/4': 'quarter'
+    };
+
+    function parseOptionalNumber(value, parser) {
+        const trimmedValue = value.trim();
+        return trimmedValue === '' ? null : parser(trimmedValue);
+    }
+
+    function formatMaterialSize(material) {
+        const values = [material.length, material.width, material.height];
+        if (values.every(value => value === null || value === undefined || value === '')) {
+            return '-';
+        }
+
+        return values.map(value => (value === null || value === undefined || value === '' ? '-' : value)).join('×');
+    }
+
+    function formatMaterialWeight(weight) {
+        return weight === null || weight === undefined || weight === '' ? '-' : weight;
+    }
+
+    function formatContainerConfig(container) {
+        const ratioText = container.ratio ? `${container.ratio}=${container.quantity}` : container.quantity;
+        return `${container.type}(${ratioText})`;
+    }
+
+    function getQuantityInputId(containerId, ratioKey) {
+        return `qty-${containerId}-${ratioKey}`;
+    }
+
+    function resetContainerConfig() {
+        document.querySelectorAll('input[name="container"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        document.querySelectorAll('.ratio-radio').forEach(radio => {
+            radio.checked = false;
+            radio.disabled = true;
+        });
+
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.disabled = true;
+            input.value = '';
+        });
+    }
+
+    function updateContainerRatioState(containerId) {
+        const selectedRadio = document.querySelector(`.ratio-radio[data-container="${containerId}"]:checked`);
+
+        document.querySelectorAll(`.quantity-input[data-container="${containerId}"]`).forEach(input => {
+            const shouldEnable = selectedRadio && input.dataset.ratioKey === selectedRadio.dataset.ratioKey;
+            input.disabled = !shouldEnable;
+
+            if (!shouldEnable) {
+                input.value = '';
+            }
+        });
+    }
+
+    function setContainerEnabled(containerId, enabled) {
+        document.querySelectorAll(`.ratio-radio[data-container="${containerId}"]`).forEach(radio => {
+            radio.disabled = !enabled;
+
+            if (!enabled) {
+                radio.checked = false;
+            }
+        });
+
+        if (!enabled) {
+            document.querySelectorAll(`.quantity-input[data-container="${containerId}"]`).forEach(input => {
+                input.disabled = true;
+                input.value = '';
+            });
+            return;
+        }
+
+        updateContainerRatioState(containerId);
+    }
 
     // 渲染表格
     function renderTable() {
@@ -109,12 +196,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${material.code}</td>
                 <td>${material.name}</td>
                 <td>${material.type}</td>
-                <td>${material.length}×${material.width}×${material.height}</td>
-                <td>${material.weight}</td>
+                <td>${formatMaterialSize(material)}</td>
+                <td>${formatMaterialWeight(material.weight)}</td>
                 <td><img src="${material.photo}" class="material-photo" alt="物料照片"></td>
                 <td>
                     <div class="container-tags">
-                        ${material.containers.map(c => `<span class="container-tag">${c.type}(${c.quantity})</span>`).join('')}
+                        ${material.containers.map(c => `<span class="container-tag">${formatContainerConfig(c)}</span>`).join('')}
                     </div>
                 </td>
                 <td>${material.createTime}</td>
@@ -194,12 +281,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modalTitle').textContent = '新增物料';
         document.getElementById('materialForm').reset();
         document.getElementById('photoPreview').innerHTML = '';
-        
-        // 重置容器数量输入框
-        document.querySelectorAll('.quantity-input').forEach(input => {
-            input.disabled = true;
-            input.value = '';
-        });
+
+        resetContainerConfig();
         
         document.getElementById('materialModal').classList.add('active');
     });
@@ -208,14 +291,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('input[name="container"]').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const containerId = this.getAttribute('data-container');
-            const quantityInput = document.getElementById(`qty-${containerId}`);
-            
-            if (this.checked) {
-                quantityInput.disabled = false;
+            setContainerEnabled(containerId, this.checked);
+        });
+    });
+
+    document.querySelectorAll('.ratio-radio').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const containerId = this.dataset.container;
+            updateContainerRatioState(containerId);
+
+            const quantityInput = document.getElementById(getQuantityInputId(containerId, this.dataset.ratioKey));
+            if (quantityInput && !quantityInput.disabled) {
                 quantityInput.focus();
-            } else {
-                quantityInput.disabled = true;
-                quantityInput.value = '';
             }
         });
     });
@@ -231,38 +318,32 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('materialCode').value = material.code;
         document.getElementById('materialName').value = material.name;
         document.getElementById('materialTypeInput').value = material.type;
-        document.getElementById('materialWeight').value = material.weight;
-        document.getElementById('materialLength').value = material.length;
-        document.getElementById('materialWidth').value = material.width;
-        document.getElementById('materialHeight').value = material.height;
+        document.getElementById('materialWeight').value = material.weight ?? '';
+        document.getElementById('materialLength').value = material.length ?? '';
+        document.getElementById('materialWidth').value = material.width ?? '';
+        document.getElementById('materialHeight').value = material.height ?? '';
 
-        // 容器类型映射
-        const containerMap = {
-            '小金属框': 'small-metal',
-            '大金属框': 'large-metal',
-            '塑料托盘': 'plastic-pallet',
-            '长物料钢托盘': 'long-steel-pallet'
-        };
+        resetContainerConfig();
 
-        // 重置所有复选框和数量输入框
-        document.querySelectorAll('input[name="container"]').forEach(cb => {
-            cb.checked = false;
-        });
-        document.querySelectorAll('.quantity-input').forEach(input => {
-            input.disabled = true;
-            input.value = '';
-        });
-
-        // 设置容器类型和数量
         material.containers.forEach(container => {
-            const checkbox = document.querySelector(`input[value="${container.type}"]`);
+            const checkbox = document.querySelector(`input[name="container"][value="${container.type}"]`);
             if (checkbox) {
                 checkbox.checked = true;
                 const containerId = containerMap[container.type];
-                const quantityInput = document.getElementById(`qty-${containerId}`);
-                if (quantityInput) {
-                    quantityInput.disabled = false;
-                    quantityInput.value = container.quantity;
+                const ratio = container.ratio || '1/2';
+                const ratioKey = ratioKeyMap[ratio];
+                const radio = document.querySelector(`.ratio-radio[data-container="${containerId}"][value="${ratio}"]`);
+
+                setContainerEnabled(containerId, true);
+
+                if (radio) {
+                    radio.checked = true;
+                    updateContainerRatioState(containerId);
+
+                    const quantityInput = document.getElementById(getQuantityInputId(containerId, ratioKey));
+                    if (quantityInput) {
+                        quantityInput.value = container.quantity;
+                    }
                 }
             }
         });
@@ -299,43 +380,45 @@ document.addEventListener('DOMContentLoaded', function() {
         const code = document.getElementById('materialCode').value.trim();
         const name = document.getElementById('materialName').value.trim();
         const type = document.getElementById('materialTypeInput').value;
-        const weight = parseFloat(document.getElementById('materialWeight').value);
-        const length = parseInt(document.getElementById('materialLength').value);
-        const width = parseInt(document.getElementById('materialWidth').value);
-        const height = parseInt(document.getElementById('materialHeight').value);
+        const weight = parseOptionalNumber(document.getElementById('materialWeight').value, parseFloat);
+        const length = parseOptionalNumber(document.getElementById('materialLength').value, parseInt);
+        const width = parseOptionalNumber(document.getElementById('materialWidth').value, parseInt);
+        const height = parseOptionalNumber(document.getElementById('materialHeight').value, parseInt);
 
-        // 容器类型映射
-        const containerMap = {
-            '小金属框': 'small-metal',
-            '大金属框': 'large-metal',
-            '塑料托盘': 'plastic-pallet',
-            '长物料钢托盘': 'long-steel-pallet'
-        };
-
-        // 获取选中的容器类型和数量
+        // 获取选中的容器类型和配置
         const checkboxes = document.querySelectorAll('input[name="container"]:checked');
         const containers = [];
         
         for (let checkbox of checkboxes) {
             const containerType = checkbox.value;
             const containerId = containerMap[containerType];
-            const quantityInput = document.getElementById(`qty-${containerId}`);
+            const selectedRatio = document.querySelector(`.ratio-radio[data-container="${containerId}"]:checked`);
+
+            if (!selectedRatio) {
+                alert(`请选择"${containerType}"的存储占比！`);
+                return;
+            }
+
+            const quantityInput = document.getElementById(
+                getQuantityInputId(containerId, selectedRatio.dataset.ratioKey)
+            );
             const quantity = parseInt(quantityInput.value);
-            
+
             if (!quantity || quantity < 1) {
-                alert(`请填写"${containerType}"的单个容器可存放数量！`);
+                alert(`请填写"${containerType}"在${selectedRatio.value}下的存储数量！`);
                 quantityInput.focus();
                 return;
             }
             
             containers.push({
                 type: containerType,
+                ratio: selectedRatio.value,
                 quantity: quantity
             });
         }
 
         // 验证
-        if (!code || !name || !type || !weight || !length || !width || !height) {
+        if (!code || !name || !type) {
             alert('请填写所有必填项！');
             return;
         }

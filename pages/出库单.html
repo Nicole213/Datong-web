@@ -35,6 +35,7 @@
                         <option value="待出库">待出库</option>
                         <option value="出库中">出库中</option>
                         <option value="已完成">已完成</option>
+                        <option value="已作废">已作废</option>
                     </select>
                 </div>
             </div>
@@ -89,9 +90,11 @@
                         <th width="150">物料名称</th>
                         <th width="80">计划数量</th>
                         <th width="80">已出库数量</th>
+                        <th width="90">分配状态</th>
                         <th width="80">状态</th>
+                        <th width="100">接口同步状态</th>
                         <th width="150">创建时间</th>
-                        <th width="280">操作</th>
+                        <th width="340">操作</th>
                     </tr>
                 </thead>
                 <tbody id="outboundTableBody">
@@ -209,9 +212,12 @@
                         <tr>
                             <th>物料编码</th>
                             <th>物料名称</th>
+                            <th>物料图片</th>
                             <th>容器编码</th>
                             <th>库位编码</th>
                             <th>已分配数量</th>
+                            <th>分配人</th>
+                            <th>分配时间</th>
                             <th>状态</th>
                         </tr>
                     </thead>
@@ -240,6 +246,22 @@
                         </tr>
                     </thead>
                     <tbody id="detailTaskBody">
+                    </tbody>
+                </table>
+
+                <div class="section-title">接口同步明细</div>
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>行ID</th>
+                            <th>物料编码</th>
+                            <th>物料名称</th>
+                            <th>托盘编码</th>
+                            <th>出库库位</th>
+                            <th>接口同步状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailInterfaceSyncBody">
                     </tbody>
                 </table>
             </div>
@@ -388,6 +410,7 @@
                 </div>
                 
                 <div class="section-title">可分配库位</div>
+                <div class="section-subtext">不包含锁定库位/锁定托盘/锁定物料</div>
                 <table class="detail-table">
                     <thead>
                         <tr>
@@ -535,6 +558,16 @@
             <div class="modal-footer">
                 <button class="modal-btn primary" id="confirmBatchAllocateBtn">确认分配</button>
                 <button class="modal-btn secondary" id="batchAllocateCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="image-viewer" id="materialImageViewer">
+        <div class="image-viewer-dialog">
+            <button type="button" class="image-viewer-close" id="materialImageViewerClose">&times;</button>
+            <div class="image-viewer-title" id="materialImageViewerTitle">物料图片</div>
+            <div class="image-viewer-body">
+                <img id="materialImageViewerImg" src="" alt="物料图片">
             </div>
         </div>
     </div>

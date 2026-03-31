@@ -449,6 +449,18 @@ textarea.form-input {
     margin-bottom: 16px;
 }
 
+.scope-toolbar {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.scope-toolbar .scope-search {
+    flex: 1;
+    margin-bottom: 0;
+}
+
 .scope-search-input {
     width: 100%;
     padding: 10px 40px 10px 12px;
@@ -473,6 +485,24 @@ textarea.form-input {
     font-size: 16px;
     color: #999;
     pointer-events: none;
+}
+
+.scope-import-btn {
+    min-width: 88px;
+    padding: 0 20px;
+    border: 1px solid #667eea;
+    border-radius: 6px;
+    background: #f5f7ff;
+    color: #667eea;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.scope-import-btn:hover {
+    background: #667eea;
+    color: #fff;
 }
 
 .scope-list {
@@ -519,6 +549,27 @@ textarea.form-input {
     font-size: 14px;
     color: #333;
     flex: 1;
+}
+
+.scope-import-type {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.scope-import-textarea {
+    min-height: 180px;
+    line-height: 1.7;
+}
+
+.scope-import-tip {
+    margin-top: 8px;
+    color: #999;
+    font-size: 12px;
+    line-height: 1.7;
 }
 
 /* 详情页面样式 */
@@ -759,6 +810,14 @@ textarea.form-input {
         grid-template-columns: 1fr;
     }
     
+    .scope-toolbar {
+        flex-direction: column;
+    }
+
+    .scope-import-btn {
+        min-height: 40px;
+    }
+
     .scope-list {
         grid-template-columns: 1fr;
     }

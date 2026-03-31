@@ -91,6 +91,11 @@ let inventoryPlans = [
     }
 ];
 
+inventoryPlans = inventoryPlans.map(plan => ({
+    ...plan,
+    resultSubmitStatus: Boolean(plan.resultSubmitStatus)
+}));
+
 // 模拟物料数据
 const materials = [
     { code: 'WL-2024-001', name: '电子元件A型' },
@@ -127,6 +132,7 @@ let currentPlan = null;
 let isEditMode = false;
 let startingPlanId = null; // 正在开始的盘点计划ID
 let editingPortPlanId = null; // 正在修改盘点口的计划ID
+let currentImportScopeType = '';
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
@@ -161,11 +167,22 @@ function initEventListeners() {
     
     // 盘点范围变化
     document.getElementById('scopeType').addEventListener('change', onScopeTypeChange);
+
+    // 批量导入盘点范围
+    document.getElementById('scopeImportClose').addEventListener('click', closeScopeImportModal);
+    document.getElementById('cancelScopeImportBtn').addEventListener('click', closeScopeImportModal);
+    document.getElementById('confirmScopeImportBtn').addEventListener('click', applyScopeImport);
     
     // 点击弹窗外部关闭
     document.getElementById('planModal').addEventListener('click', function(e) {
         if (e.target === this) {
             closePlanModal();
+        }
+    });
+
+    document.getElementById('scopeImportModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeScopeImportModal();
         }
     });
     
@@ -203,7 +220,7 @@ function renderTable(data = inventoryPlans) {
     const tbody = document.getElementById('planTableBody');
     
     if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: #999;">暂无数据</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: #999;">暂无数据</td></tr>';
         document.getElementById('totalCount').textContent = '0';
         return;
     }
@@ -222,13 +239,13 @@ function renderTable(data = inventoryPlans) {
         
         // 根据状态显示不同的操作按钮
         if (plan.status === 'pending') {
-            actions.push(`<button class="action-btn" onclick="startPlan(${plan.id})">开始盘点</button>`);
             actions.push(`<button class="action-btn" onclick="cancelPlan(${plan.id})">取消计划</button>`);
         } else if (plan.status === 'processing') {
-            actions.push(`<button class="action-btn" onclick="pausePlan(${plan.id})">暂停盘点</button>`);
             actions.push(`<button class="action-btn" onclick="terminatePlan(${plan.id})">终止盘点</button>`);
-        } else if (plan.status === 'paused') {
-            actions.push(`<button class="action-btn" onclick="resumePlan(${plan.id})">继续盘点</button>`);
+        }
+
+        if (canSubmitResult(plan)) {
+            actions.push(`<button class="action-btn" onclick="submitResult(${plan.id})">提交结果</button>`);
         }
         
         // 删除按钮（可删除时显示）
@@ -247,6 +264,7 @@ function renderTable(data = inventoryPlans) {
                 <td>${plan.planTime}</td>
                 <td>${plan.owner}</td>
                 <td>${plan.completeTime || '-'}</td>
+                <td>${getResultSubmitStatusText(plan.resultSubmitStatus)}</td>
                 <td>
                     <div class="action-btns">
                         ${actions.join('')}
@@ -281,6 +299,14 @@ function getStatusText(status) {
     return map[status] || status;
 }
 
+function getResultSubmitStatusText(resultSubmitStatus) {
+    return resultSubmitStatus ? '是' : '否';
+}
+
+function canSubmitResult(plan) {
+    return plan.status === 'completed' && !plan.resultSubmitStatus;
+}
+
 // 判断是否可编辑
 function canEdit(plan) {
     // 执行中/已完成/已取消的不可编辑
@@ -311,10 +337,29 @@ function canDelete(plan) {
     return true;
 }
 
+function submitResult(id) {
+    const plan = inventoryPlans.find(p => p.id === id);
+    if (!plan) return;
+
+    if (!canSubmitResult(plan)) {
+        alert('当前盘点计划不可提交结果！');
+        return;
+    }
+
+    const index = inventoryPlans.findIndex(p => p.id === id);
+    if (index !== -1) {
+        inventoryPlans[index].resultSubmitStatus = true;
+    }
+
+    searchPlans();
+    alert(`盘点计划 ${plan.planNo} 结果提交成功！`);
+}
+
 // 打开新增弹窗
 function openAddModal() {
     isEditMode = false;
     currentPlan = null;
+    currentImportScopeType = '';
     
     document.getElementById('modalTitle').textContent = '新增盘点计划';
     document.getElementById('planNo').value = generatePlanNo();
@@ -375,6 +420,169 @@ function editPlan(id) {
     }, 100);
     
     document.getElementById('planModal').classList.add('active');
+}
+
+function supportsScopeImport(scopeType) {
+    return ['指定库位', '指定容器', '指定物料'].includes(scopeType);
+}
+
+function getScopeImportLabel(scopeType) {
+    const labelMap = {
+        '指定库位': '库位编码',
+        '指定容器': '容器编码',
+        '指定物料': '物料编码'
+    };
+    return labelMap[scopeType] || '范围编码';
+}
+
+function getScopeSearchPlaceholder(scopeType) {
+    const placeholderMap = {
+        '指定物料': '搜索物料编码或名称',
+        '指定库区': '搜索库区名称',
+        '指定库位': '搜索库位编码',
+        '指定容器': '搜索容器编码'
+    };
+    return placeholderMap[scopeType] || '';
+}
+
+function getScopeDataByType(scopeType) {
+    if (scopeType === '指定物料') {
+        return materials.map(material => ({
+            value: material.code,
+            label: `${material.code} - ${material.name}`,
+            search: `${material.code.toLowerCase()} ${material.name.toLowerCase()}`
+        }));
+    }
+
+    if (scopeType === '指定库区') {
+        return areas.map(area => ({
+            value: area,
+            label: area,
+            search: area.toLowerCase()
+        }));
+    }
+
+    if (scopeType === '指定库位') {
+        return locations.map(location => ({
+            value: location,
+            label: location,
+            search: location.toLowerCase()
+        }));
+    }
+
+    if (scopeType === '指定容器') {
+        return containers.map(container => ({
+            value: container,
+            label: container,
+            search: container.toLowerCase()
+        }));
+    }
+
+    return [];
+}
+
+function openScopeImportModal() {
+    const scopeType = document.getElementById('scopeType').value;
+    if (!supportsScopeImport(scopeType)) return;
+
+    currentImportScopeType = scopeType;
+
+    document.getElementById('scopeImportTypeLabel').textContent = `${scopeType}（按${getScopeImportLabel(scopeType)}导入）`;
+    document.getElementById('scopeImportInput').value = '';
+    document.getElementById('scopeImportModal').classList.add('active');
+
+    setTimeout(() => {
+        document.getElementById('scopeImportInput').focus();
+    }, 0);
+}
+
+function closeScopeImportModal() {
+    document.getElementById('scopeImportModal').classList.remove('active');
+    document.getElementById('scopeImportInput').value = '';
+    currentImportScopeType = '';
+}
+
+function applyScopeImport() {
+    const scopeType = currentImportScopeType || document.getElementById('scopeType').value;
+    if (!supportsScopeImport(scopeType)) {
+        alert('当前盘点范围不支持批量导入。');
+        return;
+    }
+
+    const rawText = document.getElementById('scopeImportInput').value.trim();
+    if (!rawText) {
+        alert(`请输入需要导入的${getScopeImportLabel(scopeType)}。`);
+        return;
+    }
+
+    const tokens = rawText
+        .split(/[\n,，;；]+/)
+        .map(item => item.trim())
+        .filter(Boolean);
+
+    if (tokens.length === 0) {
+        alert(`请输入需要导入的${getScopeImportLabel(scopeType)}。`);
+        return;
+    }
+
+    const checkboxMap = new Map();
+    document.querySelectorAll('#scopeList input[type="checkbox"]').forEach(checkbox => {
+        checkboxMap.set(checkbox.value.trim().toLowerCase(), checkbox);
+    });
+
+    const visited = new Set();
+    const unmatchedItems = [];
+    let selectedCount = 0;
+    let duplicateCount = 0;
+    let existingCount = 0;
+
+    tokens.forEach(item => {
+        const normalizedValue = item.toLowerCase();
+
+        if (visited.has(normalizedValue)) {
+            duplicateCount++;
+            return;
+        }
+
+        visited.add(normalizedValue);
+
+        const checkbox = checkboxMap.get(normalizedValue);
+        if (!checkbox) {
+            unmatchedItems.push(item);
+            return;
+        }
+
+        if (checkbox.checked) {
+            existingCount++;
+            return;
+        }
+
+        checkbox.checked = true;
+        selectedCount++;
+    });
+
+    const searchInput = document.getElementById('scopeSearchInput');
+    if (searchInput) {
+        searchInput.value = '';
+        filterScopeItems();
+    }
+
+    let message = `导入完成！成功勾选 ${selectedCount} 项`;
+
+    if (existingCount > 0) {
+        message += `，已选中 ${existingCount} 项`;
+    }
+
+    if (duplicateCount > 0) {
+        message += `，重复 ${duplicateCount} 项`;
+    }
+
+    if (unmatchedItems.length > 0) {
+        message += `，未匹配 ${unmatchedItems.length} 项：${unmatchedItems.join('、')}`;
+    }
+
+    alert(message);
+    closeScopeImportModal();
 }
 
 // 删除计划
@@ -1134,87 +1342,43 @@ function onScopeTypeChange() {
     
     if (!scopeType || scopeType === '全仓库') {
         scopeSection.style.display = 'none';
+        closeScopeImportModal();
         return;
     }
     
     scopeSection.style.display = 'block';
     
     let html = '<div class="scope-selection">';
-    
-    // 添加搜索框
-    if (scopeType === '指定物料') {
+
+    const searchPlaceholder = getScopeSearchPlaceholder(scopeType);
+    if (searchPlaceholder) {
+        html += '<div class="scope-toolbar">';
         html += `
             <div class="scope-search">
                 <input type="text" class="scope-search-input" id="scopeSearchInput" 
-                    placeholder="搜索物料编码或名称" onkeyup="filterScopeItems()">
+                    placeholder="${searchPlaceholder}" onkeyup="filterScopeItems()">
                 <span class="search-icon">🔍</span>
             </div>
         `;
-    } else if (scopeType === '指定库区') {
-        html += `
-            <div class="scope-search">
-                <input type="text" class="scope-search-input" id="scopeSearchInput" 
-                    placeholder="搜索库区名称" onkeyup="filterScopeItems()">
-                <span class="search-icon">🔍</span>
-            </div>
-        `;
-    } else if (scopeType === '指定库位') {
-        html += `
-            <div class="scope-search">
-                <input type="text" class="scope-search-input" id="scopeSearchInput" 
-                    placeholder="搜索库位编码" onkeyup="filterScopeItems()">
-                <span class="search-icon">🔍</span>
-            </div>
-        `;
-    } else if (scopeType === '指定容器') {
-        html += `
-            <div class="scope-search">
-                <input type="text" class="scope-search-input" id="scopeSearchInput" 
-                    placeholder="搜索容器编码" onkeyup="filterScopeItems()">
-                <span class="search-icon">🔍</span>
-            </div>
-        `;
+
+        if (supportsScopeImport(scopeType)) {
+            html += '<button type="button" class="scope-import-btn">导入</button>';
+        }
+
+        html += '</div>';
     }
     
     html += '<div class="scope-list" id="scopeList">';
-    
-    if (scopeType === '指定物料') {
-        materials.forEach(material => {
-            html += `
-                <div class="scope-item" data-search="${material.code.toLowerCase()} ${material.name.toLowerCase()}">
-                    <input type="checkbox" id="material_${material.code}" value="${material.code}">
-                    <label for="material_${material.code}">${material.code} - ${material.name}</label>
-                </div>
-            `;
-        });
-    } else if (scopeType === '指定库区') {
-        areas.forEach(area => {
-            html += `
-                <div class="scope-item" data-search="${area.toLowerCase()}">
-                    <input type="checkbox" id="area_${area}" value="${area}">
-                    <label for="area_${area}">${area}</label>
-                </div>
-            `;
-        });
-    } else if (scopeType === '指定库位') {
-        locations.forEach(location => {
-            html += `
-                <div class="scope-item" data-search="${location.toLowerCase()}">
-                    <input type="checkbox" id="location_${location}" value="${location}">
-                    <label for="location_${location}">${location}</label>
-                </div>
-            `;
-        });
-    } else if (scopeType === '指定容器') {
-        containers.forEach(container => {
-            html += `
-                <div class="scope-item" data-search="${container.toLowerCase()}">
-                    <input type="checkbox" id="container_${container}" value="${container}">
-                    <label for="container_${container}">${container}</label>
-                </div>
-            `;
-        });
-    }
+
+    getScopeDataByType(scopeType).forEach((item, index) => {
+        const scopeItemId = `scope_${index}_${item.value}`;
+        html += `
+            <div class="scope-item" data-search="${item.search}">
+                <input type="checkbox" id="${scopeItemId}" value="${item.value}">
+                <label for="${scopeItemId}">${item.label}</label>
+            </div>
+        `;
+    });
     
     html += '</div></div>';
     scopeContent.innerHTML = html;
@@ -1300,6 +1464,7 @@ function savePlan() {
         scopeType: scopeType,
         scopeDetails: scopeDetails,
         status: 'pending',
+        resultSubmitStatus: currentPlan ? Boolean(currentPlan.resultSubmitStatus) : false,
         creator: '管理员',
         createTime: new Date().toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-'),
         planTime: planTime.replace('T', ' '),
@@ -1329,6 +1494,7 @@ function savePlan() {
 // 关闭计划弹窗
 function closePlanModal() {
     document.getElementById('planModal').classList.remove('active');
+    closeScopeImportModal();
     currentPlan = null;
     isEditMode = false;
 }

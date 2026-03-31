@@ -149,6 +149,10 @@ let currentPage = 1;
 const pageSize = 10;
 let filteredData = [...inventoryData];
 let selectedItems = new Set();
+let selectedManualContainers = new Set();
+let selectedManualMaterials = new Set();
+let generatedManualOutboundTasks = [];
+let manualOutboundTaskSequence = 1;
 
 // 初始化
 document.addEventListener('DOMContentLoaded', function() {
@@ -203,6 +207,297 @@ function renderTable() {
 
     updatePagination();
     updateSelectAll();
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function getAvailableManualOutboundItems() {
+    return inventoryData.filter(item => item.status === '正常');
+}
+
+function getManualOutboundContainerData() {
+    const containerMap = new Map();
+
+    getAvailableManualOutboundItems().forEach(item => {
+        if (!containerMap.has(item.containerCode)) {
+            containerMap.set(item.containerCode, {
+                containerCode: item.containerCode,
+                containerType: item.containerType,
+                area: item.area,
+                locationCode: item.locationCode,
+                palletTime: item.palletTime,
+                materials: []
+            });
+        }
+
+        containerMap.get(item.containerCode).materials.push({
+            materialCode: item.materialCode,
+            materialName: item.materialName,
+            quantity: item.quantity,
+            itemId: item.id
+        });
+    });
+
+    return Array.from(containerMap.values()).sort((a, b) => a.containerCode.localeCompare(b.containerCode, 'zh-CN', { numeric: true }));
+}
+
+function getManualOutboundMaterialData() {
+    return getAvailableManualOutboundItems().slice().sort((a, b) => {
+        const materialCompare = a.materialCode.localeCompare(b.materialCode, 'zh-CN', { numeric: true });
+        if (materialCompare !== 0) return materialCompare;
+        return a.containerCode.localeCompare(b.containerCode, 'zh-CN', { numeric: true });
+    });
+}
+
+function updateManualContainerSelectAll() {
+    const checkboxes = document.querySelectorAll('#manualOutboundContainerBody .manual-container-checkbox');
+    const checkedCount = document.querySelectorAll('#manualOutboundContainerBody .manual-container-checkbox:checked').length;
+    const selectAll = document.getElementById('selectAllManualContainers');
+
+    selectAll.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
+    selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+}
+
+function updateManualMaterialSelectAll() {
+    const checkboxes = document.querySelectorAll('#manualOutboundMaterialBody .manual-material-checkbox');
+    const checkedCount = document.querySelectorAll('#manualOutboundMaterialBody .manual-material-checkbox:checked').length;
+    const selectAll = document.getElementById('selectAllManualMaterials');
+
+    selectAll.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
+    selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+}
+
+function renderManualOutboundContainerTable() {
+    const tbody = document.getElementById('manualOutboundContainerBody');
+    const containerData = getManualOutboundContainerData();
+
+    tbody.innerHTML = containerData.length > 0
+        ? containerData.map(container => `
+            <tr>
+                <td><input type="checkbox" class="manual-container-checkbox" value="${escapeHtml(container.containerCode)}" ${selectedManualContainers.has(container.containerCode) ? 'checked' : ''}></td>
+                <td>${container.containerCode}</td>
+                <td>${container.containerType}</td>
+                <td class="material-info-cell">${container.materials.map(material => `${escapeHtml(material.materialName)} × ${material.quantity}`).join('<br>')}</td>
+                <td>${container.area}</td>
+                <td>${container.locationCode}</td>
+                <td>${container.palletTime}</td>
+            </tr>
+        `).join('')
+        : `
+            <tr class="table-empty-row">
+                <td colspan="7">暂无可手动出库的容器数据</td>
+            </tr>
+        `;
+
+    tbody.querySelectorAll('.manual-container-checkbox').forEach(cb => {
+        cb.addEventListener('change', function() {
+            if (this.checked) {
+                selectedManualContainers.add(this.value);
+            } else {
+                selectedManualContainers.delete(this.value);
+            }
+            updateManualContainerSelectAll();
+        });
+    });
+
+    updateManualContainerSelectAll();
+}
+
+function renderManualOutboundMaterialTable() {
+    const tbody = document.getElementById('manualOutboundMaterialBody');
+    const materialData = getManualOutboundMaterialData();
+
+    tbody.innerHTML = materialData.length > 0
+        ? materialData.map(item => `
+            <tr>
+                <td><input type="checkbox" class="manual-material-checkbox" value="${item.id}" ${selectedManualMaterials.has(item.id) ? 'checked' : ''}></td>
+                <td>${item.materialCode}</td>
+                <td>${item.materialName}</td>
+                <td>${item.quantity}</td>
+                <td>${item.containerCode}</td>
+                <td>${item.containerType}</td>
+                <td>${item.area}</td>
+                <td>${item.locationCode}</td>
+                <td>${item.palletTime}</td>
+                <td>${item.inboundTime}</td>
+                <td>${item.age}</td>
+            </tr>
+        `).join('')
+        : `
+            <tr class="table-empty-row">
+                <td colspan="11">暂无可手动出库的物料数据</td>
+            </tr>
+        `;
+
+    tbody.querySelectorAll('.manual-material-checkbox').forEach(cb => {
+        cb.addEventListener('change', function() {
+            const id = Number(this.value);
+            if (this.checked) {
+                selectedManualMaterials.add(id);
+            } else {
+                selectedManualMaterials.delete(id);
+            }
+            updateManualMaterialSelectAll();
+        });
+    });
+
+    updateManualMaterialSelectAll();
+}
+
+function resetManualOutboundForm() {
+    document.getElementById('manualOutboundDimension').value = '';
+    document.getElementById('manualOutboundPort').value = '';
+    document.getElementById('manualOutboundContainerSection').classList.add('hidden');
+    document.getElementById('manualOutboundMaterialSection').classList.add('hidden');
+    document.getElementById('manualOutboundContainerBody').innerHTML = '';
+    document.getElementById('manualOutboundMaterialBody').innerHTML = '';
+    document.getElementById('selectAllManualContainers').checked = false;
+    document.getElementById('selectAllManualContainers').indeterminate = false;
+    document.getElementById('selectAllManualMaterials').checked = false;
+    document.getElementById('selectAllManualMaterials').indeterminate = false;
+    selectedManualContainers.clear();
+    selectedManualMaterials.clear();
+}
+
+function openManualOutboundModal() {
+    resetManualOutboundForm();
+    document.getElementById('manualOutboundModal').classList.add('active');
+}
+
+function closeManualOutboundModal() {
+    document.getElementById('manualOutboundModal').classList.remove('active');
+    resetManualOutboundForm();
+}
+
+function handleManualOutboundDimensionChange() {
+    const dimension = document.getElementById('manualOutboundDimension').value;
+    const containerSection = document.getElementById('manualOutboundContainerSection');
+    const materialSection = document.getElementById('manualOutboundMaterialSection');
+
+    selectedManualContainers.clear();
+    selectedManualMaterials.clear();
+    document.getElementById('selectAllManualContainers').checked = false;
+    document.getElementById('selectAllManualContainers').indeterminate = false;
+    document.getElementById('selectAllManualMaterials').checked = false;
+    document.getElementById('selectAllManualMaterials').indeterminate = false;
+
+    if (dimension === 'container') {
+        containerSection.classList.remove('hidden');
+        materialSection.classList.add('hidden');
+        renderManualOutboundContainerTable();
+        return;
+    }
+
+    if (dimension === 'material') {
+        materialSection.classList.remove('hidden');
+        containerSection.classList.add('hidden');
+        renderManualOutboundMaterialTable();
+        return;
+    }
+
+    containerSection.classList.add('hidden');
+    materialSection.classList.add('hidden');
+}
+
+function generateManualOutboundTaskNo() {
+    const now = new Date();
+    const datePart = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+    return `TASK-SD-${datePart}-${String(manualOutboundTaskSequence++).padStart(3, '0')}`;
+}
+
+function executeManualOutbound() {
+    const dimension = document.getElementById('manualOutboundDimension').value;
+    const port = document.getElementById('manualOutboundPort').value;
+
+    if (!dimension) {
+        alert('请选择出库维度！');
+        return;
+    }
+
+    if (!port) {
+        alert('请选择出库口！');
+        return;
+    }
+
+    let taskSummaries = [];
+
+    if (dimension === 'container') {
+        if (selectedManualContainers.size === 0) {
+            alert('请至少勾选一个容器！');
+            return;
+        }
+
+        const selectedContainerData = getManualOutboundContainerData().filter(container =>
+            selectedManualContainers.has(container.containerCode)
+        );
+
+        if (selectedContainerData.length === 0) {
+            alert('当前勾选容器已无可出库库存，请刷新后重试！');
+            return;
+        }
+
+        selectedContainerData.forEach(container => {
+            generatedManualOutboundTasks.push({
+                taskNo: generateManualOutboundTaskNo(),
+                dimension: '容器',
+                port,
+                containerCode: container.containerCode,
+                materials: container.materials.map(material => ({
+                    materialCode: material.materialCode,
+                    materialName: material.materialName,
+                    quantity: material.quantity
+                }))
+            });
+        });
+
+        inventoryData = inventoryData.filter(item =>
+            !(selectedManualContainers.has(item.containerCode) && item.status === '正常')
+        );
+        taskSummaries = selectedContainerData.map(container => `${container.containerCode} -> ${port}`);
+    } else {
+        if (selectedManualMaterials.size === 0) {
+            alert('请至少勾选一条物料明细！');
+            return;
+        }
+
+        const selectedMaterialData = getManualOutboundMaterialData().filter(item =>
+            selectedManualMaterials.has(item.id)
+        );
+
+        if (selectedMaterialData.length === 0) {
+            alert('当前勾选物料已无可出库库存，请刷新后重试！');
+            return;
+        }
+
+        selectedMaterialData.forEach(item => {
+            generatedManualOutboundTasks.push({
+                taskNo: generateManualOutboundTaskNo(),
+                dimension: '物料',
+                port,
+                containerCode: item.containerCode,
+                materialCode: item.materialCode,
+                materialName: item.materialName,
+                quantity: item.quantity
+            });
+        });
+
+        inventoryData = inventoryData.filter(item => !selectedManualMaterials.has(item.id));
+        taskSummaries = selectedMaterialData.map(item => `${item.materialCode}/${item.containerCode} -> ${port}`);
+    }
+
+    filteredData = [...inventoryData];
+    selectedItems.clear();
+    closeManualOutboundModal();
+    searchInventory();
+
+    alert(`手动出库任务已生成并执行！\n\n出库维度：${dimension === 'container' ? '容器' : '物料'}\n出库口：${port}\n任务数量：${taskSummaries.length}\n\n${taskSummaries.join('\n')}`);
 }
 
 // 更新分页
@@ -266,6 +561,39 @@ function initEventListeners() {
     
     // 导出
     document.getElementById('exportBtn').addEventListener('click', exportData);
+    document.getElementById('manualOutboundBtn').addEventListener('click', openManualOutboundModal);
+    document.getElementById('manualOutboundClose').addEventListener('click', closeManualOutboundModal);
+    document.getElementById('manualOutboundCancelBtn').addEventListener('click', closeManualOutboundModal);
+    document.getElementById('manualOutboundConfirmBtn').addEventListener('click', executeManualOutbound);
+    document.getElementById('manualOutboundDimension').addEventListener('change', handleManualOutboundDimensionChange);
+    document.getElementById('selectAllManualContainers').addEventListener('change', function() {
+        document.querySelectorAll('#manualOutboundContainerBody .manual-container-checkbox').forEach(cb => {
+            cb.checked = this.checked;
+            if (this.checked) {
+                selectedManualContainers.add(cb.value);
+            } else {
+                selectedManualContainers.delete(cb.value);
+            }
+        });
+        updateManualContainerSelectAll();
+    });
+    document.getElementById('selectAllManualMaterials').addEventListener('change', function() {
+        document.querySelectorAll('#manualOutboundMaterialBody .manual-material-checkbox').forEach(cb => {
+            cb.checked = this.checked;
+            const id = Number(cb.value);
+            if (this.checked) {
+                selectedManualMaterials.add(id);
+            } else {
+                selectedManualMaterials.delete(id);
+            }
+        });
+        updateManualMaterialSelectAll();
+    });
+    document.getElementById('manualOutboundModal').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) {
+            closeManualOutboundModal();
+        }
+    });
     
     // 分页按钮
     document.getElementById('prevPage').addEventListener('click', () => {

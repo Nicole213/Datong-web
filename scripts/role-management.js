@@ -10,6 +10,13 @@ const systemMenus = [
         permissions: ['查看']
     },
     {
+        id: 'workboard',
+        name: '作业看板',
+        icon: '📺',
+        isSingle: true,
+        permissions: ['查看']
+    },
+    {
         id: 'map',
         name: '库位地图',
         icon: '🗺️',
@@ -96,6 +103,15 @@ const systemMenus = [
         children: [
             { id: 'material', name: '物料管理', permissions: ['查看', '新增', '编辑', '删除'] },
             { id: 'container', name: '容器管理', permissions: ['查看', '新增', '编辑', '删除'] }
+        ]
+    },
+    {
+        id: 'log',
+        name: '日志管理',
+        icon: '🧾',
+        children: [
+            { id: 'interface-log', name: '接口日志', permissions: ['查看'] },
+            { id: 'inbound-log', name: '入库日志', permissions: ['查看'] }
         ]
     }
 ];

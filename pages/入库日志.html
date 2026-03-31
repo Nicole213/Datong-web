@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>入库日志</title>
+    <link rel="stylesheet" href="../styles/pages.css">
+    <link rel="stylesheet" href="../styles/inbound-log.css">
+</head>
+<body>
+    <div class="page-container inbound-log-page">
+        <div class="page-header">
+            <h1>入库日志</h1>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>入库单号：</label>
+                    <input type="text" class="filter-input" id="searchOrderNo" placeholder="请输入入库单号">
+                </div>
+                <div class="filter-group">
+                    <label>物料编码：</label>
+                    <input type="text" class="filter-input" id="searchMaterialCode" placeholder="请输入物料编码">
+                </div>
+                <div class="filter-group">
+                    <label>失败环节：</label>
+                    <select class="filter-select" id="searchStage">
+                        <option value="">全部</option>
+                        <option value="堆垛机入库取货失败">堆垛机入库取货失败</option>
+                        <option value="堆垛机入库失败">堆垛机入库失败</option>
+                        <option value="入库信息同步失败">入库信息同步失败</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>重试状态：</label>
+                    <select class="filter-select" id="searchRetryStatus">
+                        <option value="">全部</option>
+                        <option value="待重试">待重试</option>
+                        <option value="已告警">已告警</option>
+                        <option value="人工处理">人工处理</option>
+                    </select>
+                </div>
+                <button class="search-btn" id="searchBtn">查询</button>
+                <button class="reset-btn" id="resetBtn">重置</button>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th width="150">日志编号</th>
+                        <th width="140">入库单号</th>
+                        <th width="120">物料编码</th>
+                        <th width="160">物料名称</th>
+                        <th width="120">失败环节</th>
+                        <th width="320">失败原因</th>
+                        <th width="90">状态码</th>
+                        <th width="100">重试次数</th>
+                        <th width="120">重试状态</th>
+                        <th width="160">发生时间</th>
+                        <th width="160">最后重试</th>
+                        <th width="100">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="logTableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <button class="page-btn" id="prevPage">上一页</button>
+            <span class="page-info">第 <span id="currentPage">1</span> 页，共 <span id="totalPages">1</span> 页</span>
+            <button class="page-btn" id="nextPage">下一页</button>
+        </div>
+    </div>
+
+    <div class="modal" id="messageModal">
+        <div class="modal-content message-modal-content">
+            <div class="modal-header">
+                <h3>入库失败日志详情</h3>
+                <span class="modal-close" id="modalClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <label>日志编号</label>
+                        <div class="detail-value" id="detailLogNo">-</div>
+                    </div>
+                    <div class="detail-card">
+                        <label>入库单号</label>
+                        <div class="detail-value" id="detailOrderNo">-</div>
+                    </div>
+                    <div class="detail-card">
+                        <label>失败环节</label>
+                        <div class="detail-value" id="detailStage">-</div>
+                    </div>
+                    <div class="detail-card">
+                        <label>来源系统</label>
+                        <div class="detail-value" id="detailSourceSystem">-</div>
+                    </div>
+                    <div class="detail-card">
+                        <label>接口地址</label>
+                        <div class="detail-value detail-url" id="detailRequestUrl">-</div>
+                    </div>
+                    <div class="detail-card">
+                        <label>状态码</label>
+                        <div class="detail-value" id="detailStatusCode">-</div>
+                    </div>
+                    <div class="detail-card detail-card-wide">
+                        <label>失败原因</label>
+                        <div class="detail-value" id="detailFailureReason">-</div>
+                    </div>
+                </div>
+
+                <div class="message-section">
+                    <div class="message-item">
+                        <label>请求报文</label>
+                        <div class="message-value code-block" id="requestContent"></div>
+                    </div>
+                    <div class="message-item">
+                        <label>响应报文</label>
+                        <div class="message-value code-block" id="responseContent"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" id="closeBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/inbound-log.js"></script>
+</body>
+</html>
