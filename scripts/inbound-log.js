@@ -5,6 +5,7 @@ const inboundFailureLogs = [
         id: 1,
         logNo: 'INLOG-20260325-001',
         orderNo: 'RK-2026-001',
+        containerCode: 'TP-1021',
         materialCode: 'WL-2026-001',
         materialName: '标准周转箱',
         stage: '堆垛机入库取货失败',
@@ -34,6 +35,7 @@ const inboundFailureLogs = [
         id: 2,
         logNo: 'INLOG-20260325-002',
         orderNo: 'RK-2026-003',
+        containerCode: 'TP-2381',
         materialCode: 'WL-2026-005',
         materialName: '塑料托盘',
         stage: '堆垛机入库失败',
@@ -63,6 +65,7 @@ const inboundFailureLogs = [
         id: 3,
         logNo: 'INLOG-20260325-003',
         orderNo: 'RK-2026-006',
+        containerCode: 'TP-3268',
         materialCode: 'WL-2026-002',
         materialName: '电子料盒',
         stage: '入库信息同步失败',
@@ -91,6 +94,7 @@ const inboundFailureLogs = [
         id: 4,
         logNo: 'INLOG-20260325-004',
         orderNo: 'RK-2026-008',
+        containerCode: 'TP-4120',
         materialCode: 'WL-2026-012',
         materialName: '金属周转架',
         stage: '堆垛机入库取货失败',
@@ -119,6 +123,7 @@ const inboundFailureLogs = [
         id: 5,
         logNo: 'INLOG-20260325-005',
         orderNo: 'RK-2026-010',
+        containerCode: 'TP-5098',
         materialCode: 'WL-2026-018',
         materialName: '防静电托盘',
         stage: '堆垛机入库失败',
@@ -147,6 +152,7 @@ const inboundFailureLogs = [
         id: 6,
         logNo: 'INLOG-20260325-006',
         orderNo: 'RK-2026-011',
+        containerCode: 'TP-6186',
         materialCode: 'WL-2026-003',
         materialName: '周转托盘盖板',
         stage: '入库信息同步失败',
@@ -212,17 +218,17 @@ function initEventListeners() {
 
 function searchLogs() {
     const orderNo = document.getElementById('searchOrderNo').value.trim().toLowerCase();
-    const materialCode = document.getElementById('searchMaterialCode').value.trim().toLowerCase();
+    const containerCode = document.getElementById('searchContainerCode').value.trim().toLowerCase();
     const stage = document.getElementById('searchStage').value;
     const retryStatus = document.getElementById('searchRetryStatus').value;
 
     filteredData = inboundFailureLogs.filter(log => {
         const matchOrderNo = !orderNo || log.orderNo.toLowerCase().includes(orderNo);
-        const matchMaterialCode = !materialCode || log.materialCode.toLowerCase().includes(materialCode);
+        const matchContainerCode = !containerCode || (log.containerCode || '').toLowerCase().includes(containerCode);
         const matchStage = !stage || log.stage === stage;
         const matchRetryStatus = !retryStatus || log.retryStatus === retryStatus;
 
-        return matchOrderNo && matchMaterialCode && matchStage && matchRetryStatus;
+        return matchOrderNo && matchContainerCode && matchStage && matchRetryStatus;
     });
 
     currentPage = 1;
@@ -231,7 +237,7 @@ function searchLogs() {
 
 function resetSearch() {
     document.getElementById('searchOrderNo').value = '';
-    document.getElementById('searchMaterialCode').value = '';
+    document.getElementById('searchContainerCode').value = '';
     document.getElementById('searchStage').value = '';
     document.getElementById('searchRetryStatus').value = '';
 
@@ -246,7 +252,7 @@ function renderTable() {
     if (filteredData.length === 0) {
         tbody.innerHTML = `
             <tr class="empty-row">
-                <td colspan="12">未查询到匹配的入库失败日志记录</td>
+                <td colspan="11">未查询到匹配的入库失败日志记录</td>
             </tr>
         `;
         updatePagination();
@@ -261,8 +267,7 @@ function renderTable() {
         <tr>
             <td>${log.logNo}</td>
             <td>${log.orderNo}</td>
-            <td>${log.materialCode}</td>
-            <td>${log.materialName}</td>
+            <td>${log.containerCode || '-'}</td>
             <td><span class="stage-badge">${log.stage}</span></td>
             <td><div class="reason-text">${log.failureReason}</div></td>
             <td><span class="code-text">${log.statusCode}</span></td>

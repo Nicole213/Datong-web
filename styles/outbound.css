@@ -137,7 +137,7 @@
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1600px;
+    min-width: 1700px;
 }
 
 .data-table thead {
@@ -283,7 +283,7 @@
     flex-wrap: wrap;
 }
 
-.detail-btn, .edit-btn, .delete-btn, .force-btn, .void-btn {
+.detail-btn, .edit-btn, .delete-btn, .force-btn, .void-btn, .outbound-btn {
     padding: 0;
     border: none;
     background: none;
@@ -294,9 +294,17 @@
     text-decoration: none;
 }
 
-.detail-btn:hover, .edit-btn:hover, .delete-btn:hover, .force-btn:hover, .void-btn:hover {
+.detail-btn:hover, .edit-btn:hover, .delete-btn:hover, .force-btn:hover, .void-btn:hover, .outbound-btn:hover {
     color: #40a9ff;
     text-decoration: underline;
+}
+
+.outbound-btn {
+    color: #fa8c16;
+}
+
+.outbound-btn:hover {
+    color: #ffa940;
 }
 
 .void-btn {
@@ -499,6 +507,28 @@ textarea.form-input {
     font-family: inherit;
 }
 
+.port-outbound-tip {
+    padding: 12px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.port-outbound-tip.warning {
+    background: #fff7e6;
+    border-color: #ffd591;
+    color: #d46b08;
+}
+
+.port-outbound-tip.success {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #15803d;
+}
+
 /* 自动完成样式 */
 .autocomplete-wrapper {
     position: relative;
@@ -659,6 +689,11 @@ textarea.form-input {
 
 .material-image-empty {
     color: #bbb;
+}
+
+.detail-empty-row td {
+    text-align: center;
+    color: #999;
 }
 
 .image-viewer {

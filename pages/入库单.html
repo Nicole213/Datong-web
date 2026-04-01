@@ -94,7 +94,7 @@
                         <th width="80">状态</th>
                         <th width="100">接口同步状态</th>
                         <th width="150">创建时间</th>
-                        <th width="340">操作</th>
+                        <th width="430">操作</th>
                     </tr>
                 </thead>
                 <tbody id="inboundTableBody">
@@ -390,17 +390,8 @@
                     <tbody id="allocateMaterialBody">
                     </tbody>
                 </table>
-                
-                <div class="form-row">
-                    <div class="form-group" style="max-width: 300px;">
-                        <label class="required">选择入库口：</label>
-                        <select class="form-input" id="allocatePort" required>
-                            <option value="">请选择入库口</option>
-                            <option value="1号入库口">1号入库口</option>
-                            <option value="2号入库口">2号入库口</option>
-                        </select>
-                    </div>
-                </div>
+
+                <div class="warning-message">注意：本单据托盘分配仅支持一次操作，数量不足将无法补充分配，请谨慎确认。</div>
                 
                 <div class="section-title">
                     推荐托盘列表
@@ -454,6 +445,40 @@
             <div class="modal-footer">
                 <button class="modal-btn primary" id="confirmCustomBtn">确认选择</button>
                 <button class="modal-btn secondary" id="customCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 托盘出库弹窗 -->
+    <div class="modal" id="palletOutboundModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>托盘出库确认</h3>
+                <span class="modal-close" id="palletOutboundClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="section-title">入库单信息</div>
+                <div class="detail-info">
+                    <div class="info-item">
+                        <label>入库单号：</label>
+                        <span id="palletOutboundOrderNo">-</span>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="max-width: 300px;">
+                        <label class="required">选择入库口：</label>
+                        <select class="form-input" id="palletOutboundPort" required>
+                            <option value="">请选择入库口</option>
+                            <option value="1号入库口">1号入库口</option>
+                            <option value="2号入库口">2号入库口</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="port-outbound-tip" id="palletOutboundTip">请选择入库口后确认需要出库的托盘</div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="palletOutboundConfirmBtn">确认</button>
+                <button class="modal-btn secondary" id="palletOutboundCancelBtn">取消</button>
             </div>
         </div>
     </div>

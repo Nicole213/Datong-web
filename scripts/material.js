@@ -99,28 +99,11 @@ document.addEventListener('DOMContentLoaded', function() {
         '长物料钢托盘': 'long-steel-pallet'
     };
     const ratioKeyMap = {
+        '1': 'full',
         '1/2': 'half',
         '1/3': 'third',
         '1/4': 'quarter'
     };
-
-    function parseOptionalNumber(value, parser) {
-        const trimmedValue = value.trim();
-        return trimmedValue === '' ? null : parser(trimmedValue);
-    }
-
-    function formatMaterialSize(material) {
-        const values = [material.length, material.width, material.height];
-        if (values.every(value => value === null || value === undefined || value === '')) {
-            return '-';
-        }
-
-        return values.map(value => (value === null || value === undefined || value === '' ? '-' : value)).join('×');
-    }
-
-    function formatMaterialWeight(weight) {
-        return weight === null || weight === undefined || weight === '' ? '-' : weight;
-    }
 
     function formatContainerConfig(container) {
         const ratioText = container.ratio ? `${container.ratio}=${container.quantity}` : container.quantity;
@@ -186,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tbody.innerHTML = '';
 
         if (filteredMaterials.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: #999;">暂无数据</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #999;">暂无数据</td></tr>';
             return;
         }
 
@@ -196,8 +179,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${material.code}</td>
                 <td>${material.name}</td>
                 <td>${material.type}</td>
-                <td>${formatMaterialSize(material)}</td>
-                <td>${formatMaterialWeight(material.weight)}</td>
                 <td><img src="${material.photo}" class="material-photo" alt="物料照片"></td>
                 <td>
                     <div class="container-tags">
@@ -318,10 +299,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('materialCode').value = material.code;
         document.getElementById('materialName').value = material.name;
         document.getElementById('materialTypeInput').value = material.type;
-        document.getElementById('materialWeight').value = material.weight ?? '';
-        document.getElementById('materialLength').value = material.length ?? '';
-        document.getElementById('materialWidth').value = material.width ?? '';
-        document.getElementById('materialHeight').value = material.height ?? '';
 
         resetContainerConfig();
 
@@ -380,10 +357,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const code = document.getElementById('materialCode').value.trim();
         const name = document.getElementById('materialName').value.trim();
         const type = document.getElementById('materialTypeInput').value;
-        const weight = parseOptionalNumber(document.getElementById('materialWeight').value, parseFloat);
-        const length = parseOptionalNumber(document.getElementById('materialLength').value, parseInt);
-        const width = parseOptionalNumber(document.getElementById('materialWidth').value, parseInt);
-        const height = parseOptionalNumber(document.getElementById('materialHeight').value, parseInt);
 
         // 获取选中的容器类型和配置
         const checkboxes = document.querySelectorAll('input[name="container"]:checked');
@@ -435,10 +408,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 material.code = code;
                 material.name = name;
                 material.type = type;
-                material.weight = weight;
-                material.length = length;
-                material.width = width;
-                material.height = height;
                 material.containers = containers;
             }
             alert('修改成功！');
@@ -449,10 +418,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 code,
                 name,
                 type,
-                length,
-                width,
-                height,
-                weight,
                 photo: 'https://via.placeholder.com/60',
                 containers,
                 createTime: new Date().toLocaleString('zh-CN', { 

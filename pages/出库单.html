@@ -94,7 +94,7 @@
                         <th width="80">状态</th>
                         <th width="100">接口同步状态</th>
                         <th width="150">创建时间</th>
-                        <th width="340">操作</th>
+                        <th width="430">操作</th>
                     </tr>
                 </thead>
                 <tbody id="outboundTableBody">
@@ -311,17 +311,8 @@
                         <span id="manualAllocateOrderNo">-</span>
                     </div>
                 </div>
-                
-                <div class="form-row">
-                    <div class="form-group" style="max-width: 300px;">
-                        <label class="required">选择出库口：</label>
-                        <select class="form-input" id="manualAllocatePort" required>
-                            <option value="">请选择出库口</option>
-                            <option value="出库口1">出库口1</option>
-                            <option value="出库口2">出库口2</option>
-                        </select>
-                    </div>
-                </div>
+
+                <div class="warning-message">注意：本单据托盘分配仅支持一次操作，数量不足将无法补充分配，请谨慎确认。</div>
                 
                 <div class="section-title">订单需求</div>
                 <table class="detail-table">
@@ -432,11 +423,11 @@
         </div>
     </div>
 
-    <!-- 自动分配选择出库口弹窗 -->
+    <!-- 自动分配确认弹窗 -->
     <div class="modal" id="autoAllocatePortModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>自动分配 - 选择出库口</h3>
+                <h3>自动分配确认</h3>
                 <span class="modal-close" id="autoAllocatePortClose">&times;</span>
             </div>
             <div class="modal-body">
@@ -447,21 +438,46 @@
                         <span id="autoAllocateOrderNo">-</span>
                     </div>
                 </div>
-                
+
+                <div class="warning-message">注意：本单据托盘分配仅支持一次操作，数量不足将无法补充分配，请谨慎确认。</div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="confirmAutoAllocateBtn">确认分配</button>
+                <button class="modal-btn secondary" id="autoAllocatePortCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 托盘出库弹窗 -->
+    <div class="modal" id="palletOutboundModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>托盘出库确认</h3>
+                <span class="modal-close" id="palletOutboundClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="section-title">出库单信息</div>
+                <div class="detail-info">
+                    <div class="info-item">
+                        <label>出库单号：</label>
+                        <span id="palletOutboundOrderNo">-</span>
+                    </div>
+                </div>
                 <div class="form-row">
-                    <div class="form-group">
+                    <div class="form-group" style="max-width: 300px;">
                         <label class="required">选择出库口：</label>
-                        <select class="form-input" id="autoAllocatePort" required>
+                        <select class="form-input" id="palletOutboundPort" required>
                             <option value="">请选择出库口</option>
                             <option value="出库口1">出库口1</option>
                             <option value="出库口2">出库口2</option>
                         </select>
                     </div>
                 </div>
+                <div class="port-outbound-tip" id="palletOutboundTip">请选择出库口后确认需要出库的托盘</div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn primary" id="confirmAutoAllocateBtn">确认分配</button>
-                <button class="modal-btn secondary" id="autoAllocatePortCancelBtn">取消</button>
+                <button class="modal-btn primary" id="palletOutboundConfirmBtn">确认</button>
+                <button class="modal-btn secondary" id="palletOutboundCancelBtn">取消</button>
             </div>
         </div>
     </div>
