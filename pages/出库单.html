@@ -73,7 +73,8 @@
         <!-- 操作按钮区 -->
         <div class="action-bar">
             <button class="primary-btn" id="addBtn">➕ 新增出库单</button>
-            <button class="primary-btn" id="batchAllocateBtn" style="margin-left: 12px;">📦 批量分配</button>
+            <button class="primary-btn" id="batchAllocateBtn">📦 批量自动分配</button>
+            <button class="primary-btn" id="batchPalletOutboundBtn">🚚 批量托盘出库</button>
         </div>
 
         <!-- 表格区 -->
@@ -448,6 +449,31 @@
         </div>
     </div>
 
+    <!-- 批量自动分配确认弹窗 -->
+    <div class="modal" id="batchAutoAllocateModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>批量自动分配确认</h3>
+                <span class="modal-close" id="batchAutoAllocateClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="section-title">出库单信息</div>
+                <div class="detail-info detail-info-single batch-order-text-info">
+                    <div class="info-item batch-order-text-row">
+                        <label>出库单号：</label>
+                        <span id="batchAutoAllocateOrderText">-</span>
+                    </div>
+                </div>
+
+                <div class="warning-message">注意：本单据托盘分配仅支持一次操作，数量不足将无法补充分配，请谨慎确认。</div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="confirmBatchAutoAllocateBtn">确认分配</button>
+                <button class="modal-btn secondary" id="batchAutoAllocateCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 托盘出库弹窗 -->
     <div class="modal" id="palletOutboundModal">
         <div class="modal-content">
@@ -478,6 +504,55 @@
             <div class="modal-footer">
                 <button class="modal-btn primary" id="palletOutboundConfirmBtn">确认</button>
                 <button class="modal-btn secondary" id="palletOutboundCancelBtn">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量托盘出库确认弹窗 -->
+    <div class="modal" id="batchPalletOutboundModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>批量托盘出库确认</h3>
+                <span class="modal-close" id="batchPalletOutboundClose">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="section-title">出库单信息</div>
+                <div class="detail-info detail-info-single batch-order-text-info">
+                    <div class="info-item batch-order-text-row">
+                        <label>出库单号：</label>
+                        <span id="batchPalletOutboundOrderText">-</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="max-width: 300px;">
+                        <label class="required">选择出库口：</label>
+                        <select class="form-input" id="batchPalletOutboundPort" required>
+                            <option value="">请选择出库口</option>
+                            <option value="出库口1">出库口1</option>
+                            <option value="出库口2">出库口2</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="port-outbound-tip" id="batchPalletOutboundTip">请选择出库口后确认需要出库的托盘</div>
+
+                <div class="section-title">共用托盘信息</div>
+                <div class="section-subtext">当关联出库单较多时，可左右滑动查看完整信息。</div>
+                <div class="shared-pallet-table-wrap">
+                    <table class="detail-table shared-pallet-table">
+                        <thead>
+                            <tr id="batchSharedPalletHead">
+                                <th>容器编码</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batchSharedPalletBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary" id="confirmBatchPalletOutboundBtn">确认</button>
+                <button class="modal-btn secondary" id="batchPalletOutboundCancelBtn">取消</button>
             </div>
         </div>
     </div>
